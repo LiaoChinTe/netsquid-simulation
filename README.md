@@ -1,50 +1,40 @@
 # NetSquid Protocols
-Here are list of quantum protocol simulations made by NetSquid.
+Here are list of quantum network protocol simulations powered by NetSquid.
 
 
 
-## Code Structure
+## File Structure
 
-This part means to help readers understand the code.
-
-First of all, my code structure might not be the best one, I am open for discussion.
+This part means to help readers understand how we arrange the codes. This understanding is necessary if you want to contribute to this repository or build something on top of these codes. 
+This file structure might not be the best one for NetSquid simulation, I am open for discussion.
 All protocols follows the same code structure shown below:
 
-![NsProtocolCodeStructure](https://github.com/LiaoChinTe/netsquid-simulation/blob/main/FileStructure.png)
+![NsFileStructure](https://github.com/LiaoChinTe/netsquid-simulation/blob/main/FileStructure.png)
 
-The code is divided into blocks, each block defines functions related to their block definition.
+Gray boxes are folders, other colored cells are pyhton files.
+Reusable functions are located in 'lib/functions.py'.
+Therefore, one must be extreamly careful modifing it.
+
+The following 
 
 
-1. **Import libraries**
+- **function.py**
 
-  This block contains all import instructions, it may include other protocols as well.
+  Here we have functions and Quantum Programs that are reusable.
 
-2. **General Functions and Quantum Program Definition**
-
-  Functions and Quantum Programs that are reusable are listed here.
-  Planed to move this part to local library in the future.
-
-3. **Local Protocol Party A**
+- **ProtocolX_partyX.py**
 
   A customized local protocol representing one of the party.
 
-4. **Local Protocol Party B**
 
-  A customized local protocol representing another one of the party.
+- **ProtocolX_main.py**
 
-
-5. **Implementation and Hardware Configuration**
-
-  Implementation function includes hardware configuration and protocol function calls.
-  Hardware environment is configured/reconfigured right before every simulation.
-
-  Implementation function is used to run the same protocol several times,
-  then take average value of certain attribute of the protocol for statistical use.
+  The main function to run if you want to execute the simulation
 
 
-6. **Plot Function** -opt
+- **ProtocolX_plot.py** -optional
 
-  A function to plot statistical results of above protocol.
+  A function to plot statistical results of main function.
 
 
 # Quantum Protocol List
@@ -52,22 +42,22 @@ The code is divided into blocks, each block defines functions related to their b
 - BB84
 - E91/Ekert/EPR
 
-
-
 ## Quantum Money
 - Quantum Token
 - Quantum Cheque
 
 ## Quantum Teleportation
-- State Teleportation
+- Quantum State Teleportation
 
 ## Universal Blind Quantum Computing 
 - Verifiable Universal Blind Quantum Computing
 
+## Anonymous Transmission
+- W-state Anonymous Transmission
+
 ## Others
 - QLine
-- Quantum Memory
-- NetSquid Library
+- Quantum Memory test
 
 
 ## Contact
