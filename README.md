@@ -15,7 +15,6 @@ Gray boxes are folders, other colored cells are pyhton files.
 Reusable functions are located in 'lib/functions.py'.
 Therefore, one must be extreamly careful modifing it.
 
-The following 
 
 
 - **function.py**
