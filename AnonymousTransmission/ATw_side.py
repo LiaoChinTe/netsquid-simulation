@@ -43,14 +43,17 @@ class AT_Wstate_side(NodeProtocol):
         # Side measures the qubit in standard basis if not sender or receiver.
         if (self.sender==False) and (self.receiver==False) :
             print(self.processor.name)
-            self.myQMeasure = QMeasure([0])
-            self.processor.execute_program(self.myQMeasure,qubit_mapping=[0])
-            self.processor.set_program_done_callback(self.S_getPGoutput,once=True)
+            myQMeasure = QMeasure([0])
+            self.processor.execute_program(myQMeasure,qubit_mapping=[0])
             self.processor.set_program_fail_callback(ProgramFail,info=self.processor.name,once=True)
+
+
+            yield self.await_program(processor=self.processor)
+            self.wStateResult = myQMeasure.output['0'][0]
         else:
+            yield self.await_program(processor=self.processor)
             print("else case")
-        
-        yield self.await_program(processor=self.processor)
+    
         print("self.wStateResult: ",self.wStateResult)
         
         
@@ -64,8 +67,4 @@ class AT_Wstate_side(NodeProtocol):
         else:
             print("I am normal side node")
             
-
-    def S_getPGoutput(self):
-        self.wStateResult=getPGoutput(self.myQMeasure)
-        #print("wStateResult:",self.wStateResult)
 

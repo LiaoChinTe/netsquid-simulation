@@ -312,24 +312,3 @@ def ProgramFail(info):
     
 
     
-'''
-input:
-    Pg: A quantum program (QuantumProgram)
-output:
-    resList: A list of outputs from the given quantum program, 
-    also sorted by key.(list of int)
-'''
-
-def getPGoutput(Pg):
-    resList=[]
-    tempDict=Pg.output
-    if "last" in tempDict:
-        del tempDict["last"]
-        
-    # sort base on key
-    newDict=sorted({int(k) : v for k, v in tempDict.items()}.items())
-    
-    #take value
-    for k, v in newDict:
-        resList.append(v[0])
-    return resList
