@@ -21,13 +21,14 @@ Center node
 class AT_Wstate_center(NodeProtocol):
 
     
-    def __init__(self,node,processor,numNode,portQlist): 
+    def __init__(self,node,processor,numNode,portQlist,portClist): 
         super().__init__()
         self.numNode=numNode
         self.node=node
         self.processor=processor
         self.portQlist=portQlist
-        
+        self.portClist=portClist
+
         self.sourceQList=[]
         
         
@@ -38,15 +39,32 @@ class AT_Wstate_center(NodeProtocol):
         
         
     def run(self):
-        print("center run~")
+        print("C center run~")
         
         self.C_genQubits(self.numNode) # make W state too
         
         yield self.await_program(processor=self.processor)
-        print("w state finished")
+        print("C w-state qubits generation done, distributing qubits...")
         
         self.C_sendWstate()
         
+        print("C all ports:",self.portClist)
+
+        # wait for measurement results
+        print("C waiting for measurement results from port ",self.portClist[3])
+        port = self.node.ports[self.portClist[3]]
+        yield self.await_port_input(port)
+        res=port.rx_input().items[0]
+        print("C center received mes res:",res)
+
+
+
+        '''
+        port = self.node.ports[self.portClist[2]]
+        yield self.await_port_input(port)
+        res=port.rx_input().items[0]
+        print("C center received mes res:",res)
+        '''
         #yield self.await_program(processor=self.processor)
         #print("qubit gen finished")
         
@@ -54,7 +72,7 @@ class AT_Wstate_center(NodeProtocol):
     def storeSourceOutput(self,qubit):
         self.sourceQList.append(qubit.items[0])
         if len(self.sourceQList)==self.numNode:
-            print("sourceQList:",self.sourceQList,"putting in Qmem")
+            print("C sourceQList:",self.sourceQList,"putting in Qmem")
             self.processor.put(qubits=self.sourceQList)
             
             myMakeWstate = makeWstate(self.numNode)
@@ -76,11 +94,11 @@ class AT_Wstate_center(NodeProtocol):
     
     
     def C_sendWstate(self):
-        print("C_sendWstate")
+        print("C in C_sendWstate")
         
         for i in reversed(range(self.numNode)):
             payload=self.processor.pop(i)
-            #print("i:",i," payload:",payload)
-            #print("portQlist[i]: ",self.portQlist[i])
+            print("C i:",i," payload:",payload)
+            print("C output from center port: ",self.portQlist[i])
             self.node.ports[self.portQlist[i]].tx_output(payload)
             
