@@ -58,10 +58,10 @@ class AT_Wstate_side(NodeProtocol):
             print("S res ID:",self.id,"self.wStateResult: ",self.wStateResult)
 
 
-            if self.id==3:
+            #if self.id==3:
                 # send result to center
-                print("S sending classical message from", self.portClist[0]," to center...")
-                self.node.ports[self.portClist[0]].tx_output(self.wStateResult)
+            print("S sending classical message from", self.portClist[0]," to center...")
+            self.node.ports[self.portClist[0]].tx_output(self.wStateResult)
 
 
         else:

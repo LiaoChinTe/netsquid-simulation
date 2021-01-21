@@ -80,9 +80,6 @@ def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmod
             remote_port_name=sideNodeList[i].ports["PortQside"].name)
 
 
-
-        ###!!!
-        
         tmpRemotePortName="PortCcenter_"+str(i)
         #print("connecting classical channel:",i," side node:",sideNodeList[i].name," channel:",CchannelList[i].name,"remote port:", tmpRemotePortName )
         sideNodeList[i].connect_to(CenterNode, CchannelList[i],

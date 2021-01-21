@@ -52,19 +52,20 @@ class AT_Wstate_center(NodeProtocol):
 
         # wait for measurement results
         print("C waiting for measurement results from port ",self.portClist[3])
-        port = self.node.ports[self.portClist[3]]
-        yield self.await_port_input(port)
-        res=port.rx_input().items[0]
-        print("C center received mes res:",res)
+        
+
+        resultsCollector=[]
+        for i in range(self.numNode-1,1,-1):
+            port = self.node.ports[self.portClist[i]]
+            yield self.await_port_input(port)
+            res=port.rx_input().items[0]
+            #print("C center port ",i," received mes res:",res)
+            resultsCollector.append(res)
+
+        print("C resultsCollector:",resultsCollector)
+        
 
 
-
-        '''
-        port = self.node.ports[self.portClist[2]]
-        yield self.await_port_input(port)
-        res=port.rx_input().items[0]
-        print("C center received mes res:",res)
-        '''
         #yield self.await_program(processor=self.processor)
         #print("qubit gen finished")
         
