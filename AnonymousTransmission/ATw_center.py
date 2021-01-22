@@ -64,6 +64,11 @@ class AT_Wstate_center(NodeProtocol):
 
         print("C resultsCollector:",resultsCollector)
         
+        if sum(resultsCollector)>=1:
+            print("C protocol aborted")
+            return 1
+        else:
+            print("C start teleportation")
 
 
         #yield self.await_program(processor=self.processor)
