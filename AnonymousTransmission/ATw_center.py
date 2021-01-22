@@ -56,7 +56,7 @@ class AT_Wstate_center(NodeProtocol):
 
         resultsCollector=[]
         for i in range(self.numNode-1,1,-1):
-            port = self.node.ports[self.portClist[i]]
+            port = self.node.ports["PortCcenter1_"+str(i)]
             yield self.await_port_input(port)
             res=port.rx_input().items[0]
             #print("C center port ",i," received mes res:",res)
@@ -66,10 +66,14 @@ class AT_Wstate_center(NodeProtocol):
         
         if sum(resultsCollector)>=1:
             print("C protocol aborted")
-            return 1
+            for i in range(self.numNode):
+                payload="Abort"
+                self.node.ports["PortCcenter2_"+str(i)].tx_output(payload)
         else:
-            print("C start teleportation")
-
+            print("C send approval to all sideNodes")
+            for i in range(self.numNode):
+                payload="Approved"
+                self.node.ports["PortCcenter2_"+str(i)].tx_output(payload)
 
         #yield self.await_program(processor=self.processor)
         #print("qubit gen finished")

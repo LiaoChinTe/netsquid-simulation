@@ -18,7 +18,8 @@ Side nodes
 
 class AT_Wstate_side(NodeProtocol):
     
-    def __init__(self,node,processor,id,sender=False,receiver=False,portQlist=["PortQside"],portClist=["PortCside"]): 
+    def __init__(self,node,processor,id,sender=False,receiver=False
+        ,portQlist=["PortQside"],portClist=["PortCside1","PortCside2"]): 
         super().__init__()
         self.node=node
         self.processor=processor
@@ -68,8 +69,11 @@ class AT_Wstate_side(NodeProtocol):
             print("S else case")
             #yield self.await_program(processor=self.processor)
             
-    
-        
+        port=self.node.ports["PortCside2"]
+        yield self.await_port_input(port)
+        rec = port.rx_input().items
+        print("S ID:",self.id," I received ans:",rec)
+
         
         
         
