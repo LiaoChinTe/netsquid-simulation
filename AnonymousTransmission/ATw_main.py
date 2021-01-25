@@ -48,7 +48,13 @@ def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmod
         sideProcessorList.append(createProcessorAT(name="ProcessorSide_"+str(i)))
         
         ### nodes=====================================================================
-        sideNodeList.append(Node("Node_"+str(i), port_names=["PortQside","PortCside1","PortCside2"]))
+        #### add additional ports for teleportation
+        if i == senderID:
+            sideNodeList.append(Node("Node_"+str(i), port_names=["PortQside","PortCside1","PortCside2","PortTele_S"]))
+        elif i == receiverID:
+            sideNodeList.append(Node("Node_"+str(i), port_names=["PortQside","PortCside1","PortCside2","PortTele_R"]))
+        else:
+            sideNodeList.append(Node("Node_"+str(i), port_names=["PortQside","PortCside1","PortCside2"]))
         
         ### channels, Quantum and calssical=============================================
         QchannelList.append(QuantumChannel("QChannel_Center->Side_"+str(i),delay=10,length=fibre_len
@@ -58,6 +64,9 @@ def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmod
 
         CchannelList1.append(ClassicalChannel("CChannel_Side->Center_"+str(i),delay=10,length=fibre_len))
         CchannelList2.append(ClassicalChannel("CChannel_Center->Side_"+str(i),delay=10,length=fibre_len))
+
+        #### add channel for teleportation
+        myTeleportChannel=ClassicalChannel("CChannel_Sender->Receiver",delay=10,length=fibre_len)
 
         ### record port list for center node===========================================
         centerQPortNameList.append("PortQcenter_"+str(i))
@@ -77,24 +86,26 @@ def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmod
 
     ## connect(depend on scale)==================================================================
     for i in range(numNodes):    
+        ### Quantum Center to side
         CenterNode.connect_to(sideNodeList[i], QchannelList[i],
             local_port_name =CenterNode.ports["PortQcenter_"+str(i)].name,
             remote_port_name=sideNodeList[i].ports["PortQside"].name)
 
-
+        ### Classical side to Center
         tmpRemotePortName="PortCcenter1_"+str(i)
         #print("connecting classical channel:",i," side node:",sideNodeList[i].name," channel:",CchannelList1[i].name,"remote port:", tmpRemotePortName )
         sideNodeList[i].connect_to(CenterNode, CchannelList1[i],
             local_port_name="PortCside1", remote_port_name=tmpRemotePortName)
         
-        
+        ### Classical Center to side
         tmpRemotePortName="PortCcenter2_"+str(i)
         #print("connecting classical channel:",i," side node:",sideNodeList[i].name," channel:",CchannelList2[i].name,"remote port:", tmpRemotePortName )
         CenterNode.connect_to(sideNodeList[i], CchannelList2[i],
             local_port_name=tmpRemotePortName , remote_port_name="PortCside2")
         
-        
-        
+    ### Classical teleport channel
+    sideNodeList[senderID].connect_to(sideNodeList[receiverID], myTeleportChannel,
+        local_port_name="PortTele_S", remote_port_name="PortTele_R")
     
 
 
@@ -108,10 +119,12 @@ def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmod
     for i in range(numNodes):
         if i==senderID:
             # create sender
-            myProtocol_sideList.append(AT_Wstate_side(sideNodeList[i],sideProcessorList[i],id=i,  sender=True))
+            myProtocol_sideList.append(AT_Wstate_side(sideNodeList[i],sideProcessorList[i],id=i,  sender=True,
+            portClist=["PortCside1","PortCside2","PortTele_S"]))
         elif i==receiverID:
             # create receiver
-            myProtocol_sideList.append(AT_Wstate_side(sideNodeList[i],sideProcessorList[i],id=i,receiver=True))
+            myProtocol_sideList.append(AT_Wstate_side(sideNodeList[i],sideProcessorList[i],id=i,receiver=True,
+            portClist=["PortCside1","PortCside2","PortTele_R"]))
         else:
             # create normal side node
             myProtocol_sideList.append(AT_Wstate_side(sideNodeList[i],sideProcessorList[i],id=i))

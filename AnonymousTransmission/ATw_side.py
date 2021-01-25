@@ -74,10 +74,19 @@ class AT_Wstate_side(NodeProtocol):
         rec = port.rx_input().items
         print("S ID:",self.id," I received ans:",rec)
 
+        '''
+        # test
+        if self.sender == True:
+            self.node.ports[self.portClist[2]].tx_output("ttest")
+        elif self.receiver == True:
+            port=self.node.ports[self.portClist[2]]
+            yield self.await_port_input(port)
+            rec = port.rx_input().items
+            print("S ID:",self.id," I received test:",rec)
+        else:
+            print("else case")
+        '''
         
-        
-        
-        #self.portClist[0]
         
     def showIdentity(self):
         if self.sender==True:
