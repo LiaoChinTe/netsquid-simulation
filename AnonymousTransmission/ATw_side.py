@@ -1,10 +1,15 @@
 from netsquid.protocols import NodeProtocol
-
+from netsquid.qubits.operators import X,H,Z,CNOT
 
 import sys
 scriptpath = "../lib/"
 sys.path.append(scriptpath)
 from functions import *
+
+QTpath = "../QuantumTeleportation/"
+sys.path.append(QTpath)
+from sender_QT import *
+from receiver_QT import *
 
 
 
@@ -32,7 +37,7 @@ class AT_Wstate_side(NodeProtocol):
         self.portClist=portClist
 
         self.wStateResult=None
-        
+        self.receivedState=None
         
     def run(self):
         #print(self.processor.name)
@@ -74,6 +79,10 @@ class AT_Wstate_side(NodeProtocol):
         rec = port.rx_input().items
         print("S ID:",self.id," I received ans:",rec)
 
+        if rec[0] == 'Abort':
+            print("Aborting!")
+            return 1
+
         '''
         # test
         if self.sender == True:
@@ -86,6 +95,32 @@ class AT_Wstate_side(NodeProtocol):
         else:
             print("else case")
         '''
+
+
+        # make original qubits
+        oriQubit = create_qubits(1)[0]
+        #operate(oriQubit, X)
+        #print("oriQubit:",oriQubit)
+        # make 
+        if self.sender == True:
+            print("S sender teleporting")
+            myQT_Sender = QuantumTeleportationSender(node=self.node,
+                processor=self.processor,SendQubit=oriQubit,EPR_1=self.processor.pop(0)[0],portNames=["PortTele_S"])
+            
+            myQT_Sender.start()
+
+        elif self.receiver == True:
+            print("S receiver teleporting")
+            myQT_Receiver = QuantumTeleportationReceiver(node=self.node,
+                processor=self.processor,EPR_2=self.processor.pop(0)[0],portNames=["PortTele_R"])
+            myQT_Receiver.start()
+
+            self.receivedState=myQT_Receiver.receivedState
+            #print("S self.receivedState:",self.receivedState)
+        else:
+            print("else case")
+
+
         
         
     def showIdentity(self):

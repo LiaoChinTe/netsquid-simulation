@@ -140,6 +140,7 @@ def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmod
     #ns.logger.setLevel(1)
     ns.sim_run()
     
+    print("MAIN final receivedState:",myProtocol_sideList[1].receivedState)
 
 
 
