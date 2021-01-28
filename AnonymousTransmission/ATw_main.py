@@ -77,7 +77,7 @@ def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmod
     allCenterPorts=[]
     allCenterPorts.extend(centerQPortNameList)
     allCenterPorts.extend(centerCPortNameList)
-    print("allCenterPorts: ",allCenterPorts)
+    #print("allCenterPorts: ",allCenterPorts)
 
     CenterNode=Node("CenterNode", port_names=allCenterPorts)
     CenterProcessor=createProcessorAT(name="ProcessorCenter")
@@ -140,10 +140,10 @@ def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmod
     #ns.logger.setLevel(1)
     ns.sim_run()
     
-    print("MAIN final receivedState:",myProtocol_sideList[1].receivedState)
-
-
-
+    if myProtocol_sideList[1].myQT_Receiver :
+        print("MAIN final receivedState:",myProtocol_sideList[1].myQT_Receiver.receivedState)
+    else:
+        print("Aborted!!")
 
 #test
 run_AT_sim(numNodes=4,fibre_len=10**-9

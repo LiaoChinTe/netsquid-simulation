@@ -50,16 +50,18 @@ class TP_ReceiverAdjust(QuantumProgram):
         
 class QuantumTeleportationReceiver(NodeProtocol):
     
-    def __init__(self,node,processor,EPR_2,portNames=["portC_Receiver"]): 
+    def __init__(self,node,processor,EPR_2,portNames=["portC_Receiver"],bellState=1): 
         super().__init__()
         self.node=node
         self.processor=processor
+        self.bellState=bellState
+
         self.resultQubit=EPR_2
         self.portNameCR1=portNames[0]
         self.receivedState=None
         #set_qstate_formalism(QFormalism.DM)
         
-        print("R store EPR to memory: ",self.resultQubit)
+        #print("R store EPR to memory: ",self.resultQubit)
         self.processor.put(self.resultQubit)
         
     def run(self):
@@ -67,10 +69,10 @@ class QuantumTeleportationReceiver(NodeProtocol):
         port=self.node.ports[self.portNameCR1]
         yield self.await_port_input(port)
         res=port.rx_input().items
-        print("R get results:", res)
+        #print("R get results:", res)
         
         # edit EPR2 according to res
-        myTP_ReceiverAdjust=TP_ReceiverAdjust(3,res)
+        myTP_ReceiverAdjust=TP_ReceiverAdjust(self.bellState,res)
         self.processor.execute_program(myTP_ReceiverAdjust,qubit_mapping=[0])
         #self.processor.set_program_done_callback(self.show_state,once=True)
         self.processor.set_program_fail_callback(ProgramFail,once=True)
@@ -83,7 +85,7 @@ class QuantumTeleportationReceiver(NodeProtocol):
 
         yield self.await_program(processor=self.processor)
         self.receivedState = myMeasurement.output['0'][0]
-        print("R mes res :", self.receivedState)
+        #print("R mes res :", self.receivedState)
 
 
 
@@ -92,15 +94,4 @@ class QuantumTeleportationReceiver(NodeProtocol):
         set_qstate_formalism(QFormalism.DM)
         tmp=self.processor.pop(0)[0]
         print("R tmp:",tmp)
-        print("R tmp type:",type(tmp))
-        print("R tmp qstate:",tmp.qstate)
-        #print("R tmp qubitapi:",tmp.qubitapi)
-        #print("R tmp qstate qrepr:",tmp.qstate.qrepr)
-        
-
-        '''
-        if tmp:
-            print("R None in processor")
-        else:
-        '''
         #print("R final state:",tmp.qstate.dm)

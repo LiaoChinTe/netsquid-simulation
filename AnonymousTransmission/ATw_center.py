@@ -39,19 +39,19 @@ class AT_Wstate_center(NodeProtocol):
         
         
     def run(self):
-        print("C center run~")
+        #print("C center run~")
         
         self.C_genQubits(self.numNode) # make W state too
         
         yield self.await_program(processor=self.processor)
-        print("C w-state qubits generation done, distributing qubits...")
+        #print("C w-state qubits generation done, distributing qubits...")
         
         self.C_sendWstate()
         
-        print("C all ports:",self.portClist)
+        #print("C all ports:",self.portClist)
 
         # wait for measurement results
-        print("C waiting for measurement results from port ",self.portClist[3])
+        #print("C waiting for measurement results from port ",self.portClist[3])
         
 
         resultsCollector=[]
@@ -62,27 +62,27 @@ class AT_Wstate_center(NodeProtocol):
             #print("C center port ",i," received mes res:",res)
             resultsCollector.append(res)
 
-        print("C resultsCollector:",resultsCollector)
+        #print("C resultsCollector:",resultsCollector)
         
         if sum(resultsCollector)>=1:
-            print("C protocol aborted")
+            #print("C protocol aborted")
             for i in range(self.numNode):
                 payload="Abort"
                 self.node.ports["PortCcenter2_"+str(i)].tx_output(payload)
+            return 1
         else:
-            print("C send approval to all sideNodes")
+            #print("C send approval to all sideNodes")
             for i in range(self.numNode):
                 payload="Approved"
                 self.node.ports["PortCcenter2_"+str(i)].tx_output(payload)
 
-        #yield self.await_program(processor=self.processor)
         #print("qubit gen finished")
-        
+        return 0
         
     def storeSourceOutput(self,qubit):
         self.sourceQList.append(qubit.items[0])
         if len(self.sourceQList)==self.numNode:
-            print("C sourceQList:",self.sourceQList,"putting in Qmem")
+            #print("C sourceQList:",self.sourceQList,"putting in Qmem")
             self.processor.put(qubits=self.sourceQList)
             
             myMakeWstate = makeWstate(self.numNode)
@@ -104,11 +104,11 @@ class AT_Wstate_center(NodeProtocol):
     
     
     def C_sendWstate(self):
-        print("C in C_sendWstate")
+        #print("C in C_sendWstate")
         
         for i in reversed(range(self.numNode)):
             payload=self.processor.pop(i)
-            print("C i:",i," payload:",payload)
-            print("C output from center port: ",self.portQlist[i])
+            #print("C i:",i," payload:",payload)
+            #print("C output from center port: ",self.portQlist[i])
             self.node.ports[self.portQlist[i]].tx_output(payload)
             
