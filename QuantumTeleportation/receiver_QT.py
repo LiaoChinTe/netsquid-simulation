@@ -32,10 +32,10 @@ class TP_ReceiverAdjust(QuantumProgram):
                 self.apply(INSTR_X, 0)
 
         elif self.bellState == 3:
-            if self.adjBase[0]==0:
+            if self.adjBase[0]==1:
                 self.apply(INSTR_Z, 0)  
             
-            if self.adjBase[1]==1:
+            if self.adjBase[1]==0:
                 self.apply(INSTR_X, 0)
 
 
