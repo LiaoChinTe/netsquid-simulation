@@ -17,23 +17,26 @@ By doing so, it is not literary anonymous anymore. However it does not really af
 
 ## Protocol Steps
 
-1. Sender and receiver are assigned before the protocol starts
+1. Sender and receiver are assigned before the protocol starts.
 2. The **centerNode** (trusted third party) distributes 4-parties W state, and send to all **sideNodes**.
 3. All **sideNodes** apart from sender and receiver perform standard basis measurement. Send the result to CenterNode.
-4. CenterNode gethers all measurment results, abort protocol if any none=zero outcome is seen.
-5. Sender is now able to teleport its quantum state to the receiver via the w-state qubits.
+4. CenterNode gethers all measurment results, abort protocol if any none-zero results from measurements. Continue only if all results are 0.
+5. Sender node apply Sender Quantum Teleportation protocol, While receiver node apply Receiver Quantum Teleportation protocol.
+6. Receiver can verify the received qubit state.
 
 
 
 ## To Do
 
-- Import Quantum Teleportation.
+- Extend scale of participants.
 
 
 ## Status
 
 Works on NetSquid version 0.10.
 
+28/01/2021
+- Finished importing Quantum Teleportation, and ready to run with 4 parties.
 
 15/01/2021
 - Finished all steps before teleportation
