@@ -7,7 +7,7 @@ Author: ChinTe LIAO (liao.chinte@veriqloud.fr)
 According to different Bell states shared between sender and receiver, 
 different adjustment on receiver's side should be applied.
 
-![Bell_states](https://github.com/LiaoChinTe/netsquid-simulation/blob/main/Bell_states.png)
+![Bell_states](https://github.com/LiaoChinTe/netsquid-simulation/blob/main/QuantumTeleportation/Bell_states.png)
 *-from https://en.wikipedia.org/wiki/Bell_state*
 
 
