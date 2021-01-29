@@ -8,6 +8,7 @@ According to different Bell states shared between sender and receiver,
 different adjustment on receiver's side should be applied.
 
 ![Bell_states](https://github.com/LiaoChinTe/netsquid-simulation/blob/main/QuantumTeleportation/Bell_states.png)
+
 *-from https://en.wikipedia.org/wiki/Bell_state*
 
 
@@ -41,7 +42,7 @@ https://wiki.veriqloud.fr/index.php?title=Quantum_Teleportation
 Works on NetSquid version 0.10.
 
 28/01/2021
-- Add Bell State parameter, currently accept two Bell States. 
+- Add Bell State parameter, currently accept two Bell States. (case 1 and 3)
 
 22/01/2021
 - Upload first version
