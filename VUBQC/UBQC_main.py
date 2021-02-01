@@ -119,22 +119,18 @@ def run_UBQC_sim(runtimes=1,fibre_len=10**-9,processorNoiseModel=None,memNoiseMm
             PhysicalInstruction(INSTR_Rv337, duration=1, parallel=True)])
 
 
-        # channels==================================================================
+        # Quantum channels==================================================================
         
         
-        MyQChannel=QuantumChannel("QChannel_S->C",delay=0
-            ,length=fibre_len
+        MyQChannel=QuantumChannel("QChannel_S->C",delay=0,length=fibre_len
             ,models={"quantum_loss_model": FibreLossModel(p_loss_init=loss_init, p_loss_length=loss_len, rng=None)
             ,"delay_model": FibreDelayModel(c=QChV)})
-        
-        
-        
         
         nodeServer.connect_to(nodeClient, MyQChannel,
             local_port_name =nodeServer.ports["portQS_1"].name,
             remote_port_name=nodeClient.ports["portQC_1"].name)
         
-
+        # Classical channels ========================================================
         MyCChannel = ClassicalChannel("CChannel_C->S",delay=0
             ,length=fibre_len)
         MyCChannel2= ClassicalChannel("CChannel_S->C",delay=0
@@ -167,8 +163,7 @@ def run_UBQC_sim(runtimes=1,fibre_len=10**-9,processorNoiseModel=None,memNoiseMm
 
 
 '''
-res=run_UBQC_sim(runtimes=1,fibre_len=10**-9
+res=run_UBQC_sim(runtimes=5,fibre_len=10**-9
     ,processorNoiseModel=None,memNoiseMmodel=None,loss_init=0,loss_len=0)
-
-print(res)
 '''
+#print(res)

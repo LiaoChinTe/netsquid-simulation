@@ -32,7 +32,7 @@ def UBQC_plot():
     
     
     plt.legend()
-    plt.savefig('plot6.png')
+    plt.savefig('plot7.png')
     plt.show()
 
 

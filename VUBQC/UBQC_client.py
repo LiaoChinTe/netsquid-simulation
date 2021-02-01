@@ -10,7 +10,14 @@ from functions import *
 
 class ProtocolClient(NodeProtocol):
     
-    
+    def showValues(self):
+
+        print("z1:", self.z1," z2:",self.z2," p1:",self.p1," p2:",self.p2
+            ," theta1:",self.theta1," theta2:",self.theta2," r1:",self.r1
+            ," r2:",self.r2," delta1:",self.delta1," delta2:",self.delta2
+            ," m1:",self.m1," m2:",self.m2
+            ," verified:",self.verified," d:",self.d)
+
             
     def ProgramFail(self):
         print("C programe failed!!")
@@ -78,7 +85,7 @@ class ProtocolClient(NodeProtocol):
             self.theta2=randint(0,7)
             self.r2=randint(0,1)
             # measured by theta2
-            myAngleMeasure=AngleMeasure([0],[self.theta2])
+            myAngleMeasure=AngleMeasure([0],[-self.theta2])
             self.processor.execute_program(myAngleMeasure,qubit_mapping=[0])
             self.processor.set_program_fail_callback(self.ProgramFail,once=True)
             yield self.await_program(processor=self.processor)
@@ -138,7 +145,7 @@ class ProtocolClient(NodeProtocol):
             self.theta1=randint(0,7)
             self.r1=randint(0,1)
             # measure by theta1
-            myAngleMeasure=AngleMeasure([1],[self.theta1]) # first qubit
+            myAngleMeasure=AngleMeasure([1],[-self.theta1]) # first qubit
             self.processor.execute_program(myAngleMeasure,qubit_mapping=[0,1])
             self.processor.set_program_fail_callback(self.ProgramFail,once=True)
             
@@ -177,10 +184,10 @@ class ProtocolClient(NodeProtocol):
         #---------------------------------------------------------------------
         if self.d==1:
             self.delta1=randint(0,7)                      # scale x8 ; 1 = 22.5 degree
-            self.delta2=self.theta2+(self.p2+self.r2)*8
+            self.delta2=self.theta2+(self.z1+self.p2+self.r2)*8
             self.delta2%=16
         else:    
-            self.delta1=self.theta1+(self.p1+self.r1)*8
+            self.delta1=self.theta1+(self.z2+self.p1+self.r1)*8
             self.delta1%=16
             self.delta2=randint(0,7)
         #print("C delta1 delta2:",self.delta1,self.delta2)
@@ -216,15 +223,23 @@ class ProtocolClient(NodeProtocol):
         #  else Not verified.
         #---------------------------------------------------------------------
         if self.d==1:
-            if (self.z1+self.r2)%2== self.m2:
+            if (self.z1+self.r2+self.p2)%2== self.m2:
                 self.verified=True
             else:
                 self.verified=False
             #print("z1,r2,m2:",self.z1,self.r2,self.m2)
         else: # d==2 case 
-            if (self.z2+self.r1)%2== self.m1:
+            if (self.z2+self.r1+self.p1)%2== self.m1:
                 self.verified=True
             else:
                 self.verified=False
             #print("z2,r1,m1:",self.z2,self.r1,self.m1)
+
+
+
+        #debug
+        '''
+        if self.verified==False:
+            self.showValues()
+        '''
             
