@@ -16,6 +16,9 @@ UBQC protocol contains two parts, computation and varification part. Current cod
 Works on NetSquid version 0.10.
 
 
+01/02/2021
+- Modify some algorithm mainly in Step 13,17.
+
 12/01/2021
 - Under debugging. The protocol should always return verified massage. However only half of the case did so.
 
