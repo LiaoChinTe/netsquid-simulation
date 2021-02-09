@@ -17,12 +17,13 @@ By doing so, it is not literary anonymous anymore. However it does not really af
 
 ## Protocol Steps
 
-1. Sender and receiver are assigned before the protocol starts.
+1. Sender and receiver roles are assigned to **sideNode** 1 and 2 before the protocol starts in this case. Sender prepares its qubit to be teleport.
 2. The **centerNode** (trusted third party) distributes 4-parties W state, and send to all **sideNodes**.
-3. All **sideNodes** apart from sender and receiver perform standard basis measurement. Send the result to CenterNode.
-4. CenterNode gethers all measurment results, abort protocol if any none-zero results from measurements. Continue only if all results are 0.
+3. All **sideNodes** apart from the sender and receiver perform standard basis measurement. Send results to the **centerNode**.
+4. **CenterNode** gethers all measurment results, abort protocol if any none-zero results from measurements. Continue only if all results are 0.
 5. Sender node apply Sender Quantum Teleportation protocol, While receiver node apply Receiver Quantum Teleportation protocol.
-6. Receiver can verify the received qubit state.
+6. After those Teleportation protocol, The receiver should be able to receive the specific quantum state that sender prepared.
+
 
 
 
