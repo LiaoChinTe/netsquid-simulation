@@ -131,10 +131,73 @@ class QMeasure(QuantumProgram):
 '''
 input:
     positionInx:int List : Index in Qmem to measure.
+    angleInx:int List (each value from 0 to 8): Index indecating measurement angle along Z-axis. 
+    Corresponding to degree 0, 45, 90, ...315.
+output:
+
+'''
+class AngleMeasure(QuantumProgram):
+    def __init__(self,positionInx,angleInx):
+        self.positionInx=positionInx
+        self.angleInx=angleInx
+        super().__init__()
+
+    def program(self):
+
+        for pos,angle in zip(self.positionInx,self.angleInx):
+
+            # make sure angle is in the acceptable range
+            while angle<0:
+                angle+=8
+            while angle>=8:
+                angle-=8
+            
+            if   angle == 1:
+                self.apply(INSTR_Rv45,pos)
+                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
+                self.apply(INSTR_R45,pos)
+            elif angle == 2:
+                self.apply(INSTR_Rv90,pos)
+                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
+                self.apply(INSTR_R90,pos)
+            elif angle == 3:
+                self.apply(INSTR_Rv135,pos)
+                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
+                self.apply(INSTR_R135,pos)
+            elif angle== 4:
+                self.apply(INSTR_Rv180,pos)
+                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
+                self.apply(INSTR_R180,pos)
+            elif angle== 5:
+                self.apply(INSTR_Rv225,pos)
+                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
+                self.apply(INSTR_R225,pos)
+            elif angle== 6:
+                self.apply(INSTR_Rv270,pos)
+                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
+                self.apply(INSTR_R270,pos)
+            elif angle== 7:
+                self.apply(INSTR_Rv315,pos)
+                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
+                self.apply(INSTR_R315,pos)
+            
+            else:  # angle== 0
+                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
+        
+        
+        yield self.run(parallel=False)
+
+
+
+
+'''
+older one
+input:
+    positionInx:int List : Index in Qmem to measure.
     angleInx:int List (each value from 0 to 15): Index indecating measurement angle along Z-axis. #
 output:
 '''
-class AngleMeasure(QuantumProgram):
+class AngleMeasure_old(QuantumProgram):
     def __init__(self,positionInx,angleInx):
         self.positionInx=positionInx
         self.angleInx=angleInx
@@ -147,8 +210,13 @@ class AngleMeasure(QuantumProgram):
         #print("self.positionInx",self.positionInx)
         #print("self.angleInx",self.angleInx)
         for pos,angle in zip(self.positionInx,self.angleInx):
+
+            # make sure angle is in the acceptable range
             while angle<0:
                 angle+=16
+            while angle>=16:
+                angle-=16
+            
             if   angle == 1:
                 self.apply(INSTR_Rv22,pos)
                 self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
@@ -270,17 +338,17 @@ def logical_xor(str1, str2):
 def createProcessorAT(name='defaultProcessor',num_positions=4,memNoiseModel=None,processorNoiseModel=None):
 
 
+    # teleportation needs X Z
+    # Anonymous Transmission needs CNOT, MEASURE, TOFFOLI, NToffoli
     myProcessor=QuantumProcessor(name, num_positions=num_positions,
         mem_noise_models=memNoiseModel, phys_instructions=[
-        PhysicalInstruction(INSTR_X, duration=1  , q_noise_model=processorNoiseModel),
-        PhysicalInstruction(INSTR_Z, duration=1  , q_noise_model=processorNoiseModel),
-        PhysicalInstruction(INSTR_H, duration=1  , q_noise_model=processorNoiseModel),
-        PhysicalInstruction(INSTR_CNOT,duration=1, q_noise_model=processorNoiseModel),
-        PhysicalInstruction(INSTR_CZ,duration=10 , q_noise_model=processorNoiseModel),
-        PhysicalInstruction(INSTR_MEASURE, duration=10  , q_noise_model=processorNoiseModel, parallel=False),
-        PhysicalInstruction(INSTR_MEASURE_X, duration=10, q_noise_model=processorNoiseModel, parallel=False),
-        PhysicalInstruction(INSTR_TOFFOLI, duration=10, q_noise_model=processorNoiseModel, parallel=False),
-        PhysicalInstruction(INSTR_NToffoli, duration=10)])
+        PhysicalInstruction(INSTR_X, duration=1  , quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_Z, duration=1  , quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_H, duration=1  , quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_CNOT,duration=1, quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_MEASURE, duration=10  , quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_TOFFOLI, duration=10, quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_NToffoli, duration=10, quantum_noise_model=processorNoiseModel, parallel=False)])
     
     return myProcessor
 

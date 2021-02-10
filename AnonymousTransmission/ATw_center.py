@@ -87,7 +87,7 @@ class AT_Wstate_center(NodeProtocol):
             
             myMakeWstate = makeWstate(self.numNode)
             self.processor.execute_program(myMakeWstate,qubit_mapping=[i for i in range(self.numNode)])
-            self.processor.set_program_fail_callback(ProgramFail,once=True)
+            self.processor.set_program_fail_callback(ProgramFail,info=self.processor.name,once=True)
             
             
             

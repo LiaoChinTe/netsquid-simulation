@@ -141,6 +141,7 @@ def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmod
     ns.sim_run()
     
     if myProtocol_sideList[1].myQT_Receiver :
+        
         print("MAIN final receivedState:",myProtocol_sideList[1].myQT_Receiver.receivedState)
     else:
         print("Aborted!!")

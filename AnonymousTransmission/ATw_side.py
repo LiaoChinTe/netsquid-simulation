@@ -93,6 +93,7 @@ class AT_Wstate_side(NodeProtocol):
             # make original qubits
             oriQubit = create_qubits(1)[0]
             operate(oriQubit, X)
+            
             #print("oriQubit:",oriQubit)
 
 
