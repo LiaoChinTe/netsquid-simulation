@@ -24,7 +24,7 @@ Side nodes
 class AT_Wstate_side(NodeProtocol):
     
     def __init__(self,node,processor,id,sender=False,receiver=False
-        ,portQlist=["PortQside"],portClist=["PortCside1","PortCside2"]): 
+        ,portQlist=["PortQside"],portClist=["PortCside1","PortCside2"],t1=0,t2=0): 
         super().__init__()
         self.node=node
         self.processor=processor
@@ -40,6 +40,9 @@ class AT_Wstate_side(NodeProtocol):
 
         self.myQT_Sender=None
         self.myQT_Receiver=None
+
+        self.t1=t1
+        self.t2=t2
         
     def run(self):
         #print(self.processor.name)
@@ -84,7 +87,9 @@ class AT_Wstate_side(NodeProtocol):
 
 
         
-
+        # wait for t1 ns
+        if self.t1>0:
+            yield self.await_timer(duration=self.t1)
 
         # make teleportation
         if self.sender == True:
@@ -105,7 +110,7 @@ class AT_Wstate_side(NodeProtocol):
         elif self.receiver == True:
             #print("S receiver teleporting")
             self.myQT_Receiver = QuantumTeleportationReceiver(node=self.node,
-                processor=self.processor,bellState=3,EPR_2=self.processor.pop(0)[0],portNames=["PortTele_R"])
+                processor=self.processor,bellState=3,EPR_2=self.processor.pop(0)[0],portNames=["PortTele_R"],delay=self.t2)
             self.myQT_Receiver.start()
 
         #else:

@@ -50,7 +50,7 @@ class TP_ReceiverAdjust(QuantumProgram):
         
 class QuantumTeleportationReceiver(NodeProtocol):
     
-    def __init__(self,node,processor,EPR_2,portNames=["portC_Receiver"],bellState=1): 
+    def __init__(self,node,processor,EPR_2,portNames=["portC_Receiver"],bellState=1,delay=0): 
         super().__init__()
         self.node=node
         self.processor=processor
@@ -59,10 +59,10 @@ class QuantumTeleportationReceiver(NodeProtocol):
         self.resultQubit=EPR_2
         self.portNameCR1=portNames[0]
         self.receivedState=None
-        #set_qstate_formalism(QFormalism.DM)
-        
-        #print("R store EPR to memory: ",self.resultQubit)
         self.processor.put(self.resultQubit)
+        self.delay=delay
+
+        set_qstate_formalism(QFormalism.DM)
         
     def run(self):
         
@@ -71,21 +71,37 @@ class QuantumTeleportationReceiver(NodeProtocol):
         res=port.rx_input().items
         #print("R get results:", res)
         
+
+        # wait for delay ns
+        if self.delay>0:
+            yield self.await_timer(duration=self.delay)
+
+
         # edit EPR2 according to res
         myTP_ReceiverAdjust=TP_ReceiverAdjust(self.bellState,res)
         self.processor.execute_program(myTP_ReceiverAdjust,qubit_mapping=[0])
         #self.processor.set_program_done_callback(self.show_state,once=True)
-        self.processor.set_program_fail_callback(ProgramFail,once=True)
-
-
+        self.processor.set_program_fail_callback(ProgramFail,info=self.processor.name,once=True)
         yield self.await_program(processor=self.processor)
+
+
+        # see qstate
+        self.receivedState=self.processor.pop(0)[0]
+        #print("R receivedState :",self.receivedState.qstate.dm)
+
+        # see qstate!
+
+        # do measurement
+        '''
         myMeasurement=QMeasure([0])
         self.processor.execute_program(myMeasurement,qubit_mapping=[0])
-        self.processor.set_program_fail_callback(ProgramFail,once=True)
+        self.processor.set_program_fail_callback(ProgramFail,info=self.processor.name,once=True)
 
         yield self.await_program(processor=self.processor)
         self.receivedState = myMeasurement.output['0'][0]
         #print("R mes res :", self.receivedState)
+        '''
+        # do measurement!
 
 
 

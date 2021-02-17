@@ -18,7 +18,7 @@ from ATw_side import *
 
 
 def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmodel=None,loss_init=0,loss_len=0
-              ,QChV=3*10**-4):
+              ,QChV=3*10**-4,t1=0,t2=0):
     
     # initialize
     ns.sim_reset()
@@ -120,14 +120,14 @@ def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmod
         if i==senderID:
             # create sender
             myProtocol_sideList.append(AT_Wstate_side(sideNodeList[i],sideProcessorList[i],id=i,  sender=True,
-            portClist=["PortCside1","PortCside2","PortTele_S"]))
+                portClist=["PortCside1","PortCside2","PortTele_S"],t1=t1,t2=t2))
         elif i==receiverID:
             # create receiver
             myProtocol_sideList.append(AT_Wstate_side(sideNodeList[i],sideProcessorList[i],id=i,receiver=True,
-            portClist=["PortCside1","PortCside2","PortTele_R"]))
+                portClist=["PortCside1","PortCside2","PortTele_R"],t1=t1,t2=t2))
         else:
             # create normal side node
-            myProtocol_sideList.append(AT_Wstate_side(sideNodeList[i],sideProcessorList[i],id=i))
+            myProtocol_sideList.append(AT_Wstate_side(sideNodeList[i],sideProcessorList[i],id=i,t1=t1,t2=t2))
         
     
     
@@ -137,15 +137,15 @@ def run_AT_sim(numNodes=4,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmod
     myProtocol_center.start()
     
     
-    #ns.logger.setLevel(1)
+    ns.logger.setLevel(1)
     ns.sim_run()
     
     if myProtocol_sideList[1].myQT_Receiver :
         
-        print("MAIN final receivedState:",myProtocol_sideList[1].myQT_Receiver.receivedState)
+        print("MAIN final receivedState:\n",myProtocol_sideList[1].myQT_Receiver.receivedState.qstate.qrepr.reduced_dm())
     else:
         print("Aborted!!")
 
 #test
 run_AT_sim(numNodes=4,fibre_len=10**-9
-    ,processorNoiseModel=None,memNoiseMmodel=None,loss_init=0,loss_len=0)
+    ,processorNoiseModel=None,memNoiseMmodel=None,loss_init=0,loss_len=0,t1=0,t2=10**9)
