@@ -51,8 +51,8 @@ rotate angle *-Ang* -> measure in X basis -> rotate angle *Ang*
 3. Server applies Control-Z on qubit 1 and 3.
 4. Server sends two qubits (2 and 4) to C, now the two EPR pairs are shared.
 5. Client randomly chooses t and theta.
-6. Client, if t=1, measures qubit 2 with -theta, assign result to bt. Then measures qubit 4 with standard basis, assgin result to d.
-   If t=2, measures qubit 4 with -theta, assign result to bt. Then measures qubit 2 with standard basis, assgin result to d.
+6. Client, if t=1, measures qubit 2 with -theta, assign result to b1. Then measures qubit 4 with standard basis, assgin result to d.
+   If t=2, measures qubit 4 with -theta, assign result to b2. Then measures qubit 2 with standard basis, assgin result to d.
 7. Client send a ACK to server.
 8. Client randomly chooses r.
 9. Client, if t=1, assign delta1 = theta+(r+d+bt)*pi, randomly assign delta2 in range C.
