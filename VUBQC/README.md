@@ -30,16 +30,17 @@ Works on NetSquid version 0.10.
 
 
 ### Test subprotocol variable ranges
-- t:[1,2]
-- theta : C
 - range C=n*pi/4, n=[0,7]
 
 **results:**
-- b1 :[0,1]
-- b2 :[0,1]
-- delta1: C
-- delta2: C
-- r :[0,1]
+- t : [1,2]
+- theta : C
+- bt : [0,1]
+- b1 : [0,1]
+- b2 : [0,1]
+- delta1 : C
+- delta2 : C
+- r : [0,1]
 
 All angle measurements are rotated along Z-axis. Following 3 steps on a qubit:
 rotate angle *-Ang* -> measure in X basis -> rotate angle *Ang*
