@@ -35,6 +35,7 @@ Works on NetSquid version 0.10.
 **results:**
 - t : [1,2]
 - theta : C
+- d : [0,1]
 - bt : [0,1]
 - b1 : [0,1]
 - b2 : [0,1]
