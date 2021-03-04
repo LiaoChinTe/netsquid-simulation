@@ -55,11 +55,10 @@ rotate angle *-Ang* -> measure in X basis -> rotate angle *Ang*
 5. Client randomly chooses t and theta.
 6. Client, if t=1, measures qubit 2 with -theta, assign result to bt. Then measures qubit 4 with standard basis, assgin result to d.
    If t=2, measures qubit 4 with -theta, assign result to bt. Then measures qubit 2 with standard basis, assgin result to d.
-7. Client send a ACK to server.
-8. Client randomly chooses r.
-9. Client, if t=1, assign delta1 = theta+(r+d+bt)*pi, randomly assign delta2 in range C.
+7. Client randomly chooses r.
+8. Client, if t=1, assign delta1 = theta+(r+d+bt)*pi, randomly assign delta2 in range C.
    If t=2, randomly assign delta1 in range C, assign delta2 = theta+(r+d+bt)*pi.
-10. Client send delta1 and delta2 to server.
-11. Server measures qubit 1 and 3 with angle delta1 and delta2, assign results to b1 and b2.
-12. Client, if t=1, varification passes if r=b1.
+9. Client send delta1 and delta2 to server.
+10. Server measures qubit 1 and 3 with angle delta1 and delta2, assign results to b1 and b2.
+11. Client, if t=1, varification passes if r=b1.
     If t=2, varification passes if r=b2.
