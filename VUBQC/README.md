@@ -60,5 +60,6 @@ rotate angle *-Ang* -> measure in X basis -> rotate angle *Ang*
    If t=2, randomly assign delta1 in range C, assign delta2 = theta+(r+d+bt)*pi.
 9. Client send delta1 and delta2 to server.
 10. Server measures qubit 1 and 3 with angle delta1 and delta2, assign results to b1 and b2.
-11. Client, if t=1, varification passes if r=b1.
+11. Server send b1, b2 to Client.
+12. Client, if t=1, varification passes if r=b1.
     If t=2, varification passes if r=b2.
