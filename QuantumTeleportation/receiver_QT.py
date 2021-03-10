@@ -86,7 +86,7 @@ class QuantumTeleportationReceiver(NodeProtocol):
 
 
         # see qstate
-        self.receivedState=self.processor.pop(0)[0]
+        self.receivedQubit=self.processor.peek([0])[0]
         #print("R receivedState :",self.receivedState.qstate.dm)
 
         # see qstate!

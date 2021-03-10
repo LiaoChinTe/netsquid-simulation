@@ -45,7 +45,7 @@ class QuantumTeleportationSender(NodeProtocol):
         # Entangle the two qubits and measure
         myTP_SenderTeleport=TP_SenderTeleport()
         self.processor.execute_program(myTP_SenderTeleport,qubit_mapping=[0,1])
-        self.processor.set_program_fail_callback(ProgramFail,once=True)
+        self.processor.set_program_fail_callback(ProgramFail,info=self.processor.name,once=True)
         
         yield self.await_program(processor=self.processor)
         self.measureRes=[myTP_SenderTeleport.output['0'][0],myTP_SenderTeleport.output['1'][0]]
