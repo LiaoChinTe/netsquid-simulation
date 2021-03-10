@@ -1,10 +1,12 @@
 
 import numpy as np
 
+import netsquid as ns
 from netsquid.qubits.operators import Operator,create_rotation_op
 from netsquid.components.instructions import *
 from netsquid.components.qprogram import *
 from netsquid.components.qprocessor import *
+from netsquid.qubits.qubitapi import assign_qstate
 
 # General functions/Quantum programs
 
@@ -79,10 +81,35 @@ Operator_NToffoli = Operator(name='Operator_NToffoli', matrix=NToffoli_matrix)
 INSTR_NToffoli = IGate('INSTR_NToffoli',operator=Operator_NToffoli)
 
 
+'''
+Assign certain quantum states to bubits.
+input:
+    qList: The qubit list to operate on.
+    dmList: The density matrix to assign.
+output:
+    qList: qubit list which are assgined with given states.
+'''
+def AssignStatesBydm(qList,dmList):
+    if len(qList)!=len(dmList):
+        print("Error! List length does not match!")
+        return 1
+    for i,j in enumerate(qList):
+        #print("F qList[0]:",qList[i],"dmList[0]:",dmList[i])
+        assign_qstate(qList[i], dmList[i], formalism=ns.qubits.QFormalism.DM) #ns.qubits.QFormalism.DM
+
+    return qList
 
 
 
 
+
+
+'''
+Prepare EPR pairs using qubits in this quantum processor.
+input:
+    pairs: how many pairs to prepare.
+
+'''
 # General functions/Quantum programs 
 
 class PrepareEPRpairs(QuantumProgram):
@@ -117,13 +144,43 @@ class QMeasure(QuantumProgram):
 
     def program(self):
         #print("in QMeasure")
-        for i in range(0,len(self.basisList)):
-            if  self.basisList[i]== 0:  # basisList 0:Z  , 1:X     == 0   self.basisList[int(i/2)]
+        for i,item in enumerate(self.basisList):
+            if  item== 0:  # basisList 0:Z  , 1:X
                 self.apply(INSTR_MEASURE, 
                     qubit_indices=i, output_key=str(i),physical=True) 
-            else:                              
+            elif item== 1:                              
                 self.apply(INSTR_MEASURE_X, 
                     qubit_indices=i, output_key=str(i),physical=True)
+
+        yield self.run(parallel=False)
+
+
+'''
+General measurement function by position.
+Measure the qubits hold by this processor by basisList.
+Used for measure part of the qubits in Qmemory.
+input:
+    basisList: List of int, 0 means standard basis, others means Hadamard basis.
+    position: List of int, qubits position index.
+'''
+
+class QMeasureByPosition(QuantumProgram):
+    def __init__(self,basisList,position):
+        self.basisList=basisList
+        self.position=position
+        super().__init__()
+
+    def program(self):
+        if len(self.basisList)!=len(self.position):
+            print("QMeasureByPosition Error! List length does not match!")
+
+        for i,item in enumerate(self.basisList):
+            if  item== 0:  # basisList 0:Z  , 1:X
+                self.apply(INSTR_MEASURE, 
+                    qubit_indices=self.position[i], output_key=str(self.position[i]),physical=True) 
+            elif item== 1:                              
+                self.apply(INSTR_MEASURE_X, 
+                    qubit_indices=self.position[i], output_key=str(self.position[i]),physical=True)
 
         yield self.run(parallel=False)
 
@@ -151,6 +208,8 @@ class AngleMeasure(QuantumProgram):
                 angle+=8
             while angle>=8:
                 angle-=8
+
+            #print("Function angle:",angle)
             
             if   angle == 1:
                 self.apply(INSTR_Rv45,pos)

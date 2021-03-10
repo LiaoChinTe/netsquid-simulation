@@ -11,8 +11,10 @@ from functions import *
 class ProtocolClient(NodeProtocol):
     
     def showValues(self):
-
-        print("")
+        #,"delta1:",self.delta1,"delta2:",self.delta2
+        print("t:",self.t,"theta:",self.theta,"d:",self.d,"r:",self.r
+            ,"b1",self.b1,"b2",self.b2,"bt:",self.bt
+            ,"pass:",self.verified)
 
             
     def ProgramFail(self):
@@ -39,7 +41,7 @@ class ProtocolClient(NodeProtocol):
         
         self.b1=None
         self.b2=None
-
+        self.bt=None
         
         self.verified=False
         
@@ -72,9 +74,8 @@ class ProtocolClient(NodeProtocol):
         # If t=2, measures qubit 4 with -theta, assign result to b2. 
         # Then measures qubit 2 with standard basis, assgin result to d.        
         #---------------------------------------------------------------------!!
-        #print("STEP 6")
-        if self.t == 1 :
-            #print("C case t=1")
+
+        if self.t == 1 :  #C case t=1
             # measured qubit2 by -theta
             myAngleMeasure=AngleMeasure([0],[-self.theta])
             self.processor.execute_program(myAngleMeasure,qubit_mapping=[0])
@@ -83,14 +84,14 @@ class ProtocolClient(NodeProtocol):
             self.bt = myAngleMeasure.output['0'][0]
 
             # measure qubit4 by standard
-            myQMeasure=QMeasure([0])
-            self.processor.execute_program(myQMeasure,qubit_mapping=[0])
+            myQMeasure=QMeasureByPosition([0],position=[1])
+            self.processor.execute_program(myQMeasure,qubit_mapping=[0,1])
             self.processor.set_program_fail_callback(self.ProgramFail,once=True)
             yield self.await_program(processor=self.processor)
-            self.d = myQMeasure.output['0'][0]
+            self.d = myQMeasure.output['1'][0]
         
         
-        else:  # C case t=2
+        elif self.t == 2:  # C case t=2
             # measured qubit4 by -theta
             myAngleMeasure=AngleMeasure([1],[-self.theta])
             self.processor.execute_program(myAngleMeasure,qubit_mapping=[0,1])
@@ -104,7 +105,9 @@ class ProtocolClient(NodeProtocol):
             self.processor.set_program_fail_callback(self.ProgramFail,once=True)
             yield self.await_program(processor=self.processor)
             self.d = myQMeasure.output['0'][0]
-        
+
+        else:
+            print("C t value ERROR !") 
         
         
         ## STEP 7
@@ -123,10 +126,13 @@ class ProtocolClient(NodeProtocol):
             self.delta1=self.theta+(self.r+self.d+self.bt)*4
             self.delta2=randint(0,7)
             
-        else:
+        elif self.t==2:
             #print("C case t=2")
             self.delta1=randint(0,7)
-            self.delta2=self.theta+(self.r+self.d+self.bt)*4        
+            self.delta2=self.theta+(self.r+self.d+self.bt)*4
+
+        else:
+            print("C t value ERROR !")       
         
 
         ## STEP 9
@@ -146,15 +152,22 @@ class ProtocolClient(NodeProtocol):
         self.b1=measRes[0]
         self.b2=measRes[1]
 
-        #print("b1:",self.b1,"b2:",self.b2,"r:",self.r)
 
         if self.t==1:
             if self.b1==self.r:
                 self.verified=True
+                #self.showValues()
+            #self.showValues()
+            #else:
+            
         elif self.t==2:    
             if self.b2==self.r:
                 self.verified=True
+                #self.showValues()
+            #else:
+        else:
+            print("C t value ERROR !") 
         
-        #self.showValues()
+                
         
             
