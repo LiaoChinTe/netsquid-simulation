@@ -1,5 +1,6 @@
 from netsquid.protocols import NodeProtocol
 from netsquid.qubits.operators import X,H,Z,CNOT
+import numpy as np
 
 import sys
 scriptpath = "../lib/"
@@ -23,12 +24,14 @@ Side nodes
 
 class AT_Wstate_side(NodeProtocol):
     
-    def __init__(self,node,processor,id,sender=False,receiver=False
+    def __init__(self,node,processor,id,qubitToTeleport=None,sender=False,receiver=False
         ,portQlist=["PortQside"],portClist=["PortCside1","PortCside2"],t1=0,t2=0): 
         super().__init__()
         self.node=node
         self.processor=processor
         self.id=id
+        self.qubitToTeleport=qubitToTeleport
+
 
         self.sender=sender
         self.receiver=receiver
@@ -94,16 +97,10 @@ class AT_Wstate_side(NodeProtocol):
         # make teleportation
         if self.sender == True:
             #print("S sender teleporting")
-
-            # make original qubits
-            oriQubit = create_qubits(1)[0]
-            operate(oriQubit, X)
-            
-            #print("oriQubit:",oriQubit)
-
-
+           
+            #print("qubitToTeleport:",self.qubitToTeleport)
             self.myQT_Sender = QuantumTeleportationSender(node=self.node,
-                processor=self.processor,SendQubit=oriQubit,EPR_1=self.processor.pop(0)[0],portNames=["PortTele_S"])
+                processor=self.processor,SendQubit=self.qubitToTeleport,EPR_1=self.processor.pop(0)[0],portNames=["PortTele_S"])
             
             self.myQT_Sender.start()
 
