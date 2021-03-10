@@ -8,7 +8,7 @@ UBQC protocol contains two parts, computation and varification part. Current cod
 
 ## To Do
 
-- Debugging on algorithm.
+- Expanding.
 
 
 ## Status
