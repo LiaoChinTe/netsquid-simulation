@@ -280,6 +280,7 @@ def run_UBQC_test(runtimes=1,fibre_len=10**-9,processorNoiseModel=None,memNoiseM
         #myprotocolTest2.start()
 
         #ns.logger.setLevel(1)
+        print("version:",ns.__version__)
         stats = ns.sim_run()
 
 
