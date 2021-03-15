@@ -8,13 +8,16 @@ UBQC protocol contains two parts, computation and varification part. Current cod
 
 ## To Do
 
-- Debugging on algorithm.
+- Expanding.
 
 
 ## Status
 
-Works on NetSquid version 0.10.
+Works on NetSquid version 1.0.5.
 
+
+10/03/2021
+- Version 2 VUBQC complished.
 
 01/02/2021
 - Modify some algorithm mainly in Step 13,17.
