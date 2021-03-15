@@ -16,7 +16,7 @@ from netsquid.components import QSource,Clock
 from netsquid.components.qsource import SourceStatus
 
 import sys
-scriptpath = "../lib/"
+scriptpath = "../../lib/"
 sys.path.append(scriptpath)
 from functions import *
 
@@ -179,7 +179,6 @@ def run_UBQC_test(runtimes=1,fibre_len=10**-9,processorNoiseModel=None,memNoiseM
 
 
         stats = ns.sim_run()
-
 
 
 run_UBQC_test(runtimes=1000)
