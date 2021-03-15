@@ -13,11 +13,13 @@ UBQC protocol test on three qubits.
 
 Works on NetSquid version 1.0.5
 
+-15/03/2021 Finalize steps.
+
 
 ## Verifiable UBQC
 
 
-### Test subprotocol variable ranges
+### Protocol variable ranges
 - range C=n*pi/4, n=[0,7]
 
 **results:**
@@ -44,7 +46,7 @@ Works on NetSquid version 1.0.5
 All angle measurements are rotated along Z-axis. Following 3 steps on a qubit:
 rotate angle *-Ang* -> measure in X basis -> rotate angle *Ang*
 
-### Test subprotocol2 variable Steps
+### Protocol Steps
 
 1. Server generates six qubits in |0> state.(label 1 to 6)
 2. Server makes three EPR pairs: Apply H gate on qubit 1 and CNOT gate on qubit 1(control) and qubit 2(target), same with 3 and 4, 5 and 6. 
