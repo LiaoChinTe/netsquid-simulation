@@ -21,8 +21,10 @@ from ATw_side import *
 
 
 def AT_fidelityCalculate(originalDM,teleportedDM,theta_k):
-    print("AT_fidelityCalculate Fidelity:",np.trace(originalDM)+np.trace(teleportedDM))
-    return (np.trace(originalDM)+np.trace(teleportedDM))*sin(theta_k)
+    #print("AT_fidelityCalculate Fidelity:",np.trace(originalDM)+np.trace(teleportedDM))
+    A=originalDM[0][0]*teleportedDM[0][0]+originalDM[0][1]*teleportedDM[1][0]
+    B=originalDM[1][0]*teleportedDM[0][1]+originalDM[1][1]*teleportedDM[1][1]
+    return (A+B)*sin(theta_k)
 
 
 
@@ -32,11 +34,11 @@ def run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9,processorNoiseModel=None,m
 
     sum_fidelity=0
 
-    for o in range(runtimes):
+    for k in range(runtimes):
 
-        for p in range(runtimes):
-            k=50
-            m=50
+        for m in range(runtimes):
+            #k=50
+            #m=50
             success_flag=False
 
             while success_flag==False:
@@ -133,8 +135,8 @@ def run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9,processorNoiseModel=None,m
                 
                 # make original qubits
                 dmList=[]
-                theta_k=pi/200+k*pi/100
-                phi_m=pi/100+2*m*pi/100
+                theta_k=pi/(2*runtimes)+k*pi/runtimes
+                phi_m=pi/runtimes+2*m*pi/runtimes
 
                 dm1=(cos(theta_k/2))**2
                 dm2=cos(theta_k/2)*sin(theta_k/2)*exp(i*phi_m)
@@ -192,13 +194,13 @@ def run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9,processorNoiseModel=None,m
                     
                 #else:
                     #print("Aborted!!")
-    print("Avg Fidelity:",pi*sum_fidelity/(2*runtimes**2))
+    print("Avg Fidelity:",pi*sum_fidelity/2/(runtimes**2))
 
 
 #test
 ns.sim_reset()
-#myNoiseModel=DephaseNoiseModel(dephase_rate=6*10**4)
-myNoiseModel=T1T2NoiseModel(T1=11, T2=10)
-run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9
+myNoiseModel=DephaseNoiseModel(dephase_rate=6*10**4)
+#myNoiseModel=T1T2NoiseModel(T1=11, T2=10)
+run_AT_sim(runtimes=80,numNodes=4,fibre_len=10**-9
     ,processorNoiseModel=myNoiseModel,memNoiseMmodel=myNoiseModel
-    ,loss_init=0,loss_len=0,t1=15270,t2=1)  #  1760
+    ,loss_init=0,loss_len=0,t1=15270,t2=0)  #  1760  #15270
