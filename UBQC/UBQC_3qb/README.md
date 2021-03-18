@@ -67,5 +67,5 @@ rotate angle *-Ang* -> measure in X basis -> rotate angle *Ang*
 15. Client sends delta3.
 16. Server measures qubit 5 with angle delta3, assign results to b3.
 17. Server sends b3 to client.
-18. Client, if t=1, varification passes if r=b1 and r3=b3.
+18. Client, if t=1, varification passes if r1=b1 and r3=b3.
     If t=2, varification passes if r2=b2.
