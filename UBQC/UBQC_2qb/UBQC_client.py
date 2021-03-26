@@ -1,4 +1,6 @@
 from random import randint
+import logging
+logger = logging.getLogger(__name__)
 
 from netsquid.protocols import NodeProtocol
 
@@ -8,17 +10,52 @@ scriptpath = "../../lib/"
 sys.path.append(scriptpath)
 from functions import *
 
+class EPRTest(NodeProtocol):
+    def __init__(self, node, processor, port_names=["SoQI", "SoCI", "SeCI", "SeCO", "SoCO"]):
+        super().__init__()
+        self.node = node
+        self.processor = processor
+        self.portSoQI = self.node.ports[port_names[0]]
+        self.portSoCI = self.node.ports[port_names[1]]
+        self.portSeCI = self.node.ports[port_names[2]]
+        self.portSeCO = self.node.ports[port_names[3]]
+        self.portSoCO = self.node.ports[port_names[4]]
+
+    def run(self):
+        #send the generateEPR signal to Source
+        self.portSoCO.tx_output("generateEPR")
+        logger.info('Sending signal to source generateEPR')
+               
+        #wait for source emitting meta data about received qubit
+        yield self.await_port_input(self.portSoCI)
+        round_idx = self.portSoCI.rx_input().items
+        #round_idx = 0
+        logger.info(f"Received round_idx:{round_idx}")
+
+        #wait for quantum input from source
+        yield self.await_port_input(self.portSoQI)
+        qList = self.portSoQI.rx_input().items
+        self.processor.put(qList)
+        logger.info(f"Received qubits: {len(qList)}")
+        
+        myQMeasure=QMeasure([0])
+        self.processor.execute_program(myQMeasure,qubit_mapping=[0])
+        #self.processor.set_program_fail_callback(self.ProgramFail,once=True)
+        yield self.await_program(processor=self.processor)
+        d = myQMeasure.output['0'][0]
+        logger.info(f'Round Index: {round_idx}, Measurement outcome: {d}')
+
+    
+
 class ProtocolClient(NodeProtocol):
     
     def showValues(self):
         #,"delta1:",self.delta1,"delta2:",self.delta2
-        print("t:",self.t,"theta:",self.theta,"d:",self.d,"r:",self.r
-            ,"b1",self.b1,"b2",self.b2,"bt:",self.bt
-            ,"pass:",self.verified)
+        logger.info(f"t: {self.t}, theta:{self.theta}, d:{self.d}, r:{self.r}, b1:{self.b1}, b2:{self.b2}, bt:{self.bt}, pass:{self.verified}")
 
             
     def ProgramFail(self):
-        print("C programe failed!!")
+        logger.info("C programe failed!!")
     
     
     def __init__(self,node,processor,rounds,port_names=["portQC_1","portCC_1","portCC_2"],maxRounds=10):
@@ -30,8 +67,11 @@ class ProtocolClient(NodeProtocol):
         self.portNameC2=port_names[2]
         self.maxRounds=maxRounds
         self.rounds=rounds
+
+        self.comput_rounds_ratio = 0 #  num computation rounds / total num rounds
+        self.test_types_num = 2 # num of types of test rounds
         
-        self.t=None
+        self.t=None # 0: comput round, 1 to test_types_num signals a test round of type t
         self.theta=None
         self.d=None
         self.r=None
@@ -64,7 +104,11 @@ class ProtocolClient(NodeProtocol):
         qList = port.rx_input().items
         self.processor.put(qList)
         
-        self.t=randint(1,2)
+        if (random < self.comput_rounds_ratio):
+            self.t = 0
+        else:
+            self.t=randint(1,self.test_types_num)
+
         self.theta=randint(0,7)
         
         
@@ -75,7 +119,10 @@ class ProtocolClient(NodeProtocol):
         # Then measures qubit 2 with standard basis, assgin result to d.        
         #---------------------------------------------------------------------!!
 
-        if self.t == 1 :  #C case t=1
+        if self.t == 0 : # Computation run
+            logger.info("Computation run not implemented")
+
+        elif self.t == 1 :  #C case t=1
             # measured qubit2 by -theta
             myAngleMeasure=AngleMeasure([0],[-self.theta])
             self.processor.execute_program(myAngleMeasure,qubit_mapping=[0])
@@ -107,7 +154,7 @@ class ProtocolClient(NodeProtocol):
             self.d = myQMeasure.output['0'][0]
 
         else:
-            print("C t value ERROR !") 
+            logger.info("C t value ERROR !") 
         
         
         ## STEP 7
@@ -121,18 +168,22 @@ class ProtocolClient(NodeProtocol):
         # If t=2, randomly assign delta1 in range C, 
         # assign delta2 = theta+(r+d+bt)*pi.
         #---------------------------------------------------------------------
-        if self.t==1:
-            #print("C case t=1")
+
+        if self.t == 0:
+            logger.info("Computation run not implemented")
+        
+        elif self.t==1:
+            #logger.info("C case t=1")
             self.delta1=self.theta+(self.r+self.d+self.bt)*4
             self.delta2=randint(0,7)
             
         elif self.t==2:
-            #print("C case t=2")
+            #logger.info("C case t=2")
             self.delta1=randint(0,7)
             self.delta2=self.theta+(self.r+self.d+self.bt)*4
 
         else:
-            print("C t value ERROR !")       
+            logger.info("C t value ERROR !")       
         
 
         ## STEP 9
@@ -140,8 +191,7 @@ class ProtocolClient(NodeProtocol):
         #---------------------------------------------------------------------
         self.node.ports["portCC_1"].tx_output([self.delta1, self.delta2])
         
-        
-        
+       
         ## STEP 12
         #Client, if t=1, varification passes if r=b1. 
         # If t=2, varification passes if r=b2.
@@ -166,7 +216,7 @@ class ProtocolClient(NodeProtocol):
                 #self.showValues()
             #else:
         else:
-            print("C t value ERROR !") 
+            logger.info("C t value ERROR !") 
         
                 
         
