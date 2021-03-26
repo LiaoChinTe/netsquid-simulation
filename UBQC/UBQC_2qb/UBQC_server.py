@@ -36,10 +36,14 @@ class EPRTest(NodeProtocol):
         
         myQMeasure=QMeasure([0])
         self.processor.execute_program(myQMeasure,qubit_mapping=[0])
-        #self.processor.set_program_fail_callback(self.ProgramFail,once=True)
+        self.processor.set_program_fail_callback(self.ProgramFail,once=True)
         yield self.await_program(processor=self.processor)
         d = myQMeasure.output['0'][0]
         logger.info(f'Round Index: {round_idx}, Measurement outcome: {d}')
+
+    def ProgramFail(self):
+        logger.info("Program failed!!")
+
              
 class ProtocolServer(NodeProtocol):
 

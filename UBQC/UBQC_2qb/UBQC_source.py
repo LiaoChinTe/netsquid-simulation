@@ -46,6 +46,7 @@ class EPRGen(NodeProtocol):
             self.processor.put(qubits=self.port_output)
             prepareEPRpairs=PrepareEPRpairs(1)
             self.processor.execute_program(prepareEPRpairs,qubit_mapping=[0,1])
+            self.processor.set_program_fail_callback(self.ProgramFail,once=True)
 
     def S_sendEPR(self):
         self.portClQO.tx_output(self.processor.pop([0])) # send qubit to client        
@@ -73,3 +74,6 @@ class EPRGen(NodeProtocol):
             logger.info(f'EPR pair generated and sent with round_idx: {self.round_idx}')
         else:
             logger.info("Recieved a command that was not understood")
+
+    def ProgramFail(self):
+        logger.info("Program failed!!")
