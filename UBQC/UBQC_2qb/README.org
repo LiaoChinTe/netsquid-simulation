@@ -1,0 +1,13 @@
+* Source Branch
+The source branch contains modifications for having a third party that is producing EPR pairs on demand.
+The goal is to more closely match experimental settings where the source is triggered by the client, and tries to continuously produce EPR pairs.
+Pair production is heralded so that both the client and the server know when it is available.
+Features to add are the possibility to adjust the success rate for producing the pair and errors along the fiber.
+** UBQC_source
+Code for the source
+** UBQC_cerver
+Code for the server
+** UBQC_client
+Code for the client
+** UBQC_test3
+Testing that the produced pair is properly correlated in the computational basis.
