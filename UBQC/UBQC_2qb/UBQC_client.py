@@ -24,40 +24,49 @@ class EPRTest(NodeProtocol):
     def run(self):
         #send the generateEPR signal to Source
         self.portSoCO.tx_output("generateEPR")
-        logger.info('Sending signal to source generateEPR')
+        logger.debug('Sending signal to source generateEPR')
                
         #wait for source emitting meta data about received qubit
         yield self.await_port_input(self.portSoCI)
         round_idx = self.portSoCI.rx_input().items
         #round_idx = 0
-        logger.info(f"Received round_idx: {round_idx}")
+        logger.debug(f"Received round_idx: {round_idx}")
 
         #wait for quantum input from source
         yield self.await_port_input(self.portSoQI)
         qList = self.portSoQI.rx_input().items
         self.processor.put(qList)
-        logger.info(f"Received qubits: {len(qList)}")
+        logger.debug(f"Received qubits: {len(qList)}")
         
         myQMeasure=QMeasure([0])
         self.processor.execute_program(myQMeasure,qubit_mapping=[0])
         self.processor.set_program_fail_callback(self.ProgramFail,once=True)
         yield self.await_program(processor=self.processor)
         d = myQMeasure.output['0'][0]
-        logger.info(f'Round Index: {round_idx}, Measurement outcome: {d}')
+        logger.debug(f'Round Index: {round_idx}, Measurement outcome: {d}')
 
+        yield self.await_port_input(self.portSeCI)
+        server_outcome = self.portSeCI.rx_input().items[0]
+        logger.debug(f"Received outcome from Server: {server_outcome}")
+
+        if (d == server_outcome): 
+            logger.info(f"PASSED")
+        else:
+            logger.info(f"FAILED")
+        
     def ProgramFail(self):
-        logger.info("C programe failed!!")
+        logger.error("C programe failed!!")
     
 
 class ProtocolClient(NodeProtocol):
     
     def showValues(self):
         #,"delta1:",self.delta1,"delta2:",self.delta2
-        logger.info(f"t: {self.t}, theta:{self.theta}, d:{self.d}, r:{self.r}, b1:{self.b1}, b2:{self.b2}, bt:{self.bt}, pass:{self.verified}")
+        logger.debug(f"t: {self.t}, theta:{self.theta}, d:{self.d}, r:{self.r}, b1:{self.b1}, b2:{self.b2}, bt:{self.bt}, pass:{self.verified}")
 
             
     def ProgramFail(self):
-        logger.info("C programe failed!!")
+        logger.error("C programe failed!!")
     
     
     def __init__(self,node,processor,rounds,port_names=["portQC_1","portCC_1","portCC_2"],maxRounds=10):
@@ -122,7 +131,7 @@ class ProtocolClient(NodeProtocol):
         #---------------------------------------------------------------------!!
 
         if self.t == 0 : # Computation run
-            logger.info("Computation run not implemented")
+            logger.error("Computation run not implemented")
 
         elif self.t == 1 :  #C case t=1
             # measured qubit2 by -theta
@@ -156,7 +165,7 @@ class ProtocolClient(NodeProtocol):
             self.d = myQMeasure.output['0'][0]
 
         else:
-            logger.info("C t value ERROR !") 
+            logger.error("C t value ERROR !") 
         
         
         ## STEP 7
@@ -172,20 +181,20 @@ class ProtocolClient(NodeProtocol):
         #---------------------------------------------------------------------
 
         if self.t == 0:
-            logger.info("Computation run not implemented")
+            logger.error("Computation run not implemented")
         
         elif self.t==1:
-            #logger.info("C case t=1")
+            #logger.debug("C case t=1")
             self.delta1=self.theta+(self.r+self.d+self.bt)*4
             self.delta2=randint(0,7)
             
         elif self.t==2:
-            #logger.info("C case t=2")
+            #logger.debug("C case t=2")
             self.delta1=randint(0,7)
             self.delta2=self.theta+(self.r+self.d+self.bt)*4
 
         else:
-            logger.info("C t value ERROR !")       
+            logger.error("C t value ERROR !")       
         
 
         ## STEP 9
@@ -218,7 +227,7 @@ class ProtocolClient(NodeProtocol):
                 #self.showValues()
             #else:
         else:
-            logger.info("C t value ERROR !") 
+            logger.error("C t value ERROR !") 
         
                 
         

@@ -94,7 +94,8 @@ def run_UBQC_sim(fibre_len = 10**-9,
     stats = ns.sim_run()
         
 
-for i in range(1):
+for i in range(10):
+    logger.info(f'run: {i}')
     res = run_UBQC_sim(fibre_len=10**-9, processorNoiseModel=None,memNoiseMmodel=None,loss_init=0,loss_len=0)
 
 

@@ -36,7 +36,7 @@ class EPRGen(NodeProtocol):
             clock.ports["cout"].connect(self.S_Source.ports["trigger"])
         
         except:
-            logger.info("Already connected")
+            logger.error("Already connected")
         
         clock.start()
         
@@ -57,7 +57,7 @@ class EPRGen(NodeProtocol):
         #wait for a command to create and send an EPR pair
         yield self.await_port_input(self.portClCI)
         received_message=self.portClCI.rx_input().items
-        logger.info(f"Recieved signal from Client: {received_message}" )
+        logger.debug(f"Recieved signal from Client: {received_message}" )
         self.round_idx = self.round_idx + 1
         if (received_message[0] == "generateEPR"):
             self.S_genQubits(2) # generate the pair
@@ -71,9 +71,9 @@ class EPRGen(NodeProtocol):
             # self.portClQO.tx_output(self.processor.pop([0])) # send qubit to client        
             # self.portSeQO.tx_output(self.processor.pop([1])) # send qubit to server
 
-            logger.info(f'EPR pair generated and sent with round_idx: {self.round_idx}')
+            logger.debug(f'EPR pair generated and sent with round_idx: {self.round_idx}')
         else:
-            logger.info("Recieved a command that was not understood")
+            logger.error("Recieved a command that was not understood")
 
     def ProgramFail(self):
-        logger.info("Program failed!!")
+        logger.error("Program failed!!")

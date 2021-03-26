@@ -26,23 +26,26 @@ class EPRTest(NodeProtocol):
         #wait for source emitting meta data about received qubit
         yield self.await_port_input(self.portSoCI)
         round_idx = self.portSoCI.rx_input().items
-        logger.info(f'Received round_idx: {round_idx}')
+        logger.debug(f'Received round_idx: {round_idx}')
         
         #wait for quantum input from source
         yield self.await_port_input(self.portSoQI)
         qList = self.portSoQI.rx_input().items
         self.processor.put(qList)
-        logger.info(f'Received qubits: {len(qList)}')
+        logger.debug(f'Received qubits: {len(qList)}')
         
         myQMeasure=QMeasure([0])
         self.processor.execute_program(myQMeasure,qubit_mapping=[0])
         self.processor.set_program_fail_callback(self.ProgramFail,once=True)
         yield self.await_program(processor=self.processor)
         d = myQMeasure.output['0'][0]
-        logger.info(f'Round Index: {round_idx}, Measurement outcome: {d}')
+        logger.debug(f'Round Index: {round_idx}, Measurement outcome: {d}')
 
+        self.portClCO.tx_output(d)
+        logger.debug(f'Sent measurement outcome to client: {d}')
+        
     def ProgramFail(self):
-        logger.info("Program failed!!")
+        logger.error("Program failed!!")
 
              
 class ProtocolServer(NodeProtocol):
@@ -78,7 +81,7 @@ class ProtocolServer(NodeProtocol):
             clock.ports["cout"].connect(self.S_Source.ports["trigger"])
         
         except:
-            logger.info("Already connected")
+            logger.error("Already connected")
         
         clock.start()
         
@@ -100,7 +103,7 @@ class ProtocolServer(NodeProtocol):
 
         
     def ProgramFail(self):
-        logger.info("Program failed!!")
+        logger.error("Program failed!!")
     
     
     def run(self):
@@ -111,7 +114,7 @@ class ProtocolServer(NodeProtocol):
         port = self.node.ports["portCS_1"]
         yield self.await_port_input(port)
         rounds = port.rx_input().items
-        #logger.info("S received rounds:",rounds)
+        #logger.debug("S received rounds:",rounds)
         
         
         
@@ -147,7 +150,7 @@ class ProtocolServer(NodeProtocol):
         rec=port.rx_input().items
         self.delta1=rec.pop(0)
         self.delta2=rec.pop(0)
-        #logger.info("S delta1,2:",self.delta1," and ",self.delta2 )
+        #logger.debug("S delta1,2:",self.delta1," and ",self.delta2 )
       
         
         myAngleMeasure_b1b2=AngleMeasure([0,2],[self.delta1,self.delta2])
