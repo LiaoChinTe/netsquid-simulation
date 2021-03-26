@@ -30,7 +30,7 @@ class EPRTest(NodeProtocol):
         yield self.await_port_input(self.portSoCI)
         round_idx = self.portSoCI.rx_input().items
         #round_idx = 0
-        logger.info(f"Received round_idx:{round_idx}")
+        logger.info(f"Received round_idx: {round_idx}")
 
         #wait for quantum input from source
         yield self.await_port_input(self.portSoQI)
