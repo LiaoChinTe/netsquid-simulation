@@ -4,7 +4,7 @@ from netsquid.protocols import NodeProtocol
 
 
 import sys
-scriptpath = "../../lib/"
+scriptpath = "../../../lib/"
 sys.path.append(scriptpath)
 from functions import *
 

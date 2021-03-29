@@ -5,7 +5,7 @@ from netsquid.components import QSource,Clock
 from netsquid.components.qsource import SourceStatus
 
 import sys
-scriptpath = "../../lib/"
+scriptpath = "../../../lib/"
 sys.path.append(scriptpath)
 from functions import *
 
