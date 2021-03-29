@@ -25,9 +25,9 @@ Works on NetSquid version 1.0.5
 - theta1 : C
 - theta2 : C
 - theta3 : C
-- phi1 : 
-- phi2 : 
-- phi3 : 
+- phi1 : C
+- phi2 : C
+- phi3 : C
 - bt1 : [0,1]
 - bt2 : [0,1]
 - bt3 : [0,1]
@@ -56,6 +56,6 @@ same with qubits 3 and 4 and qubits 5 and 6.
 12. Server measures qubit 3 with angle delta2, assign results to b2 and sends b2 to Client.
 13. Client assigns delta3 = (-1)^(b2+r2)*phi3+theta3+(b1+r1+r3+bt3)*pi and sends delta2 to the Server.
 14. Server measures qubit 5 with angle delta3, assign results to b3 and sends b3 to Client.
-15. Client outputs o=b3+r3.
+15. Client outputs o = b3 XOR r3.
 
 
