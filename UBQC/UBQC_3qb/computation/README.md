@@ -22,6 +22,7 @@ Works on NetSquid version 1.0.5
 
 **results:**
 - t : [1,2]
+- x : [0,1]
 - theta1 : C
 - theta2 : C
 - theta3 : C
