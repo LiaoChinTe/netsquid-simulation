@@ -12,18 +12,22 @@ from UBQC_client import *
 from UBQC_server import *
 
 
+'''
+Client input: x, phi1,phi2,phi3, 
+
+'''
+
 # implementation & hardware configure
 def run_UBQC_sim(runtimes=1,fibre_len=10**-9,processorNoiseModel=None,memNoiseMmodel=None
                ,loss_init=0,loss_len=0,QChV=3*10**2,CChV=3*10**2): #loss_init=0.25,loss_len=0.2
     
     resList=[]
-    sumCount=0
-    set_qstate_formalism(QFormalism.DM)
-    
     
     for i in range(runtimes): 
         
         ns.sim_reset()
+        set_qstate_formalism(QFormalism.DM)
+
 
         # nodes====================================================================
 
@@ -111,8 +115,11 @@ def run_UBQC_sim(runtimes=1,fibre_len=10**-9,processorNoiseModel=None,memNoiseMm
                             local_port_name="portCS_2", remote_port_name="portCC_2")
 
 
+        # input value test
+        phi1=randint(0,7)
+
         protocolServer = ProtocolServer(nodeServer,processorServer)
-        protocolClient = ProtocolClient(nodeClient,processorClient,x=1,phi=[0,0,0],rounds=1)
+        protocolClient = ProtocolClient(nodeClient,processorClient,x=0,phi=[phi1,0,-phi1],rounds=1)
         protocolServer.start()
         protocolClient.start()
         #ns.logger.setLevel(1)
@@ -120,18 +127,17 @@ def run_UBQC_sim(runtimes=1,fibre_len=10**-9,processorNoiseModel=None,memNoiseMm
         
         
         resList.append(protocolClient.output)
-        #print(protocolClient.output)
+        #print(resList)
         
         
     
-    for i in resList:
-        sumCount+=resList[i]
+    
 
-    return sumCount/runtimes
+    return sum(resList)/runtimes
     
 
 #print(ns.__version__)
-res=run_UBQC_sim(runtimes=100,fibre_len=10**-9
+res=run_UBQC_sim(runtimes=1000,fibre_len=10**-9
     ,processorNoiseModel=None,memNoiseMmodel=None,loss_init=0,loss_len=0)
 
 print(res)

@@ -12,7 +12,7 @@ class ProtocolClient(NodeProtocol):
     
     def showValues(self):
         #,"delta1:",self.delta1,"delta2:",self.delta2
-        print("b3,r3:",self.b[2],self.r[2],"theta:",self.theta
+        print("phi:",self.phi,"b3,r3:",self.b[2],self.r[2],"theta:",self.theta
             ,"r:",self.r,"b",self.b,"bt:",self.bt)
 
             
@@ -63,7 +63,6 @@ class ProtocolClient(NodeProtocol):
         qList = port.rx_input().items
         self.processor.put(qList)
         
-        self.t=randint(1,2)
         
         
         for i in range(self.qubitNum):
@@ -74,7 +73,7 @@ class ProtocolClient(NodeProtocol):
         ## STEP 6
         #Client measures qubit 2, 4, 6 with -theta1, -theta2 and -theta3 
         # and assigns result to bt1, bt2 and bt3.
-        #---------------------------------------------------------------------!!
+        #---------------------------------------------------------------------
 
     
         # measured qubit2 by -theta1
@@ -119,9 +118,9 @@ class ProtocolClient(NodeProtocol):
             if i == 0:
                 self.delta[i]=self.phi[0]+self.theta[0]+(self.x+self.r[0]+self.bt[0])*4 
             elif i == 1:
-                self.delta[i]=-1**(self.b[0]+self.r[0])*self.phi[1]+self.theta[1]+(self.r[1]+self.bt[1])*4
+                self.delta[i]=self.phi[1]*(-1)**(self.b[0]+self.r[0])+self.theta[1]+(self.r[1]+self.bt[1])*4
             elif i == 2:
-                self.delta[i]=-1**(self.b[1]+self.r[1])*self.phi[2]+self.theta[2]+(self.b[0]+self.r[0]+self.r[2]+self.bt[2])*4
+                self.delta[i]=self.phi[2]*(-1)**(self.b[1]+self.r[1])+self.theta[2]+(self.b[0]+self.r[0]+self.r[2]+self.bt[2])*4
 
 
             self.node.ports["portCC_1"].tx_output(self.delta[i])
@@ -142,7 +141,11 @@ class ProtocolClient(NodeProtocol):
         self.output=bool(self.b[2])^bool(self.r[2])
         self.output=int(self.output)
 
-        #self.showValues()
+        '''
+        #debug
+        if self.x != self.output:
+            self.showValues()
+        '''
 
             
             
