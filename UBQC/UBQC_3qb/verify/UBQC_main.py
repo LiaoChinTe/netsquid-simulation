@@ -9,6 +9,11 @@ from netsquid.components.qchannel import QuantumChannel
 from netsquid.components.cchannel import ClassicalChannel
 
 from UBQC_client import *
+
+import sys
+scriptpath = "../"
+sys.path.append(scriptpath)
+
 from UBQC_server import *
 
 
