@@ -8,7 +8,7 @@ scriptpath = "../../../lib/"
 sys.path.append(scriptpath)
 from functions import *
 
-class ProtocolClient(NodeProtocol):
+class ProtocolClient_C(NodeProtocol):
     
     def showValues(self):
         #,"delta1:",self.delta1,"delta2:",self.delta2

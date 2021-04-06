@@ -8,7 +8,7 @@ from netsquid.components.models.qerrormodels import *
 from netsquid.components.qchannel import QuantumChannel
 from netsquid.components.cchannel import ClassicalChannel
 
-from UBQC_client import *
+from UBQC_client_verify import *
 
 import sys
 scriptpath = "../"
@@ -117,7 +117,7 @@ def run_UBQC_sim(runtimes=1,fibre_len=10**-9,processorNoiseModel=None,memNoiseMm
 
 
         protocolServer = ProtocolServer(nodeServer,processorServer)
-        protocolClient = ProtocolClient(nodeClient,processorClient,1)
+        protocolClient = ProtocolClient_V(nodeClient,processorClient,1)
         protocolServer.start()
         protocolClient.start()
         #ns.logger.setLevel(1)
