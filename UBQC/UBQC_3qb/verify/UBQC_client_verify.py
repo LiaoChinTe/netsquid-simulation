@@ -40,7 +40,8 @@ class ProtocolClient_V(NodeProtocol):
         self.bt   =[None,None,None]
 
         
-        self.verified=False
+        #self.verified=False
+        self.output=0  # verified or not 1:verified, 0:NOT verified
         
     
     def run(self):
@@ -175,18 +176,20 @@ class ProtocolClient_V(NodeProtocol):
 
         if self.t==1:
             if self.b[0]==self.r[0] and self.b[2]==self.r[2]:
-                self.verified=True
+                self.output=1
                 #self.showValues()
             #self.showValues()
             #else:
             
         elif self.t==2:    
             if self.b[1]==self.r[1]:
-                self.verified=True
+                self.output=1
                 #self.showValues()
             #else:
         else:
             print("C t value ERROR !") 
+
+        return self.output
         
                 
         

@@ -142,7 +142,7 @@ def run_UBQC_sim(runtimes=1,fibre_len=10**-9,processorNoiseModel=None,memNoiseMm
     
 
 #print(ns.__version__)
-res=run_UBQC_sim(runtimes=1000,fibre_len=10**-9
+res=run_UBQC_sim(runtimes=1,fibre_len=10**-9
     ,processorNoiseModel=None,memNoiseMmodel=None,loss_init=0,loss_len=0)
 
 print(res)
