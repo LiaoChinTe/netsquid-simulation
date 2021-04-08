@@ -23,10 +23,12 @@ from UBQC_client_verify import *
 NUM_QBITS=3
 
 # implementation & hardware configure
-def run_UBQC_sim(runBoolArray=[0,1],fibre_len=10**-9,processorNoiseModel=None,memNoiseMmodel=None
-               ,loss_init=0,loss_len=0,QChV=3*10**2,CChV=3*10**2): #loss_init=0.25,loss_len=0.2
+def run_UBQC_sim(x,phi,runBoolArray=[0,1],fibre_len=10**-9,processorNoiseModel=None,memNoiseMmodel=None,
+    loss_init=0,loss_len=0,QChV=3*10**2,CChV=3*10**2,threshold=0.9): #loss_init=0.25,loss_len=0.2
     
-    resList=[]
+    
+    verifyFailCount=0
+    outputList=[]
     set_qstate_formalism(QFormalism.DM)
 
     for i,j in enumerate(runBoolArray): 
@@ -107,6 +109,7 @@ def run_UBQC_sim(runBoolArray=[0,1],fibre_len=10**-9,processorNoiseModel=None,me
             local_port_name =nodeServer.ports["portQS_1"].name,
             remote_port_name=nodeClient.ports["portQC_1"].name)
         
+
         # Classical channels ========================================================
         MyCChannel = ClassicalChannel("CChannel_C->S",delay=0
             ,length=fibre_len)
@@ -121,14 +124,11 @@ def run_UBQC_sim(runBoolArray=[0,1],fibre_len=10**-9,processorNoiseModel=None,me
                             local_port_name="portCS_2", remote_port_name="portCC_2")
 
 
-        # input value test===========================================================
-        phi1=randint(0,7)
-        x=0
-        phi=[phi1,0,-phi1]
+        
 
 
         protocolServer = ProtocolServer(nodeServer,processorServer)
-        if j==True: # Compute case
+        if j==1: # Compute case
             protocolClient = ProtocolClient_C(nodeClient,processorClient,x=x,phi=phi,rounds=i)
         else :   # Verify case
             protocolClient = ProtocolClient_V(nodeClient,processorClient,rounds=i)
@@ -138,18 +138,32 @@ def run_UBQC_sim(runBoolArray=[0,1],fibre_len=10**-9,processorNoiseModel=None,me
         #ns.logger.setLevel(1)
         stats = ns.sim_run()
         
+        if j==1:
+            outputList.append(protocolClient.output)
         
-        resList.append(protocolClient.output)
-        
-        
+        elif j==0 and protocolClient.output==0 :
+            verifyFailCount+=1
+
     
+    
+    if verifyFailCount/len(runBoolArray)>threshold: # abort case
+        return -1
     
 
-    return resList  
+    if sum(outputList)/len(outputList)>=0.5:
+        return 1
+    else:
+        return 0
     
+
+# input value test===========================================================
+phi1=randint(0,7)
+x=0
+phi=[phi1,0,-phi1]
 
 #print(ns.__version__)
-res=run_UBQC_sim(runBoolArray=[1,0,1,1,1,1,0,0,0,0],fibre_len=10**-9
-    ,processorNoiseModel=None,memNoiseMmodel=None,loss_init=0,loss_len=0)
+#runBoolArray 1:comute case   0:verify case: 1: pass
+res=run_UBQC_sim(x=x,phi=[phi1,0,-phi1],runBoolArray=[0,0,1,1,1,1,0,0,0,0],
+    fibre_len=10**-9,processorNoiseModel=None,memNoiseMmodel=None,loss_init=0,loss_len=0)
 
 print(res)
