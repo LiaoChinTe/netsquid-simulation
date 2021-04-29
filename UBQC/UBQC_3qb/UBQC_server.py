@@ -23,6 +23,8 @@ class ProtocolServer(NodeProtocol):
         self.port_output=[]
         self.realRound=realRound
         self.qubitNum=3
+        self.f0=0.95
+        self.f1=0.95
         
         
         self.S_Source = QSource("S_source") 
@@ -128,6 +130,8 @@ class ProtocolServer(NodeProtocol):
             yield self.await_program(processor=self.processor)
 
             self.b[i] = myAngleMeasure_b1b2.output[str(2*i)][0]
+            tmp=randint(0,100)
+            self.b[i] = bitFlipNoice(self.b[i], self.f0, self.f1,tmp)
 
             
             #Server sends b1/b2/b3

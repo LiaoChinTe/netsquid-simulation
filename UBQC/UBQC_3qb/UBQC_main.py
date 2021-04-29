@@ -23,7 +23,7 @@ from UBQC_client_verify import *
 NUM_QBITS=3
 
 # implementation & hardware configure
-def run_UBQC_sim(x,phi,runBoolArray=[0,1],fibre_len=10**-9,processorNoiseModel=None,memNoiseMmodel=None,
+def run_UBQC_sim(x,phi,runBoolArray=[0,1],fibre_len=10**-9,processorNoiseModel=None,memNoiseMmodel_S=None,memNoiseMmodel_C=None,
     loss_init=0,loss_len=0,QChV=3*10**2,CChV=3*10**2,threshold=0.9): #loss_init=0.25,loss_len=0.2
     
     
@@ -44,54 +44,54 @@ def run_UBQC_sim(x,phi,runBoolArray=[0,1],fibre_len=10**-9,processorNoiseModel=N
         # processors===============================================================
         
         processorServer=QuantumProcessor("processorServer", num_positions=NUM_QBITS*2,
-            mem_noise_models=memNoiseMmodel, phys_instructions=[
+            mem_noise_models=memNoiseMmodel_S, phys_instructions=[
             PhysicalInstruction(INSTR_X, duration=5, quantum_noise_model=processorNoiseModel),
             PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_CNOT,duration=10,quantum_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_CZ,duration=10,quantum_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_MEASURE, duration=10, parallel=True),
-            PhysicalInstruction(INSTR_MEASURE_X, duration=10, parallel=True),
-            PhysicalInstruction(INSTR_R45, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R90, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R135, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R180, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R225, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R270, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R315, duration=20, parallel=True),
+            PhysicalInstruction(INSTR_CNOT,duration=20000,quantum_noise_model=processorNoiseModel),
+            PhysicalInstruction(INSTR_CZ,duration=20000,quantum_noise_model=processorNoiseModel),
+            PhysicalInstruction(INSTR_MEASURE, duration=3700, parallel=True),
+            PhysicalInstruction(INSTR_MEASURE_X, duration=3700, parallel=True),
+            PhysicalInstruction(INSTR_R45, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R90, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R135, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R180, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R225, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R270, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R315, duration=20000, parallel=True),
                 
-            PhysicalInstruction(INSTR_Rv45, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv90, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv135, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv180, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv225, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv270, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv315, duration=20, parallel=True),])
+            PhysicalInstruction(INSTR_Rv45, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv90, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv135, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv180, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv225, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv270, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv315, duration=20000, parallel=True),])
         
         
         
         processorClient=QuantumProcessor("processorClient", num_positions=NUM_QBITS,
-            mem_noise_models=memNoiseMmodel, phys_instructions=[
+            mem_noise_models=memNoiseMmodel_C, phys_instructions=[
             PhysicalInstruction(INSTR_X, duration=5, quantum_noise_model=processorNoiseModel),
             PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_CNOT,duration=10,quantum_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_MEASURE, duration=10, parallel=True),
-            PhysicalInstruction(INSTR_MEASURE_X, duration=10, parallel=True),
-            PhysicalInstruction(INSTR_R45, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R90, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R135, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R180, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R225, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R270, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_R315, duration=20, parallel=True),
+            PhysicalInstruction(INSTR_CNOT,duration=20000,quantum_noise_model=processorNoiseModel),
+            PhysicalInstruction(INSTR_MEASURE, duration=3700, parallel=True),
+            PhysicalInstruction(INSTR_MEASURE_X, duration=3700, parallel=True),
+            PhysicalInstruction(INSTR_R45, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R90, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R135, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R180, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R225, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R270, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_R315, duration=20000, parallel=True),
                 
                 
-            PhysicalInstruction(INSTR_Rv45, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv90, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv135, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv180, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv225, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv270, duration=20, parallel=True),
-            PhysicalInstruction(INSTR_Rv315, duration=20, parallel=True)])
+            PhysicalInstruction(INSTR_Rv45, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv90, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv135, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv180, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv225, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv270, duration=20000, parallel=True),
+            PhysicalInstruction(INSTR_Rv315, duration=20000, parallel=True)])
 
 
         # Quantum channels==================================================================
@@ -141,15 +141,18 @@ def run_UBQC_sim(x,phi,runBoolArray=[0,1],fibre_len=10**-9,processorNoiseModel=N
             verifyFailCount+=1
 
     
-    
-    if verifyFailCount/len(runBoolArray)>threshold: # abort case
-        return -1
-    
 
-    if sum(outputList)/len(outputList)>=0.5:  #count avg to see whuch (0 or 1) is closer
-        return 1
+    if verifyFailCount/len(runBoolArray)>=threshold: # abort case
+        return -1
+
+
+    if len(outputList)!=0:
+        if sum(outputList)/len(outputList)>=0.5:  #count avg to see whuch (0 or 1) is closer
+            return 1
+        else:
+            return 0
     else:
-        return 0
+        return -2  # pure varification case
     
 
 
@@ -168,9 +171,15 @@ for k in range(runs):
 
     #print(ns.__version__)
     #runBoolArray 1:comute case   0:verify case: 1: pass
-    myNoiseModel=DephaseNoiseModel(dephase_rate=0.01,time_independent=True)
-    res=run_UBQC_sim(x=x,phi=[phi1,0,-phi1],runBoolArray=[0,1,0,1,0,1,0,1,0,1],
-        fibre_len=10**-9,processorNoiseModel=myNoiseModel,memNoiseMmodel=None,loss_init=0,loss_len=0,threshold=0.9)
+    mymemNoiseMmodel=T1T2NoiseModel(T1=36000*10**9, T2=1*10**9)
+
+    myProccessorNoiseModel1=DephaseNoiseModel(dephase_rate=0.01,time_independent=True)
+    myProccessorNoiseModel2=DepolarNoiseModel(depolar_rate=0.01,time_independent=True)
+
+    res=run_UBQC_sim(x=x,phi=[phi1,0,-phi1],runBoolArray=[0],
+        fibre_len=10**-9,processorNoiseModel=myProccessorNoiseModel2,memNoiseMmodel_S=mymemNoiseMmodel
+        ,memNoiseMmodel_C=mymemNoiseMmodel,loss_init=0,loss_len=0,threshold=1)
+
     if res == -1:
         abortCount+=1
     elif x!=res:
@@ -178,5 +187,8 @@ for k in range(runs):
     #print(res)
 
 avgAbortRate=abortCount/runs
-avgCorrectRate=(runs-abortCount-failCount)/(runs-abortCount)
+if runs != abortCount:
+    avgCorrectRate=(runs-abortCount-failCount)/(runs-abortCount)
+else:
+    avgCorrectRate=0
 print("avgCorrectRate:",avgCorrectRate,"\navgAbortRate:",avgAbortRate)
