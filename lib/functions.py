@@ -93,12 +93,18 @@ input:
 output:
     return the bit.
 '''
-def bitFlipNoice(bit,f0,f1,randomInteger=96):
-    chance=(1-f0*(1-f1))*100
-    if randomInteger>=chance:
-        return bit
-    else:
-        return int(~bin(bit))
+def bitFlipNoice(bit,f0,f1,randomInteger):
+    if not bit:
+        if randomInteger<=(f0*100):
+            return 0
+        else:
+            return 1
+    else:                     #bit == 1:
+        if randomInteger<=(f1*100):
+            return 1
+        else:
+            return 0
+
 
 
 
