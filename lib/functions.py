@@ -81,6 +81,27 @@ Operator_NToffoli = Operator(name='Operator_NToffoli', matrix=NToffoli_matrix)
 INSTR_NToffoli = IGate('INSTR_NToffoli',operator=Operator_NToffoli)
 
 
+
+'''
+bitFlipNoice function to flip a bit for simulating classical noice.
+input:
+    bit: bit to be operated.
+    f0: One of function parameter.
+    f1:One of function parameter.
+    randomInteger:[1,100].
+
+output:
+    return the bit.
+'''
+def bitFlipNoice(bit,f0,f1,randomInteger=96):
+    chance=(1-f0*(1-f1))*100
+    if randomInteger>=chance:
+        return bit
+    else:
+        return int(~bin(bit))
+
+
+
 '''
 Assign certain quantum states to bubits.
 input:
@@ -403,11 +424,11 @@ def createProcessorAT(name='defaultProcessor',num_positions=4,memNoiseModel=None
         mem_noise_models=memNoiseModel, phys_instructions=[
         PhysicalInstruction(INSTR_X, duration=1  , quantum_noise_model=processorNoiseModel, parallel=False),
         PhysicalInstruction(INSTR_Z, duration=1  , quantum_noise_model=processorNoiseModel, parallel=False),
-        PhysicalInstruction(INSTR_H, duration=1  , quantum_noise_model=processorNoiseModel, parallel=False),
-        PhysicalInstruction(INSTR_CNOT,duration=1, quantum_noise_model=processorNoiseModel, parallel=False),
-        PhysicalInstruction(INSTR_MEASURE, duration=10  , quantum_noise_model=processorNoiseModel, parallel=False),
-        PhysicalInstruction(INSTR_TOFFOLI, duration=10, quantum_noise_model=processorNoiseModel, parallel=False),
-        PhysicalInstruction(INSTR_NToffoli, duration=10, quantum_noise_model=processorNoiseModel, parallel=False)])
+        PhysicalInstruction(INSTR_H, duration=1  , quantum_noise_model=None, parallel=False),
+        PhysicalInstruction(INSTR_CNOT,duration=1, quantum_noise_model=None, parallel=False),
+        PhysicalInstruction(INSTR_MEASURE, duration=10  , quantum_noise_model=None, parallel=False),
+        PhysicalInstruction(INSTR_TOFFOLI, duration=10, quantum_noise_model=None, parallel=False),
+        PhysicalInstruction(INSTR_NToffoli, duration=10, quantum_noise_model=None, parallel=False)])
     
     return myProcessor
 
