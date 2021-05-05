@@ -80,7 +80,7 @@ class BobProtocol(NodeProtocol):
         else:
             # you shall not pass!
             self.node.ports[self.portNameC2].tx_output(False)
-        print("Bob finished")
+        #print("Bob finished")
         
             
 

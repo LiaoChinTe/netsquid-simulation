@@ -70,7 +70,10 @@ class AliceProtocol(NodeProtocol):
         yield self.await_program(processor=self.processor)
         
         for i in range(len(self.validList)):
-            self.loc_mesRes.append(self.myQG_A_measure.output[str(i)][0])    
+            tmp=bitFlipNoice(self.myQG_A_measure.output[str(i)][0],f0=0.95,f1=0.995,randomInteger=randint(0,100)) # add measurement noice by so
+            self.loc_mesRes.append(tmp)    
+
+            
 
         #print("A self.loc_mesRes:",self.loc_mesRes)
         
@@ -82,4 +85,4 @@ class AliceProtocol(NodeProtocol):
         yield self.await_port_input(port)
         Res=port.rx_input().items[0]
         #print("A received result:",Res)
-        print("Alice finished")
+        #print("Alice finished")

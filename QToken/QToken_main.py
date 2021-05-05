@@ -42,24 +42,24 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
 
         # processors===============================================================
         #noise_model=None
-        Alice_processor=QuantumProcessor("processor_A", num_positions=2*10**5,
+        Alice_processor=QuantumProcessor("processor_A", num_positions=2*10**4,
             mem_noise_models=memNoiseModel, phys_instructions=[
-            PhysicalInstruction(INSTR_X, duration=1, quantum_noise_model=processNoiseModel),
-            PhysicalInstruction(INSTR_Z, duration=1, quantum_noise_model=processNoiseModel),
-            PhysicalInstruction(INSTR_H, duration=1, quantum_noise_model=processNoiseModel),
+            PhysicalInstruction(INSTR_X, duration=5, quantum_noise_model=processNoiseModel),
+            PhysicalInstruction(INSTR_Z, duration=5, quantum_noise_model=processNoiseModel),
+            PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processNoiseModel),
             PhysicalInstruction(INSTR_CNOT,duration=10,quantum_noise_model=processNoiseModel),
-            PhysicalInstruction(INSTR_MEASURE, duration=10,quantum_noise_model=processNoiseModel, parallel=True),
-            PhysicalInstruction(INSTR_MEASURE_X, duration=10,quantum_noise_model=processNoiseModel, parallel=True)])
+            PhysicalInstruction(INSTR_MEASURE, duration=3700,quantum_noise_model=None, parallel=True),
+            PhysicalInstruction(INSTR_MEASURE_X, duration=3700,quantum_noise_model=None, parallel=True)])
 
 
-        Bob_processor=QuantumProcessor("processor_B", num_positions=2*10**5,
+        Bob_processor=QuantumProcessor("processor_B", num_positions=2*10**4,
             mem_noise_models=memNoiseModel, phys_instructions=[
-            PhysicalInstruction(INSTR_X, duration=1, quantum_noise_model=processNoiseModel),
-            PhysicalInstruction(INSTR_Z, duration=1, quantum_noise_model=processNoiseModel),
-            PhysicalInstruction(INSTR_H, duration=1, quantum_noise_model=processNoiseModel),
+            PhysicalInstruction(INSTR_X, duration=5, quantum_noise_model=processNoiseModel),
+            PhysicalInstruction(INSTR_Z, duration=5, quantum_noise_model=processNoiseModel),
+            PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processNoiseModel),
             PhysicalInstruction(INSTR_CNOT,duration=10,quantum_noise_model=processNoiseModel),
-            PhysicalInstruction(INSTR_MEASURE, duration=10,quantum_noise_model=processNoiseModel, parallel=True),
-            PhysicalInstruction(INSTR_MEASURE_X, duration=10,quantum_noise_model=processNoiseModel, parallel=True)])
+            PhysicalInstruction(INSTR_MEASURE, duration=3700,quantum_noise_model=None, parallel=True),
+            PhysicalInstruction(INSTR_MEASURE_X, duration=3700,quantum_noise_model=None, parallel=True)])
 
 
         # channels==================================================================
@@ -96,21 +96,23 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
         stats = ns.sim_run()
         
         resList.append(Bob_protocol.successfulRate) 
-        print("Bob_protocol.successfulRate:",Bob_protocol.successfulRate)
+        #print("Bob_protocol.successfulRate:",Bob_protocol.successfulRate)
 
-    if not resList:
+    if resList:
         return sum(resList)/len(resList)
         #return resList
     else:
         return 0
 
 
-myMemNoise=T1T2NoiseModel(T1=10**6, T2=10**5)
-myProcessNoise=DephaseNoiseModel(dephase_rate=0.004)
 
 
+# test
 
-res=run_QToken_sim(runTimes=1,num_bits=100,fibre_len=10**-9,waitTime=10
+myMemNoise=T1T2NoiseModel(T1=36000*10**9, T2=10**9)
+#myProcessNoise=DephaseNoiseModel(dephase_rate=0.004)
+
+res=run_QToken_sim(runTimes=2,num_bits=10**4,fibre_len=10**-9,waitTime=10**21
     ,processNoiseModel=None,memNoiseModel=myMemNoise,threshold=0.875
     ,fibreLoss_init=0,fibreLoss_len=0,QChV=2.083*10**-4,CChV=2.083*10**-4)
 print("res:",res," ")
