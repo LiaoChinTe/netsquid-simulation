@@ -13,7 +13,7 @@ from netsquid.components.models.qerrormodels import FibreLossModel
 from netsquid.components.models.delaymodels import FibreDelayModel
 from netsquid.components.qsource import SourceStatus
 from netsquid.components.qprogram import *
-from netsquid.components.models import DephaseNoiseModel,T1T2NoiseModel
+from netsquid.components.models import DephaseNoiseModel,DepolarNoiseModel,T1T2NoiseModel
 
 
 from ATw_center import *
@@ -22,8 +22,14 @@ from ATw_side import *
 
 def AT_fidelityCalculate(originalDM,teleportedDM,theta_k):
     #print("AT_fidelityCalculate Fidelity:",np.trace(originalDM)+np.trace(teleportedDM))
+    #print("teleportedDM:",teleportedDM)
+
     A=originalDM[0][0]*teleportedDM[0][0]+originalDM[0][1]*teleportedDM[1][0]
     B=originalDM[1][0]*teleportedDM[0][1]+originalDM[1][1]*teleportedDM[1][1]
+    #print("a:",originalDM[0][0],"b:",teleportedDM[0][0],"c:",originalDM[0][1],"d:",teleportedDM[1][0])
+
+    #print("A:\n",A)
+    #print("B:\n",B)
     return (A+B)*sin(theta_k)
 
 
@@ -33,6 +39,7 @@ def run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9,processorNoiseModel=None,m
     ,loss_init=0,loss_len=0,QChV=3*10**-4,t1=0,t2=0):
 
     sum_fidelity=0
+    set_qstate_formalism(QFormalism.DM)
 
     for k in range(runtimes):
 
@@ -70,7 +77,9 @@ def run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9,processorNoiseModel=None,m
                 ## create side processors, nodes, port, channel (depend on scale)===========================
                 for i in range(numNodes):
                     ### processors================================================================
-                    sideProcessorList.append(createProcessorAT(name="ProcessorSide_"+str(i),memNoiseModel=memNoiseMmodel))
+                    sideProcessorList.append(
+                        createProcessorAT(name="ProcessorSide_"+str(i)
+                        ,memNoiseModel=memNoiseMmodel,processorNoiseModel=processorNoiseModel))
                     
                     ### nodes=====================================================================
                     #### add additional ports for teleportation
@@ -137,19 +146,23 @@ def run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9,processorNoiseModel=None,m
                 dmList=[]
                 theta_k=pi/(2*runtimes)+k*pi/runtimes
                 phi_m=pi/runtimes+2*m*pi/runtimes
-
+                #print("phi_m:",phi_m)
+                #print("i:",i)
                 dm1=(cos(theta_k/2))**2
-                dm2=cos(theta_k/2)*sin(theta_k/2)*exp(i*phi_m)
-                dm3=cos(theta_k/2)*sin(theta_k/2)*exp(-i*phi_m)
+                #print("exp(i*phi_m):",exp(i*phi_m))
+                #exp(1j*phi_m)
+                #exp((-1j)*phi_m)
+                dm2=cos(theta_k/2)*sin(theta_k/2)*(cos(phi_m)+1j*sin(phi_m))
+                dm3=cos(theta_k/2)*sin(theta_k/2)*(cos(phi_m)-1j*sin(phi_m))
                 dm4=(sin(theta_k/2))**2
 
                 dmList.append(np.array([[dm1,dm2],[dm3,dm4]])) 
-                #[[0.36,0.48],[0.48,0.64]]
+                #dmList.append(np.array([[0.36,0.48],[0.48,0.64]]))
                 
                 oriQubitList = create_qubits(1)
-                #print("S oriQubitList:",oriQubitList,"dmList:",dmList)
+                #print("S oriQubitList:\n",oriQubitList,"\ndmList:",dmList)
                 newQubitList=AssignStatesBydm(oriQubitList,dmList)
-                #print(newQubitList[0].qstate.qrepr.reduced_dm())
+                #print("MAIN Qubit state to be teleport:\n",newQubitList[0].qstate.qrepr.reduced_dm())
                 #operate(newQubitList[0], H)
 
 
@@ -194,13 +207,20 @@ def run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9,processorNoiseModel=None,m
                     
                 #else:
                     #print("Aborted!!")
-    print("Avg Fidelity:",pi*sum_fidelity/2/(runtimes**2))
+    return pi*sum_fidelity/2/(runtimes**2)
+    
 
 
 #test
 ns.sim_reset()
-myNoiseModel=DephaseNoiseModel(dephase_rate=6*10**4)
-#myNoiseModel=T1T2NoiseModel(T1=11, T2=10)
-run_AT_sim(runtimes=80,numNodes=4,fibre_len=10**-9
-    ,processorNoiseModel=myNoiseModel,memNoiseMmodel=myNoiseModel
-    ,loss_init=0,loss_len=0,t1=15270,t2=0)  #  1760  #15270
+
+myNoiseModel1=DephaseNoiseModel(dephase_rate=6*10**4,time_independent=False)
+#myNoiseModel2=DepolarNoiseModel(depolar_rate=6*10**4,time_independent=False)
+#myNoiseModel3=T1T2NoiseModel(T1=11, T2=0)
+#myNoiseModel4=DepolarNoiseModel(depolar_rate=0.01,time_independent=True)
+
+res=run_AT_sim(runtimes=80,numNodes=4,fibre_len=10**-9
+    ,processorNoiseModel=None,memNoiseMmodel=myNoiseModel1
+    ,loss_init=0,loss_len=0,t1=3720,t2=0)  #  1760  #15270  1760, 6760
+
+res=print("Avg Fidelity:",res)
