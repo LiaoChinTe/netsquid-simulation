@@ -15,8 +15,6 @@ Gray boxes are folders, other colored cells are pyhton files.
 Reusable functions are located in 'lib/functions.py'.
 Therefore, one must be extreamly careful modifing it.
 
-
-
 - **function.py**
 
   Here we have functions and Quantum Programs that are reusable.
@@ -34,6 +32,16 @@ Therefore, one must be extreamly careful modifing it.
 - **ProtocolX_plot.py** -optional
 
   A function to plot statistical results of main function.
+
+
+
+# How to use
+
+Protocol and hardware configurations are all written in the main.py file in each protocol folder. 
+There's no need for users to modify other files.
+Common functions shared by multiple protocols are located in lib/functions.py, which can be further expended. However modifying exsisting functions are not recommended.
+
+
 
 
 # Quantum Protocol List
