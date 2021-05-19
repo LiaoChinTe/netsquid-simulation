@@ -82,12 +82,48 @@ INSTR_NToffoli = IGate('INSTR_NToffoli',operator=Operator_NToffoli)
 
 
 
+
+
+
+
+
+
+'''
+To check which qubits are lost in given qubit list.
+
+input:
+qList(list of qubits): A qubit list, which might loss some of the qubits. 
+bound(list of two int): A list of 2 value, indicating the first and last index of the ideal qubit list. 
+[1,3] means the qubit list should only be qubits with index 1,2,3.
+
+output:
+A list of index, indicating which qubits are lost.
+[1,5] means first and 5th qubit are lost, indicator starts by 1.(no value below 1 allowed)
+'''
+
+def CheckLoss(qList,bound):
+    RemainList=[]
+    for i in range(len(qList)):
+        RemainList.append(int(qList[i].name[13:-len('-')-1]))    # get index from bits
+    
+    #print("remaining list num_inx: ",RemainList)
+    
+    completeList=[i for i in range(bound[0],bound[1]+1)]
+    #print("completeList: ",completeList)
+    
+    res=[item for item in completeList if item not in RemainList]
+    #print("res: ",res)
+    
+    return res
+
+
+
 '''
 bitFlipNoice function to flip a bit for simulating classical noice.
 input:
     bit: bit to be operated.
-    f0: One of function parameter.
-    f1:One of function parameter.
+    f0: [0-1] One of function parameter. 0.95 means 95% chance of keeping value.
+    f1:[0-1] One of function parameter.  0.995 means 99.5% chance of keeping value.
     randomInteger:[1,100].
 
 output:
@@ -421,22 +457,7 @@ def logical_xor(str1, str2):
 
 
 
-def createProcessorAT(name='defaultProcessor',num_positions=4,memNoiseModel=None,processorNoiseModel=None):
 
-
-    # teleportation needs X Z
-    # Anonymous Transmission needs CNOT, MEASURE, TOFFOLI, NToffoli
-    myProcessor=QuantumProcessor(name, num_positions=num_positions,
-        mem_noise_models=memNoiseModel, phys_instructions=[
-        PhysicalInstruction(INSTR_X, duration=1  , quantum_noise_model=processorNoiseModel, parallel=False),
-        PhysicalInstruction(INSTR_Z, duration=1  , quantum_noise_model=processorNoiseModel, parallel=False),
-        PhysicalInstruction(INSTR_H, duration=1  , quantum_noise_model=None, parallel=False),
-        PhysicalInstruction(INSTR_CNOT,duration=1, quantum_noise_model=None, parallel=False),
-        PhysicalInstruction(INSTR_MEASURE, duration=10  , quantum_noise_model=None, parallel=False),
-        PhysicalInstruction(INSTR_TOFFOLI, duration=10, quantum_noise_model=None, parallel=False),
-        PhysicalInstruction(INSTR_NToffoli, duration=10, quantum_noise_model=None, parallel=False)])
-    
-    return myProcessor
 
 
 class makeWstate(QuantumProgram):

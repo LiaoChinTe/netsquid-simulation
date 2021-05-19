@@ -20,6 +20,24 @@ from ATw_center import *
 from ATw_side import *
 
 
+def createProcessorAT(name='defaultProcessor',num_positions=4,memNoiseModel=None,processorNoiseModel=None):
+
+
+    # teleportation needs X Z
+    # Anonymous Transmission needs CNOT, MEASURE, TOFFOLI, NToffoli
+    myProcessor=QuantumProcessor(name, num_positions=num_positions,
+        mem_noise_models=memNoiseModel, phys_instructions=[
+        PhysicalInstruction(INSTR_X, duration=1  , quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_Z, duration=1  , quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_H, duration=1  , quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_CNOT,duration=1, quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_MEASURE, duration=10  , quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_TOFFOLI, duration=10, quantum_noise_model=processorNoiseModel, parallel=False),
+        PhysicalInstruction(INSTR_NToffoli, duration=10, quantum_noise_model=processorNoiseModel, parallel=False)])
+    
+    return myProcessor
+
+
 def AT_fidelityCalculate(originalDM,teleportedDM,theta_k):
     #print("AT_fidelityCalculate Fidelity:",np.trace(originalDM)+np.trace(teleportedDM))
     #print("teleportedDM:",teleportedDM)
@@ -219,7 +237,7 @@ myNoiseModel1=DephaseNoiseModel(dephase_rate=6*10**4,time_independent=False)
 #myNoiseModel3=T1T2NoiseModel(T1=11, T2=0)
 #myNoiseModel4=DepolarNoiseModel(depolar_rate=0.01,time_independent=True)
 
-res=run_AT_sim(runtimes=80,numNodes=4,fibre_len=10**-9
+res=run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9
     ,processorNoiseModel=None,memNoiseMmodel=myNoiseModel1
     ,loss_init=0,loss_len=0,t1=3720,t2=0)  #  1760  #15270  1760, 6760
 
