@@ -3,6 +3,7 @@ from netsquid.protocols import NodeProtocol
 from QToken_function import * 
 from netsquid.components import QSource,Clock
 from netsquid.components.qsource import SourceStatus
+from netsquid.qubits.operators import X,H,Z
 
 from random import randint
 
@@ -10,6 +11,121 @@ import sys
 scriptpath = "../lib/"
 sys.path.append(scriptpath)
 from functions import *
+
+
+
+'''
+Only used in this protocol.
+input:
+    basisInxList: Oroginal sets of qubits:(list of N)
+        0:(0,+)  1:(0,-)  2:(1,+)  3:(1,-)
+        4:(+,0)  5:(+,1)  6:(-,0)  7:(-,1)
+    randMeas:(int 0/1)
+        0: standard basis   1: H basis
+    locRes:(list of 2*N)
+        received measurement to check
+    validList:(list of int)
+        A list of index indicating valid qubits after filter. 
+output:
+    res: 
+        the persentage of passed qubits among all qubits.
+'''
+def TokenCheck_LossTolerant(basisInxList,randMeas,locRes,validList):
+    # padding for locRes
+    tmpRes=[-1]*(2*len(basisInxList)-len(validList))
+    if len(locRes)!=len(validList):
+        print("Measurment length Error!")
+        return []
+    else:
+        pass
+        
+    for i in range(len(validList)):
+        tmpRes.insert(validList[i]-1, locRes[i])
+        
+     
+    # checking
+    failCount=0
+    if randMeas==0:
+        for i in range(len(basisInxList)):
+            if basisInxList[i]<=1 and tmpRes[2*i]==0:
+                pass
+            elif basisInxList[i]<=3 and tmpRes[2*i]==1:
+                pass
+            elif basisInxList[i]%2==0 and tmpRes[2*i+1]==0:
+                pass
+            elif basisInxList[i]%2==1 and tmpRes[2*i+1]==1:
+                pass
+            else:
+                failCount+=1
+    else: # randMeas==1:
+        for i in range(len(basisInxList)):
+            if basisInxList[i]>=6 and tmpRes[2*i]==1:
+                pass
+            elif basisInxList[i]>=4 and tmpRes[2*i]==0:
+                pass
+            elif basisInxList[i]%2==0 and tmpRes[2*i+1]==0:
+                pass
+            elif basisInxList[i]%2==1 and tmpRes[2*i+1]==1:
+                pass
+            else:
+                failCount+=1
+    
+    
+    '''
+    print("in TokenCheck_LossTolerant2")
+    print("len(locRes): ",len(locRes))           #scale /100
+    print("failCount: ",failCount)                   #scale  /max 50
+    print("len(basisInxList): ",len(basisInxList)) # 50
+    '''
+    
+    
+    return 1-(failCount-len(basisInxList)+len(locRes)/2)/(len(locRes)/2)
+
+    
+
+
+
+
+# class of quantum program
+class QG_B_qPrepare(QuantumProgram):
+    def __init__(self,num_bits,stateInxList):
+        self.num_bits=num_bits
+        self.stateInxList=stateInxList
+        super().__init__()
+        
+    def program(self):
+        qList_idx=self.get_qubit_indices(2*self.num_bits)
+        '''
+        0:(0,+)  1:(0,-)  2:(1,+)  3:(1,-)
+        4:(+,0)  5:(+,1)  6:(-,0)  7:(-,1)
+        '''
+        for i in range(self.num_bits):
+            if self.stateInxList[i]==0:                           
+                self.apply(INSTR_H, qList_idx[2*i+1])
+            elif self.stateInxList[i]==1:                                
+                self.apply(INSTR_X, qList_idx[2*i+1])
+                self.apply(INSTR_H, qList_idx[2*i+1])
+            elif self.stateInxList[i]==2:                                
+                self.apply(INSTR_X, qList_idx[2*i])
+                self.apply(INSTR_H, qList_idx[2*i+1])
+            elif self.stateInxList[i]==3:                                
+                self.apply(INSTR_X, qList_idx[2*i])
+                self.apply(INSTR_X, qList_idx[2*i+1])
+                self.apply(INSTR_H, qList_idx[2*i+1])
+            elif self.stateInxList[i]==4:                                
+                self.apply(INSTR_H, qList_idx[2*i])
+            elif self.stateInxList[i]==5:                                
+                self.apply(INSTR_H, qList_idx[2*i])
+                self.apply(INSTR_X, qList_idx[2*i+1])
+            elif self.stateInxList[i]==6:                                
+                self.apply(INSTR_X, qList_idx[2*i])
+                self.apply(INSTR_H, qList_idx[2*i])
+            else : #"stateInx==7"
+                self.apply(INSTR_X, qList_idx[2*i])
+                self.apply(INSTR_H, qList_idx[2*i])
+                self.apply(INSTR_X, qList_idx[2*i+1])
+                
+        yield self.run(parallel=False)
 
 
 class BobProtocol(NodeProtocol):
@@ -37,7 +153,7 @@ class BobProtocol(NodeProtocol):
             ,status=SourceStatus.EXTERNAL) # enable frequency
         self.B_Source.ports["qout0"].bind_output_handler(self.storeSourceOutput)
         
-        #print("basisInxList:",self.basisInxList)
+
 
     # =======================================B run ============================
     def run(self):
@@ -56,7 +172,6 @@ class BobProtocol(NodeProtocol):
         if  reqMes == '10101':
     
             # send payload
-            #print("send rand measurement!")
             self.node.ports[self.portNameC2].tx_output(self.randMeas)
         else:
             print("req error!")
@@ -66,8 +181,6 @@ class BobProtocol(NodeProtocol):
         port = self.node.ports[self.portNameC1]
         yield self.await_port_input(port)
         [self.locRes, self.validList] = port.rx_input().items
-        #print("B locRes:",self.locRes)
-        #print("B valid list", self.validList)
         
         
         self.successfulRate=TokenCheck_LossTolerant(self.basisInxList,self.randMeas,self.locRes,self.validList)

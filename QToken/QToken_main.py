@@ -1,7 +1,6 @@
 import numpy as np
 import netsquid as ns
 from netsquid.nodes.node import Node
-#from netsquid.protocols import NodeProtocol
 
 from netsquid.qubits.qformalism import *
 from netsquid.components.qprocessor import *
@@ -14,7 +13,6 @@ from netsquid.components.cchannel import ClassicalChannel
 
 from netsquid.components.models.qerrormodels import FibreLossModel
 from netsquid.components.models.delaymodels import FibreDelayModel
-#from pydynaa.core import Entity,EventHandler,EventType
 
 from random import randint
 

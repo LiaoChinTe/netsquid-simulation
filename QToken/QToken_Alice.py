@@ -7,6 +7,78 @@ scriptpath = "../lib/"
 sys.path.append(scriptpath)
 from functions import *
 
+
+
+
+
+'''
+Only used for this protocol, cut integers that are not a complete pair.
+
+input:
+    myList: list of int
+    minBound: int
+    maxBound: int
+output:
+    A list of only complete pairs.
+
+'''
+def CutNonPair(myList,minBound,maxBound):
+    for i in range(minBound,maxBound+1):
+        if minBound==1 and i in myList:
+            if i+1 in myList and i%2==1:
+                pass
+            elif i-1 in myList and i%2==0:
+                pass
+            else:
+                myList.remove(i)
+        elif minBound==0 and i in myList:
+            if i+1 in myList and i%2==0:
+                pass
+            elif i-1 in myList and i%2==1:
+                pass
+            else:
+                myList.remove(i)
+    return myList
+
+
+
+'''
+Only used for this protocal. Since one qubit loss means a qubit pair can not been used.
+This function is used for cutting useless qubits
+
+input:
+    qList: qubit list to filter.
+    minBound: The minimum vlue of qubit index, usually 1. 
+    MaxBound: The maximum vlue of qubit index.
+    
+output:
+    Filtered qubit list.
+
+'''
+def QubitPairFilter(qList,minBound,MaxBound):    
+    RemainList=[]
+    for i in range(len(qList)):
+        RemainList.append(int(qList[i].name[13:-len('-')-1]))    # get index from bits
+    RemainList=CutNonPair(RemainList,minBound,MaxBound)
+
+    
+    # adopt qList according to RemainList
+    
+    qlength=len(qList)
+    for i in reversed(range(qlength)):
+        tmp=int(qList[i].name[13:-len('-')-1])
+        if tmp not in RemainList:
+            qList.pop(i)
+    
+    
+    return RemainList,qList
+
+
+
+
+
+
+
 class AliceProtocol(NodeProtocol):
     
     def __init__(self,node,processor,num_bits,waitTime,
@@ -21,7 +93,7 @@ class AliceProtocol(NodeProtocol):
         self.waitTime=waitTime
         self.tokenQlist = None
         self.loc_mesRes = []
-        self.myQG_A_measure = None
+        self.myQMeasure = None
         self.validList=[]
 
     # =======================================A run ============================
@@ -32,9 +104,7 @@ class AliceProtocol(NodeProtocol):
         yield self.await_port_input(port)
         qubitPairs = port.rx_input().items
         
-        #print("A received qubitPairs=",qubitPairs)
         self.validList,qubitPairs=QubitPairFilter(qubitPairs,1,2*self.num_bits)
-        #print("A self.validList: ",self.validList)
         
         if len(self.validList)<1: # abort case
             
@@ -51,7 +121,6 @@ class AliceProtocol(NodeProtocol):
         message = "10101"    #use 10101 as request of challenge
         self.node.ports["portCA_1"].tx_output(message)
 
-        #print("A received:",port.rx_input().items)
         port=self.node.ports[self.portNameC2]
         yield self.await_port_input(port)
         basis=port.rx_input().items[0]
@@ -61,21 +130,19 @@ class AliceProtocol(NodeProtocol):
         #print("A basisList:",basisList)
         
         
-        #print("mem 1 used?  ",self.processor.get_position_used(2*self.num_bits))
-        
-        self.myQG_A_measure=QG_A_measure(basisList=basisList,num_bits=len(self.validList))
+
+        self.myQMeasure=QMeasure(basisList=basisList)
         self.processor.execute_program(
-            self.myQG_A_measure, qubit_mapping=[i for  i in range(len(self.validList))])
+            self.myQMeasure, qubit_mapping=[i for  i in range(len(self.validList))])
         self.processor.set_program_fail_callback(ProgramFail,once=True)
+
         yield self.await_program(processor=self.processor)
         
         for i in range(len(self.validList)):
-            tmp=bitFlipNoice(self.myQG_A_measure.output[str(i)][0],f0=0.95,f1=0.995,randomInteger=randint(0,100)) # add measurement noice by so
+            tmp=bitFlipNoice(self.myQMeasure.output[str(i)][0],f0=0.95,f1=0.995,randomInteger=randint(0,100)) # add measurement noice by so
             self.loc_mesRes.append(tmp)    
 
-            
-
-        #print("A self.loc_mesRes:",self.loc_mesRes)
+        
         
         # send measurement result
         self.node.ports[self.portNameC1].tx_output([self.loc_mesRes,self.validList])
