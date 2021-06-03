@@ -1,12 +1,12 @@
-# VUBQC Protocol
+# VBQC Protocol
 Author: ChinTe LIAO (liao.chinte@veriqloud.fr)
 
 
 ## Function
 
-Verifiable Universal Blind Quantum Computation.
+Verifiable Blind Quantum Computation.
 
-VUBQC full protocol which applies both computaional and verifiable subprotocols. 
+VBQC full protocol which applies both computaional and verifiable subprotocols. 
 
 
 
@@ -40,8 +40,8 @@ Works on NetSquid version 1.0.5
 
 0. Hardware configuration.
 1. Randomly form a bit stream roundType filled by d ones and N-d zero. 
-2. Loop through the roundType and implement computatinal UBQC if the value is 1. 
-Otherwise implement Verifiable UBQC. Count the failed cases in verifiable cases.
+2. Loop through the roundType and implement computatinal BQC if the value is 1. 
+Otherwise implement Verifiable BQC. Count the failed cases in verifiable cases.
 3. Report abort if numbers of failed case > Threshold.
 4. If not failed, compute the Hamming weight of the string output.
 5. If the Hamming weight < d/2 set final output to 0. Set it to 1 otherwise.
