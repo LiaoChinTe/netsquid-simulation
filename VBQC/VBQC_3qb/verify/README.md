@@ -1,9 +1,9 @@
-# UBQC Protocol
+# VBQC Protocol
 Author: ChinTe LIAO (liao.chinte@veriqloud.fr)
 
 ## Function
 
-UBQC protocol test on three qubits.
+VBQC protocol test on three qubits.
 
 
 ## To Do
@@ -16,7 +16,7 @@ Works on NetSquid version 1.0.5
 -15/03/2021 Finalize steps.
 
 
-## Verifiable UBQC
+## Verifiable BQC
 
 
 ### Protocol variable ranges
