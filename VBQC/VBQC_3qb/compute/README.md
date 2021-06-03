@@ -1,9 +1,9 @@
-# UBQC computational Protocol
+# VBQC computational Protocol
 
 
 ## Function
 
-UBQC computational protocol on three qubits.
+VBQC computational protocol on three qubits.
 
 
 ## To Do
