@@ -51,7 +51,7 @@ rotate angle *-Ang* -> measure in X basis -> rotate angle *Ang*
 1. Server generates six qubits in |0> state.(label 1 to 6)
 2. Server makes three EPR pairs: Apply H gate on qubit 1 and CNOT gate on qubit 1(control) and qubit 2(target), same with 3 and 4, 5 and 6. 
 3. Server applies Control-Z on qubit 1 and 3 and on qubit 3 and 5.
-4. Server sends three qubits (2, 4 and 6) to C, now the three EPR pairs are shared.
+4. Server sends three qubits (2, 4 and 6) to Client, now the three EPR pairs are shared.
 5. Client randomly chooses t and theta1, theta2, theta3.
 6. Client, if t=1, measures qubit 2 with -theta1, assign result to bt1. Then measures qubit 6 with -theta3, assgin result to bt3.Then measures qubit 4 with standard basis, assign result to d2. 
    If t=2, measures qubit 4 with -theta2, assign result to bt2. Then measures qubit 2 and qubit 6 with standard basis, assgin result to d1 and d3.
