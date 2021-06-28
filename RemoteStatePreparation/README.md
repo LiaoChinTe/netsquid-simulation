@@ -6,7 +6,7 @@
 
 This protocol aims to prepare qubits with certain quantum state depend on all clients participated.
 
-
+![RSP_graph](https://github.com/LiaoChinTe/netsquid-simulation/blob/main/RemoteStatePreparation/RemoteStatePreparation_graph.png)
 
 ## Status
 
