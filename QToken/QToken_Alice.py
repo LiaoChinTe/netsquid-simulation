@@ -1,5 +1,4 @@
 from netsquid.protocols import NodeProtocol
-from QToken_function import * 
 from random import randint
 
 import sys
