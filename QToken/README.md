@@ -3,8 +3,13 @@
 ## Description
  The protocol provides a way for issuing an unforgeable token which can only be verified by issuer or other authorized party.
 
+## How to use
+    Protocol configurations are writen only in XXX_main.py file. Users could choose the return value from any protocol attribute at the end of run_XXX_sim function by calling XXX_protocol.ATTRIBUTE.
+    Users should not bother modifying the party files (XXX_Alice.py, XXX_Bob.py ), but only to see what attributes can be extracted later in the main file.
+    XXX_plot.py file is use to plot statistics by calling run_XXX_sim function mutiple times. It is not needed for singular simulation run. 
 
 ## Status
+- 18/08/2021 Fixed minor import issues.
 - 05/05/2021 Imported from the old repository. Need further refine.
 
 ## Protocol parameters
