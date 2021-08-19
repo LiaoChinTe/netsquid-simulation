@@ -2,6 +2,7 @@
 
 ## Description
  The protocol provides a way for issuing an unforgeable token which can only be verified by issuer or other authorized party.
+ Reference: [Quantum Token from Quantum Protocol Zoo](https://wiki.veriqloud.fr/index.php?title=Quantum_Token)
 
 ## How to use
   Protocol configurations are writen only in XXX_main.py file. Users could choose the return value from any protocol attribute at the end of run_XXX_sim function by calling XXX_protocol.ATTRIBUTE.
