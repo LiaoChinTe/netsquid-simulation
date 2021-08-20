@@ -7,6 +7,7 @@ from netsquid.components.instructions import *
 from netsquid.components.qprogram import *
 from netsquid.components.qprocessor import *
 from netsquid.qubits.qubitapi import assign_qstate
+from random import randint
 
 # General functions/Quantum programs
 
@@ -84,8 +85,44 @@ INSTR_NToffoli = IGate('INSTR_NToffoli',operator=Operator_NToffoli)
 
 
 
+'''
+Compare two lists, find the unmatched index, 
+    then remove corresponding slots in loc_meas.
+Input:
+    loc_basis_list: local basis used for measuring qubits.(list of int)
+    rem_basis_list: remote basis used for measuring qubits.(list of int)
+        Two lists with elements 0-2 (Z,X, -1:qubit missing).
+        Two lists to compare.
+        
+    loc_meas: Local measurement results to keep.(list of int)
+Output:
+    measurement result left.
+'''
+
+def Compare_basis(loc_basis_list,rem_basis_list,loc_res):
+
+    if len(loc_basis_list) != len(rem_basis_list): #should be  len(num_bits)
+        print("Comparing error! length of basis does not match!")
+        return -1
+    
+    popList=[]
+    
+    for i in range(len(rem_basis_list)):
+        if loc_basis_list[i] != rem_basis_list[i]:
+            popList.append(i)
+    
+    for i in reversed(popList): 
+        if loc_res:
+            loc_res.pop(i)
+        
+    return loc_res
 
 
+'''
+Simply returns a list with 0 or 1 in given length.
+'''
+def Random_basis_gen(length):
+    return [randint(0,1) for i in range(length)]
 
 
 '''
