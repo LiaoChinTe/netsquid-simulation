@@ -9,29 +9,6 @@ sys.path.append(scriptpath)
 from functions import *
 
 
-'''
-input:
-    Pg: A quantum program (QuantumProgram)
-output:
-    resList: A list of outputs from the given quantum program, 
-    also sorted by key.(list of int)
-'''
-
-def getPGoutput(Pg):
-    resList=[]
-    tempDict=Pg.output
-    if "last" in tempDict:
-        del tempDict["last"]
-        
-    # sort base on key
-    newDict=sorted({int(k) : v for k, v in tempDict.items()}.items())
-    
-    #take value
-    for k, v in newDict:
-        resList.append(v[0])
-    return resList
-
-
 
 
 class QG_A_qPrepare(QuantumProgram):
@@ -62,12 +39,12 @@ class QG_A_measure(QuantumProgram):
 
     def program(self):   
         for i in range(0,len(self.basisList*2),2):
-            if self.basisList[int(i/2)] == 0:                  # standard basis
+            if self.basisList[int(i/2)] == 0:           # only even slot       
                 self.apply(INSTR_MEASURE, 
-                    qubit_indices=i, output_key=str(i),physical=True) 
-            else:                              # 1 case # Hadamard basis
+                    qubit_indices=i, output_key=str(i),physical=True)  # standard basis
+            else:                              # 1 case 
                 self.apply(INSTR_MEASURE_X, 
-                    qubit_indices=i, output_key=str(i),physical=True) 
+                    qubit_indices=i, output_key=str(i),physical=True) # Hadamard basis
         yield self.run(parallel=False)
  
 
@@ -86,7 +63,7 @@ class AliceProtocol(NodeProtocol):
         self.portNameC2=port_names[2]
         self.EPRList=None
         self.basisList=Random_basis_gen(self.num_bits)
-        self.loc_mesRes=[]
+        self.loc_measRes=[]
         self.key=None
         self.sourceQList=[]
         
@@ -122,21 +99,24 @@ class AliceProtocol(NodeProtocol):
         self.processor.execute_program(
             self.myQG_A_measure,qubit_mapping=[i for  i in range(0, 2*self.num_bits)])
         
-        
+        yield self.await_program(processor=self.processor)
+
+
         # get A meas
-        self.processor.set_program_done_callback(self.A_getPGoutput,once=True)
+        #self.processor.set_program_done_callback(self.A_getPGoutput,once=True)
+        for i in range(2*self.num_bits):
+            if i%2 == 0:  # only even slot
+                tmp=self.myQG_A_measure.output[str(i)][0]
+                self.loc_measRes.append(tmp)
         
         # send A basis to B
         self.node.ports[self.portNameC2].tx_output(self.basisList)
         
         
         # compare basis
-        yield self.await_program(processor=self.processor)
+        self.loc_measRes=Compare_basis(self.basisList,basis_B,self.loc_measRes)
         
-        
-        self.loc_mesRes=Compare_basis(self.basisList,basis_B,self.loc_mesRes)
-        
-        self.key=''.join(map(str, self.loc_mesRes))
+        self.key=''.join(map(str, self.loc_measRes))
         #print("A key:",self.key)
 
     def storeSourceOutput(self,qubit):
@@ -171,6 +151,3 @@ class AliceProtocol(NodeProtocol):
         payload=self.processor.pop(inx)
         self.node.ports[self.portNameQ1].tx_output(payload)
         
-
-    def A_getPGoutput(self):
-        self.loc_mesRes=getPGoutput(self.myQG_A_measure)

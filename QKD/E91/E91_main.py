@@ -130,26 +130,23 @@ if __name__ == "__main__":
     mymemNoiseMmodel=T1T2NoiseModel(T1=11, T2=10)
     myprocessorNoiseModel=DepolarNoiseModel(depolar_rate=500)
 
-    toWrite=run_E91_sim(runtimes=2,num_bits=20,fibre_len=20
-            ,memNoiseMmodel=mymemNoiseMmodel,processorNoiseModel=myprocessorNoiseModel) #10**-9
+    toWrite=run_E91_sim(runtimes=2,num_bits=100,fibre_len=20
+            ,memNoiseMmodel=None,processorNoiseModel=None) #10**-9
     print(toWrite)
 
+    '''
+    # write to file
 
+    #myErrorModel=DepolarNoiseModel(depolar_rate=50000)
+    myErrorModel=T1T2NoiseModel(T1=1100, T2=1000)
+    toWrite=run_E91_sim(runtimes=1,num_bits=10**4,fibre_len=10,noise_model=myErrorModel) #10**-9
+    #print(toWrite)
 
-
-'''
-# key pairs generation
-
-#myErrorModel=DepolarNoiseModel(depolar_rate=50000)
-myErrorModel=T1T2NoiseModel(T1=1100, T2=1000)
-toWrite=run_E91_sim(runtimes=1,num_bits=10**4,fibre_len=10,noise_model=myErrorModel) #10**-9
-#print(toWrite)
-
-listToPrint=''
-listToPrint=str(toWrite)
-print(listToPrint)
-outF = open("keyOutput8.txt", "w")
-outF.writelines(listToPrint)
-outF.close()
-'''
+    listToPrint=''
+    listToPrint=str(toWrite)
+    print(listToPrint)
+    outF = open("keyOutput8.txt", "w")
+    outF.writelines(listToPrint)
+    outF.close()
+    '''
 

@@ -31,19 +31,6 @@ output:
     also sorted by key.(list of int)
 '''
 
-def getPGoutput(Pg):
-    resList=[]
-    tempDict=Pg.output
-    if "last" in tempDict:
-        del tempDict["last"]
-        
-    # sort base on key
-    newDict=sorted({int(k) : v for k, v in tempDict.items()}.items())
-    
-    #take value
-    for k, v in newDict:
-        resList.append(v[0])
-    return resList
 
 
 class QG_B_measure(QuantumProgram):
@@ -74,7 +61,7 @@ class BobProtocol(NodeProtocol):
         self.node=node
         self.processor=processor
         self.qList=None
-        self.loc_measRes=[-1]*self.num_bits
+        self.loc_measRes=[]   #[-1]*self.num_bits
         self.portNameQ1=port_names[0]
         self.portNameC1=port_names[1]
         self.portNameC2=port_names[2]
@@ -113,10 +100,13 @@ class BobProtocol(NodeProtocol):
         self.processor.execute_program(
             self.myQG_B_measure,qubit_mapping=[i for  i in range(0,self.num_bits)])
         
-        # get meas result
-        self.processor.set_program_done_callback(self.B_getPGoutput,once=True)
-        
         yield self.await_program(processor=self.processor)
+
+        # get meas result
+        for i in range(self.num_bits):
+            tmp=self.myQG_B_measure.output[str(i)][0]
+            self.loc_measRes.append(tmp)
+        
         
 
         # add Loss case
@@ -171,6 +161,4 @@ class BobProtocol(NodeProtocol):
             self.firstLoss=0
 
     
-    def B_getPGoutput(self):
-        self.loc_measRes=getPGoutput(self.myQG_B_measure)
 
