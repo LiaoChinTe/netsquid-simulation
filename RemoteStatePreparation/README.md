@@ -11,6 +11,7 @@ This protocol aims to prepare qubits with certain quantum state depend on all cl
 ## Status
 
 - 28/06/2021 First readme
+- (To Be Done)
 
 
 
