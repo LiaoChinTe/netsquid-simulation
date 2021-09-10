@@ -86,6 +86,51 @@ INSTR_NToffoli = IGate('INSTR_NToffoli',operator=Operator_NToffoli)
 
 
 '''
+Simply returns a list with 0 or 1 in given length.
+'''
+def Random_basis_gen(length):
+    return [randint(0,1) for i in range(length)]
+
+'''
+Apply rotation on qubits.
+input:
+    locationIndex: list of int, Index of qubits to rotate.
+    rotationIndex: list of int each element is limited in [0,7], indecating 0,45,...270,315 degree.
+'''
+
+class RotateQubits(QuantumProgram):
+    
+    def __init__(self,locationIndex,rotationIndex):
+        self.locationIndex=locationIndex
+        self.rotationIndex=rotationIndex
+        super().__init__()
+        print("RotateQubits ",self.locationIndex)
+        print("RotateQubits ",self.rotationIndex)
+
+    def program(self):
+        
+        for i, j in zip(self.locationIndex,self.rotationIndex):
+            print(i," : ",j)
+            if j == 1:
+                self.apply(INSTR_R45, i)
+            elif j== 2:
+                self.apply(INSTR_R90, i)
+            elif j== 3:
+                self.apply(INSTR_R135, i)
+            elif j== 4:
+                self.apply(INSTR_R180, i)
+            elif j== 5:
+                self.apply(INSTR_R225, i)
+            elif j== 6:
+                self.apply(INSTR_R270, i)
+            elif j== 7:
+                self.apply(INSTR_R315, i)
+            else:
+                pass
+        yield self.run(parallel=False)
+
+
+'''
 Compare two lists, find the unmatched index, 
     then remove corresponding slots in loc_meas.
 Input:
@@ -116,14 +161,6 @@ def Compare_basis(loc_basis_list,rem_basis_list,loc_res):
             loc_res.pop(i)
         
     return loc_res
-
-
-'''
-Simply returns a list with 0 or 1 in given length.
-'''
-def Random_basis_gen(length):
-    return [randint(0,1) for i in range(length)]
-
 
 '''
 To check which qubits are lost in given qubit list.
@@ -156,7 +193,7 @@ def CheckLoss(qList,bound):
 
 
 '''
-bitFlipNoice function to flip a bit for simulating classical noice.
+bitFlipNoise function to flip a bit for simulating classical noise.
 input:
     bit: bit to be operated.
     f0: [0-1] One of function parameter. 0.95 means 95% chance of keeping value.
@@ -166,7 +203,7 @@ input:
 output:
     return the bit.
 '''
-def bitFlipNoice(bit,f0,f1,randomInteger):
+def bitFlipNoise(bit,f0,f1,randomInteger):
     if not bit:
         if randomInteger<=(f0*100):
             return 0
