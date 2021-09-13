@@ -4,7 +4,7 @@ from random import randint
 import sys
 scriptpath = "../lib/"
 sys.path.append(scriptpath)
-from lib.functions import *
+from functions import QMeasure, ProgramFail, bitFlipNoise
 
 
 
@@ -81,7 +81,7 @@ def QubitPairFilter(qList,minBound,MaxBound):
 class AliceProtocol(NodeProtocol):
     
     def __init__(self,node,processor,num_bits,waitTime,
-                port_names=["portQA_1","portCA_1","portCA_2"]):
+                port_names=["portQA_1","portCA_1","portCA_2"],bitFlip0=1,bitFlip1=1):
         super().__init__()
         self.num_bits=num_bits
         self.node=node
@@ -94,6 +94,8 @@ class AliceProtocol(NodeProtocol):
         self.loc_mesRes = []
         self.myQMeasure = None
         self.validList=[]
+        self.bitFlip0=bitFlip0
+        self.bitFlip1=bitFlip1
 
     # =======================================A run ============================
     def run(self):
@@ -138,7 +140,8 @@ class AliceProtocol(NodeProtocol):
         yield self.await_program(processor=self.processor)
         
         for i in range(len(self.validList)):
-            tmp=bitFlipNoice(self.myQMeasure.output[str(i)][0],f0=0.95,f1=0.995,randomInteger=randint(0,100)) # add measurement noice by so
+            tmp=bitFlipNoise(self.myQMeasure.output[str(i)][0],f0=self.bitFlip0
+                ,f1=self.bitFlip1,randomInteger=randint(0,100)) # add measurement noice by so
             self.loc_mesRes.append(tmp)    
 
         

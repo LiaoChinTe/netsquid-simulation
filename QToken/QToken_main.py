@@ -16,7 +16,13 @@ from netsquid.components.models.delaymodels import FibreDelayModel
 
 from random import randint
 from netsquid.components.instructions import *
-from QToken import QToken_Alice, QToken_Bob
+
+'''
+from QToken_Alice import *
+from QToken_Bob import *
+'''
+import QToken_Alice 
+import QToken_Bob
 
 
 # implementation & hardware configure
@@ -83,7 +89,8 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
         
         
 
-        Alice_protocol = QToken_Alice.AliceProtocol(nodeA,Alice_processor,num_bits,waitTime=waitTime)
+        Alice_protocol = QToken_Alice.AliceProtocol(nodeA,Alice_processor,num_bits
+            ,waitTime=waitTime,bitFlip0=0.95,bitFlip1=0.995)
         Bob_protocol = QToken_Bob.BobProtocol(nodeB,Bob_processor,num_bits,threshold=threshold)
         Bob_protocol.start()
         Alice_protocol.start()
@@ -98,3 +105,14 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
         #return resList
     else:
         return 0
+
+
+if __name__ == '__main__':
+    myMemNoise=T1T2NoiseModel(T1=36000*10**9, T2=10**9)
+    #myProcessNoise=DephaseNoiseModel(dephase_rate=0.004)
+
+    res=run_QToken_sim(runTimes=2,num_bits=10,fibre_len=10**-9,waitTime=10**13
+        ,processNoiseModel=None,memNoiseModel=myMemNoise,threshold=0.875
+        ,fibreLoss_init=0,fibreLoss_len=0,QChV=2.083*10**-4,CChV=2.083*10**-4)
+    print("res:",res," ")
+
