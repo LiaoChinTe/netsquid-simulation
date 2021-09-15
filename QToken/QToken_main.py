@@ -17,12 +17,30 @@ from netsquid.components.models.delaymodels import FibreDelayModel
 from random import randint
 from netsquid.components.instructions import *
 
+import math
+
 '''
 from QToken_Alice import *
 from QToken_Bob import *
 '''
 import QToken_Alice 
 import QToken_Bob
+
+
+def myStepFunction(x):
+    if x > 0:
+        return x
+    else:
+        return 0 
+
+def MyCostFunction(t1,t2,p1,p2,Srate,T,SrateMin=0.875,Tmin=10**9,w1=1,w2=1,w3=1,sf=myStepFunction
+    ,t1b=36000,t2b=0.0049,p1b=0.95,p2b=0.995):
+    tmp1=w1*sf(SrateMin-Srate)
+    tmp2=w2*sf(Tmin-T)
+    C=1/(1+math.log(t1,1/(1+t1b)))+1/(1+math.log(t2,1/(1+t2b)))+1/(1+math.log(p1,p1b))+1/(1+math.log(p2,p2b))
+    tmp3=w3*C
+    
+    return tmp1+tmp2+tmp3
 
 
 # implementation & hardware configure
@@ -97,22 +115,24 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
         #ns.logger.setLevel(1)
         stats = ns.sim_run()
         
-        resList.append(Bob_protocol.successfulRate) 
+        #resList.append(Bob_protocol.successfulRate) 
         #print("Bob_protocol.successfulRate:",Bob_protocol.successfulRate)
-
+    ''' 
     if resList:
         return sum(resList)/len(resList)
         #return resList
     else:
         return 0
+    '''
+
+    return MyCostFunction(t1=36*10**12,t2=4.9*10**6,p1=0.95,p2=0.995,Srate=Bob_protocol.successfulRate,T=10**6)
 
 
 if __name__ == '__main__':
-    myMemNoise=T1T2NoiseModel(T1=36000*10**9, T2=10**9)
+    myMemNoise=T1T2NoiseModel(T1=36*10**12, T2=4.9*10**6)
     #myProcessNoise=DephaseNoiseModel(dephase_rate=0.004)
 
-    res=run_QToken_sim(runTimes=2,num_bits=10,fibre_len=10**-9,waitTime=10**13
+    res=run_QToken_sim(runTimes=2,num_bits=10,fibre_len=10**-9,waitTime=10**3
         ,processNoiseModel=None,memNoiseModel=myMemNoise,threshold=0.875
         ,fibreLoss_init=0,fibreLoss_len=0,QChV=2.083*10**-4,CChV=2.083*10**-4)
     print("res:",res," ")
-
