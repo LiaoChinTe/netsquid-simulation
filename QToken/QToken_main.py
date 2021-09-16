@@ -26,7 +26,7 @@ from QToken_Bob import *
 import QToken_Alice 
 import QToken_Bob
 
-
+'''
 def myStepFunction(x):
     if x > 0:
         return x
@@ -41,7 +41,7 @@ def MyCostFunction(t1,t2,p1,p2,Srate,T,SrateMin=0.875,Tmin=10**9,w1=1,w2=1,w3=1,
     tmp3=w3*C
     
     return tmp1+tmp2+tmp3
-
+'''
 
 # implementation & hardware configure
 def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
@@ -115,17 +115,18 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
         #ns.logger.setLevel(1)
         stats = ns.sim_run()
         
-        #resList.append(Bob_protocol.successfulRate) 
+        resList.append(Bob_protocol.successfulRate) 
         #print("Bob_protocol.successfulRate:",Bob_protocol.successfulRate)
-    ''' 
+    
     if resList:
         return sum(resList)/len(resList)
         #return resList
     else:
         return 0
-    '''
+    
 
-    return MyCostFunction(t1=36*10**12,t2=4.9*10**6,p1=0.95,p2=0.995,Srate=Bob_protocol.successfulRate,T=10**6)
+    
+    #return MyCostFunction(t1=36*10**12,t2=4.9*10**6,p1=0.95,p2=0.995,Srate=Bob_protocol.successfulRate,T=10**6)
 
 
 if __name__ == '__main__':

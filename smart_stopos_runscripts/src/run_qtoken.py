@@ -3,10 +3,23 @@ import pandas as pd
 from argparse import ArgumentParser
 from QToken.QToken_main import run_QToken_sim
 from netsquid.components.models.qerrormodels import T1T2NoiseModel
+import math
 
 
-def cost_function(success_rate, waiting_time_alice, cost_proportion_factor=1e12, threshold_success_rate=0.9):
-    return cost_proportion_factor * np.heaviside(threshold_success_rate - success_rate, 1) - waiting_time_alice
+def myStepFunction(x):
+    if x > 0:
+        return x
+    else:
+        return 0 
+
+def myCostFunction(t1,t2,p1,p2,Srate,T,SrateMin=0.875,Tmin=10**9,w1=1,w2=1,w3=1,sf=myStepFunction
+    ,t1b=36000,t2b=0.0049,p1b=0.95,p2b=0.995):
+    tmp1=w1*sf(SrateMin-Srate)
+    tmp2=w2*sf(Tmin-T)
+    C=1/(1+math.log(t1,1-1/(1+t1b)))+1/(1+math.log(t2,1-1/(1+t2b)))+1/(1+math.log(p1,p1b))+1/(1+math.log(p2,p2b))
+    tmp3=w3*C
+    
+    return tmp1+tmp2+tmp3
 
 
 if __name__ == "__main__":
@@ -23,7 +36,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     mem_noise_model = T1T2NoiseModel(T1=args.T1, T2=args.T2, waitTime=args.wait_time)
     res = run_QToken_sim(memNoiseModel=mem_noise_model, runTimes=2)
-    cost = cost_function(success_rate=res, waiting_time_alice=args.wait_time)
+    cost = myCostFunction(t1=args.T1,t2=args.T2,p1=0.95,p2=0.995,Srate=res,T=args.wait_time)
+
     df = pd.DataFrame(columns=["cost", "T1", "T2", "wait_time"])
     df.loc[0] = [cost, args.T1, args.T2, args.wait_time]
     csv_filename = args.filebasename + '.csv'
