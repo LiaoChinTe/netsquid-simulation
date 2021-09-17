@@ -12,11 +12,11 @@ def myStepFunction(x):
     else:
         return 0 
 
-def myCostFunction(t1,t2,p1,p2,Srate,T,SrateMin=0.875,Tmin=10**9,w1=1,w2=1,w3=1,sf=myStepFunction
-    ,t1b=36000,t2b=0.0049,p1b=0.95,p2b=0.995):
+def myCostFunction(t1,t2,p1,p2,Srate,T,SrateMin=0.875,Tmin=10**9,w1=1,w2=0,w3=1,sf=myStepFunction
+    ,t1b=10,t2b=4.9,p1b=0.95,p2b=0.995):
     tmp1=w1*sf(SrateMin-Srate)
     tmp2=w2*sf(Tmin-T)
-    C=1/(1+math.log(t1,1-1/(1+t1b)))+1/(1+math.log(t2,1-1/(1+t2b)))+1/(1+math.log(p1,p1b))+1/(1+math.log(p2,p2b))
+    C=1/(1+math.log(t1,t1b))+1/(1+math.log(t2,t2b))+1/(1+math.log(p1,p1b))+1/(1+math.log(p2,p2b))
     tmp3=w3*C
     
     return tmp1+tmp2+tmp3
@@ -34,9 +34,9 @@ if __name__ == "__main__":
                         help="Beginning of filename where results will be stored.")
 
     args = parser.parse_args()
-    mem_noise_model = T1T2NoiseModel(T1=args.T1, T2=args.T2, waitTime=args.wait_time)
+    mem_noise_model = T1T2NoiseModel(T1=(1/(1-args.T1))-1, T2=(1/(1-args.T2))-1, waitTime=args.wait_time)
     res = run_QToken_sim(memNoiseModel=mem_noise_model, runTimes=2)
-    cost = myCostFunction(t1=args.T1,t2=args.T2,p1=0.95,p2=0.995,Srate=res,T=args.wait_time)
+    cost = myCostFunction(t1=(1/(1-args.T1))-1,t2=(1/(1-args.T2))-1,p1=0.95,p2=0.995,Srate=res,T=args.wait_time)
 
     df = pd.DataFrame(columns=["cost", "T1", "T2", "wait_time"])
     df.loc[0] = [cost, args.T1, args.T2, args.wait_time]
