@@ -46,25 +46,21 @@ Common functions shared by multiple protocols are located in lib/functions.py, w
 
 # Quantum Protocol List
 ## Quantum Key Distribution
-- BB84
 - E91/Ekert/EPR
 
 ## Quantum Money
 - Quantum Token
-- Quantum Cheque
 
 ## Quantum Teleportation
 - Quantum State Teleportation
 
 ## Universal Blind Quantum Computing 
-- Verifiable Universal Blind Quantum Computing
+- Verifiable Blind Quantum Computing
 
 ## Anonymous Transmission
 - W-state Anonymous Transmission
 
-## Others
-- QLine
-- Quantum Memory test
+
 
 
 ## Contact
