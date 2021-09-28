@@ -1,0 +1,104 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --time=00:15:00
+
+time_stamp=$(date +'%Y-%m-%d_%H.%M')
+echo $time_stamp
+
+module purge
+module load 2019
+module load Stopos/0.93-GCC-7.3.0-2.30
+
+venvdir="$(awk '/^venvdir:/{print $2; exit}' < $input_file)"
+condaenv="$(awk '/^condaenv:/{print $2}'< $input_file)"
+configfile="$(awk '/configfile:/ {print $2}' < $input_file)"
+paramfile="$(awk '/paramfile:/ {print $2}' < $input_file)"
+run_program="$(awk '/^run_program:/{print $2}' < $input_file)"
+fix_variables="$(awk '/fix_variables:/{$1=""; print $0}' < $input_file)"
+number_args="$(awk '/^run_program:/{print $3}' < $input_file)"
+paramnames=($(awk '/^run_program:/{if (NF != 3 + $3) exit(1); for (i=4; i <= NF ; ++i) print $i}' "$input_file"))
+if [ -z $paramnames ]; then
+    echo "ERROR: Must provide parameters to run_program" 1>&2
+    exit 1
+fi
+
+if [ ! -z $venvdir ]; then
+	source $venvdir/activate
+elif [ ! -z $condaenv ]; then
+    module load Miniconda3
+    source /sw/arch/RedHatEnterpriseServer7/EB_production/2020/software/Miniconda3/4.7.12.1/etc/profile.d/conda.sh
+    conda activate $condaenv
+fi
+
+ncores=$(sara-get-num-cores)
+echo "ncores:" $ncores
+
+if [ -z $configfile ]; then
+    echo "no configfile"
+    for ((i=1; i<=$ncores; i++))
+    do
+    (
+        while true ; do
+            stopos next -p $pool
+            if [[ $STOPOS_RC != "OK" ]]; then
+               echo "no more values in stopos pool"
+               break
+            fi
+            count=$(($count+1))
+            fb=$(echo " --filebasename test_"$i"_"$count)
+    		for (( j=0 ; j < "${#paramnames[@]}"; ++j ))
+    		do
+                s=$(($j+1))
+                value=$(echo $STOPOS_VALUE |cut -d\  -f"$s")
+                variables="${variables}$(echo --"${paramnames[j]}" "$value ")"
+    		done
+            python3 $run_program $variables $fb
+            unset variables
+            stopos remove -p $pool
+        done
+    ) &
+    done
+    wait
+elif [ ! -z $configfile ]; then
+    echo "configfile"
+    for ((i=1; i<=$ncores; i++))
+    do
+    (
+        while true ; do
+            stopos next -p $pool
+            if [[ $STOPOS_RC != "OK" ]]; then
+               echo "no more values in stopos pool"
+               break
+            fi
+            count=$(($count+1))
+            paramfile_count=$(echo $paramfile"_"$i"_"$count)
+            configfile_count=$(echo $configfile"_"$i"_"$count)
+            cp $paramfile $paramfile_count
+            # modify file
+            sed "s/$paramfile.*$/$paramfile_count/"  $configfile > $configfile_count
+    		for (( j=0 ; j < "${#paramnames[@]}"; ++j ))
+    		do
+                s=$(($j+1))
+                value=$(echo $STOPOS_VALUE |cut -d\  -f"$s")
+                #variables="${variables}$(echo --"${paramnames[j]}" "$value ")"
+                sed -i "s/^${paramnames[j]}.*$/${paramnames[j]}\: $value/" $paramfile_count  # to change values accordingly inside paramfile 
+    		done
+            echo "$paramfile_count"
+            fb=$(echo " --filebasename test_"$i"_"$count)
+            pf=$(printf " --paramfile %s"$paramfile_count)
+            cf=$(printf " --configfile %s"$configfile_count)
+            echo "python3 $run_program  $pf $cf $fb $fix_variables" #$variables"
+            python3 $run_program  $pf $cf $fb $fix_variables        #$variables
+            cat $paramfile_count
+            #unset variables
+            stopos remove -p $pool
+        done
+    ) &
+    done
+    wait
+    rm "${configfile}"*
+    rm "${paramfile}"*
+fi
+echo "All while loop runners finished --> stopos job finished"
+time_stamp=$(date +'%Y-%m-%d_%H.%M')
+echo $time_stamp

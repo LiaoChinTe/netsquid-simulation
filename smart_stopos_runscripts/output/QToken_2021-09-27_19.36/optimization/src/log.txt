@@ -1,0 +1,38 @@
+Finish reading input
+name run: QToken
+run program: run_qtoken.py
+files needed: analyse_function_output.py
+files needed: file_parsing_tools.py
+files needed: run_qtoken.py
+workdir: /home/ctliao/Desktop/RK_netSquid/smart_stopos_runscripts
+sstoposdir: /home/ctliao/Desktop/smart-stopos
+analysis_program: analyse_function_output.py
+run type: optimization
+Creating directory structure
+Simulation will be run in : /home/ctliao/Desktop/RK_netSquid/smart_stopos_runscripts/output/QToken_2021-08-24_14.17/optimization
+WARNING: population size does not apply in single runs or first optimization step
+Current optimization step: 0
+Initial set of parameter created: param_set_0
+optimization
+
+Simulation started at 2021-08-24_14.17.42
+Performing optimization
+Number cores:  2
+Starting simulations opt_step 0
+analyse_function_output.py
+file_parsing_tools.py
+run_qtoken.py
+Finished running parameters opt_step_0
+Starting analysis opt_step 0
+Creating new optimized parameters from results opt_step_0
+New parameters set created
+
+Starting simulations opt_step 1
+analyse_function_output.py
+file_parsing_tools.py
+run_qtoken.py
+Finished running parameters opt_step_1
+Starting analysis opt_step 1
+Creating new optimized parameters from results opt_step_1
+
+Simulation finished at 2021-08-24_14.17.44
