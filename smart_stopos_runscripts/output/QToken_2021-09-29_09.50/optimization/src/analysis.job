@@ -1,0 +1,70 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --time=00:05:00
+
+module purge
+module load 2019
+module load Stopos/0.93-GCC-7.3.0-2.30
+
+echo "analysis"
+
+venvdir="$(awk '/^venvdir:/{print $2; exit}' < $input_file)"
+condaenv="$(awk '/^condaenv:/{print $2}'< $input_file)"
+analysis_program="$(awk '/analysis_program/{print $2}' < $input_file)"
+if [ ! -z $venvdir ]; then
+	source $venvdir/activate
+elif [ ! -z $condaenv ]; then
+    module load Miniconda3
+	source /sw/arch/RedHatEnterpriseServer7/EB_production/2020/software/Miniconda3/4.7.12.1/etc/profile.d/conda.sh
+    conda activate $condaenv
+fi
+
+array_jobids=$(echo $sjobid | tr ":" " ")
+for word in $array_jobids
+    do
+        echo $word
+        sacct -j $word --format=User,JobID,Jobname,partition,state,time,start,end,elapsed,MaxRss,MaxVMSize,nnodes,ncpus,nodelist >> stopos_job_stats
+    done
+
+export PATH=$PATH:$sstoposdir/smartstopos/pools/
+export PATH=$PATH:$sstoposdir/smartstopos/duplicates/
+
+tmprundir=$tmpdir/$foldername
+
+if [[ $optsteps == 0 ]]; then
+    rundir=$tmpdir/$foldername/single
+    cd $rundir
+elif [[ $optsteps -gt 0 ]]; then
+    rundir=$tmpdir/$foldername/optimization
+    optname=$rundir/opt_step_$optstep
+    cd $optname
+fi
+
+# ANALYSIS and OPTIMIZATION
+python3 $analysis_program
+# optimization and creation of new pool based on optimization results
+cd $rundir
+
+if [[ $optsteps -gt 0 ]]; then
+    if [[ $optstep -lt $optsteps ]]; then
+    create_opt_pool.py  --input_file $input_file --opt_step $optstep --prev_directory $optname #> out_opt\_$optstep
+    next_opt_step=$(($optstep+1))
+    remove_duplicates.py --step $optstep
+    stopos -p $pool add param_set\_$next_opt_step
+    next_opt_dir=$rundir/opt_step\_$next_opt_step
+    cp param_set\_$next_opt_step $next_opt_dir
+    mv duplicates.csv $next_opt_dir
+    fi
+fi
+
+# ARCHIVING
+# copy results when optimization is finished
+if [[ $optstep == $optsteps ]]; then
+    echo "Simulation finished, copying results back"
+    cp -r $tmprundir $output/
+    rm -r $tmpdir
+	stopos purge -p $pool
+    mv $output/running_directory_$foldername $output/$foldername/running_directory
+    mv $output/jobs_ids_$foldername $output/$foldername/jobs_ids
+    echo "Files cleaned"
+fi

@@ -23,8 +23,8 @@ import math
 from QToken_Alice import *
 from QToken_Bob import *
 '''
-import QToken_Alice 
-import QToken_Bob
+from QToken import QToken_Alice
+from QToken import QToken_Bob
 
 '''
 def myStepFunction(x):
