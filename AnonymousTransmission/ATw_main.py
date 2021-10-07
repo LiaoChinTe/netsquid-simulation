@@ -15,6 +15,7 @@ from netsquid.components.qsource import SourceStatus
 from netsquid.components.qprogram import *
 from netsquid.components.models import DephaseNoiseModel,DepolarNoiseModel,T1T2NoiseModel
 
+from netsquid.qubits.qubitapi import create_qubits
 
 from ATw_center import *
 from ATw_side import *
@@ -227,18 +228,19 @@ def run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9,processorNoiseModel=None,m
                     #print("Aborted!!")
     return pi*sum_fidelity/2/(runtimes**2)
     
-
-
 #test
-ns.sim_reset()
+if __name__ == '__main__':
 
-myNoiseModel1=DephaseNoiseModel(dephase_rate=6*10**4,time_independent=False)
-#myNoiseModel2=DepolarNoiseModel(depolar_rate=6*10**4,time_independent=False)
-#myNoiseModel3=T1T2NoiseModel(T1=11, T2=0)
-#myNoiseModel4=DepolarNoiseModel(depolar_rate=0.01,time_independent=True)
+    ns.sim_reset()
+    #print (ns.__version__)
 
-res=run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9
-    ,processorNoiseModel=None,memNoiseMmodel=myNoiseModel1
-    ,loss_init=0,loss_len=0,t1=3720,t2=0)  #  1760  #15270  1760, 6760
+    myNoiseModel1=DephaseNoiseModel(dephase_rate=6*10**4,time_independent=False)
+    #myNoiseModel2=DepolarNoiseModel(depolar_rate=6*10**4,time_independent=False)
+    #myNoiseModel3=T1T2NoiseModel(T1=11, T2=0)
+    #myNoiseModel4=DepolarNoiseModel(depolar_rate=0.01,time_independent=True)
 
-res=print("Avg Fidelity:",res)
+    res=run_AT_sim(runtimes=1,numNodes=4,fibre_len=10**-9
+        ,processorNoiseModel=None,memNoiseMmodel=myNoiseModel1
+        ,loss_init=0,loss_len=0,t1=3720,t2=0)  
+
+    res=print("Avg Fidelity index:",res)

@@ -10,10 +10,7 @@ scriptpath = "../lib/"
 sys.path.append(scriptpath)
 from functions import *
 
-'''
-Bell state:
 
-'''
 class TP_ReceiverAdjust(QuantumProgram):
     
     def __init__(self,bellState,adjBase):
@@ -58,7 +55,7 @@ class QuantumTeleportationReceiver(NodeProtocol):
 
         self.resultQubit=EPR_2
         self.portNameCR1=portNames[0]
-        self.receivedState=None
+        self.receivedQubit=None
         self.processor.put(self.resultQubit)
         self.delay=delay
 
@@ -84,6 +81,7 @@ class QuantumTeleportationReceiver(NodeProtocol):
         self.processor.set_program_fail_callback(ProgramFail,info=self.processor.name,once=True)
         yield self.await_program(processor=self.processor)
 
+        self.receivedQubit=self.processor.peek(0)[0]
 
 
 

@@ -9,8 +9,9 @@ from functions import *
 
 QTpath = "../QuantumTeleportation/"
 sys.path.append(QTpath)
-from sender_QT import *
-from receiver_QT import *
+from QT_sender import *
+from QT_receiver import *
+#import QT_receiver
 
 
 
