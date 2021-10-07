@@ -80,28 +80,9 @@ class QuantumTeleportationReceiver(NodeProtocol):
         # edit EPR2 according to res
         myTP_ReceiverAdjust=TP_ReceiverAdjust(self.bellState,res)
         self.processor.execute_program(myTP_ReceiverAdjust,qubit_mapping=[0])
-        #self.processor.set_program_done_callback(self.show_state,once=True)
+        #self.processor.set_program_done_callback(self.show_state,once=True) # see qstate
         self.processor.set_program_fail_callback(ProgramFail,info=self.processor.name,once=True)
         yield self.await_program(processor=self.processor)
-
-
-        # see qstate
-        self.receivedQubit=self.processor.peek([0])[0]
-        #print("R receivedState :",self.receivedState.qstate.dm)
-
-        # see qstate!
-
-        # do measurement
-        '''
-        myMeasurement=QMeasure([0])
-        self.processor.execute_program(myMeasurement,qubit_mapping=[0])
-        self.processor.set_program_fail_callback(ProgramFail,info=self.processor.name,once=True)
-
-        yield self.await_program(processor=self.processor)
-        self.receivedState = myMeasurement.output['0'][0]
-        #print("R mes res :", self.receivedState)
-        '''
-        # do measurement!
 
 
 
@@ -109,5 +90,4 @@ class QuantumTeleportationReceiver(NodeProtocol):
     def show_state(self):
         set_qstate_formalism(QFormalism.DM)
         tmp=self.processor.pop(0)[0]
-        print("R tmp:",tmp)
-        #print("R final state:",tmp.qstate.dm)
+        print("R final state:",tmp.qstate.dm)

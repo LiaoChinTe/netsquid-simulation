@@ -3,7 +3,6 @@ import netsquid as ns
 from netsquid.nodes.node import Node
 from netsquid.protocols import NodeProtocol
 from netsquid.qubits.operators import X,H,Z,CNOT
-from netsquid.components  import ClassicalFibre,QuantumFibre
 
 
 
@@ -20,8 +19,8 @@ from netsquid.components.qsource import SourceStatus
 from netsquid.components.models.qerrormodels import FibreLossModel
 from netsquid.components.models.delaymodels import FibreDelayModel
 
-from sender_QT import *
-from receiver_QT import *
+from QT_sender import *
+from QT_receiver import *
 
 
 
@@ -42,20 +41,20 @@ def run_Teleport_sim(runtimes=1,fibre_len=10**-9,memNoiseMmodel=None,processorNo
         # processors===============================================================
         processorSender=QuantumProcessor("processorSender", num_positions=10,
             mem_noise_models=memNoiseMmodel, phys_instructions=[
-            PhysicalInstruction(INSTR_X, duration=1, q_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_Z, duration=1, q_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_H, duration=1, q_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_CNOT,duration=10,q_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_MEASURE, duration=10,q_noise_model=processorNoiseModel, parallel=False)])
+            PhysicalInstruction(INSTR_X, duration=1, quantum_noise_model=processorNoiseModel),
+            PhysicalInstruction(INSTR_Z, duration=1, quantum_noise_model=processorNoiseModel),
+            PhysicalInstruction(INSTR_H, duration=1, quantum_noise_model=processorNoiseModel),
+            PhysicalInstruction(INSTR_CNOT,duration=10,quantum_noise_model=processorNoiseModel),
+            PhysicalInstruction(INSTR_MEASURE, duration=10,quantum_noise_model=processorNoiseModel, parallel=False)])
 
 
         processorReceiver=QuantumProcessor("processorReceiver", num_positions=10,
             mem_noise_models=memNoiseMmodel, phys_instructions=[
-            PhysicalInstruction(INSTR_X, duration=1, q_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_Z, duration=1, q_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_H, duration=1, q_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_CNOT,duration=10,q_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_MEASURE, duration=10,q_noise_model=processorNoiseModel, parallel=False)])
+            PhysicalInstruction(INSTR_X, duration=1, quantum_noise_model=processorNoiseModel),
+            PhysicalInstruction(INSTR_Z, duration=1, quantum_noise_model=processorNoiseModel),
+            PhysicalInstruction(INSTR_H, duration=1, quantum_noise_model=processorNoiseModel),
+            PhysicalInstruction(INSTR_CNOT,duration=10,quantum_noise_model=processorNoiseModel),
+            PhysicalInstruction(INSTR_MEASURE, duration=10,quantum_noise_model=processorNoiseModel, parallel=False)])
 
 
         # channels==================================================================
@@ -70,6 +69,7 @@ def run_Teleport_sim(runtimes=1,fibre_len=10**-9,memNoiseMmodel=None,processorNo
         # test example
         # make an EPR pair and origin state
         oriQubit,epr1,epr2=create_qubits(3)
+        operate(oriQubit, X) # init qubit
         operate(epr1, H)
         operate([epr1, epr2], CNOT)
         
@@ -87,10 +87,9 @@ def run_Teleport_sim(runtimes=1,fibre_len=10**-9,memNoiseMmodel=None,processorNo
         #ns.logger.setLevel(1)
         stats = ns.sim_run()
         
-        print("M res:",myQT_Receiver.receivedState)
 
     return 0
 
 
-
-run_Teleport_sim()
+if __name__ == '__main__':
+    run_Teleport_sim()
