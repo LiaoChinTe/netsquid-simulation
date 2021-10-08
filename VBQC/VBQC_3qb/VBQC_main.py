@@ -157,38 +157,38 @@ def run_UBQC_sim(x,phi,runBoolArray=[0,1],fibre_len=10**-9,processorNoiseModel=N
 
 
 
-# run simulation
+if __name__ == '__main__':
+    # run simulation
 
-runs=3000
-failCount=0
-abortCount=0
+    runs=30
+    failCount=0
+    abortCount=0
 
-for k in range(runs):
-    # input value test===========================================================
-    phi1=randint(0,7)
-    x=randint(0,1)
-    phi=[phi1,0,-phi1]
+    for k in range(runs):
+        # input value test===========================================================
+        phi1=randint(0,7)
+        x=randint(0,1)
+        phi=[phi1,0,-phi1]
 
-    #print(ns.__version__)
-    #runBoolArray 1:comute case   0:verify case: 1: pass
-    mymemNoiseMmodel=T1T2NoiseModel(T1=36000*10**9, T2=1*10**9)
+        #print(ns.__version__)
+        #runBoolArray 1:comute case   0:verify case: 1: pass
+        mymemNoiseMmodel=T1T2NoiseModel(T1=36000*10**9, T2=1*10**9)
 
-    myProccessorNoiseModel1=DephaseNoiseModel(dephase_rate=0.01,time_independent=True)
-    myProccessorNoiseModel2=DepolarNoiseModel(depolar_rate=0.01,time_independent=True)
+        myProccessorNoiseModel1=DephaseNoiseModel(dephase_rate=0.01,time_independent=True)
+        myProccessorNoiseModel2=DepolarNoiseModel(depolar_rate=0.01,time_independent=True)
 
-    res=run_UBQC_sim(x=x,phi=[phi1,0,-phi1],runBoolArray=[0],
-        fibre_len=10**-9,processorNoiseModel=myProccessorNoiseModel2,memNoiseMmodel_S=mymemNoiseMmodel
-        ,memNoiseMmodel_C=mymemNoiseMmodel,loss_init=0,loss_len=0,threshold=1)
+        res=run_UBQC_sim(x=x,phi=[phi1,0,-phi1],runBoolArray=[0],
+            fibre_len=10**-9,processorNoiseModel=myProccessorNoiseModel2,memNoiseMmodel_S=mymemNoiseMmodel
+            ,memNoiseMmodel_C=mymemNoiseMmodel,loss_init=0,loss_len=0,threshold=1)
 
-    if res == -1:
-        abortCount+=1
-    elif x!=res:
-        failCount+=1
-    #print(res)
+        if res == -1:
+            abortCount+=1
+        elif x!=res:
+            failCount+=1
 
-avgAbortRate=abortCount/runs
-if runs != abortCount:
-    avgCorrectRate=(runs-abortCount-failCount)/(runs-abortCount)
-else:
-    avgCorrectRate=0
-print("avgCorrectRate:",avgCorrectRate,"\navgAbortRate:",avgAbortRate)
+    avgAbortRate=abortCount/runs
+    if runs != abortCount:
+        avgCorrectRate=(runs-abortCount-failCount)/(runs-abortCount)
+    else:
+        avgCorrectRate=0
+    print("avgCorrectRate:",avgCorrectRate,"\navgAbortRate:",avgAbortRate)

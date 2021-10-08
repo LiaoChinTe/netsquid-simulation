@@ -7,7 +7,7 @@ from netsquid.components.qsource import SourceStatus
 import sys
 scriptpath = "../../lib/"
 sys.path.append(scriptpath)
-from functions import *
+from functions import bitFlipNoice, PrepareEPRpairs, QCZ, AngleMeasure
 
 class ProtocolServer(NodeProtocol):
 
@@ -53,9 +53,9 @@ class ProtocolServer(NodeProtocol):
         if len(self.port_output)==self.qubitNum*2:
             self.processor.put(qubits=self.port_output)
             # PrepareEPRpairs
-            prepareEPRpairs=PrepareEPRpairs(self.qubitNum)
+            myPrepareEPRpairs=PrepareEPRpairs(self.qubitNum)
             self.processor.execute_program(
-                prepareEPRpairs,qubit_mapping=[i for  i in range(0, self.qubitNum*2)])
+                myPrepareEPRpairs,qubit_mapping=[i for  i in range(0, self.qubitNum*2)])
     
     
     def S_sendEPR(self,position):
