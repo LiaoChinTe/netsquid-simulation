@@ -82,6 +82,29 @@ Operator_NToffoli = Operator(name='Operator_NToffoli', matrix=NToffoli_matrix)
 INSTR_NToffoli = IGate('INSTR_NToffoli',operator=Operator_NToffoli)
 
 
+'''
+bitFlipNoice function to flip a bit for simulating classical noice.
+input:
+    bit: bit to be operated.
+    f0: [0-1] One of function parameter. 0.95 means 95% chance of keeping value.
+    f1:[0-1] One of function parameter.  0.995 means 99.5% chance of keeping value.
+    randomInteger:[1,100].
+
+output:
+    return the bit.
+'''
+def bitFlipNoice(bit,f0,f1,randomInteger):
+    if not bit:
+        if randomInteger<=(f0*100):
+            return 0
+        else:
+            return 1
+    else:                     #bit == 1:
+        if randomInteger<=(f1*100):
+            return 1
+        else:
+            return 0
+
 
 
 
