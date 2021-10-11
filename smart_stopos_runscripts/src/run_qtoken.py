@@ -37,6 +37,7 @@ if __name__ == "__main__":
     mem_noise_model = T1T2NoiseModel(T1=((1/(1-args.T1))-1)*3.6*10**12, T2=((1/(1-args.T2))-1)*10**6)
     res = run_QToken_sim(memNoiseModel=mem_noise_model, runTimes=2,waitTime=10**9)
 
+    print("running with T1:",args.T1," T2:",args.T2," succ_rate:",res)
     '''
     if res>0.875:
         print("O Srate ","==========================",res,"==========================================")

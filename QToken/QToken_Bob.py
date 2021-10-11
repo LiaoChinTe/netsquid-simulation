@@ -38,9 +38,8 @@ def TokenCheck_LossTolerant(basisInxList,randMeas,locRes,validList):
     if len(locRes)!=len(validList):
         print("Measurment length Error!")
         return []
-    else:
-        pass
-        
+    
+
     for i in range(len(validList)):
         tmpRes.insert(validList[i]-1, locRes[i])
         

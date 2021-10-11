@@ -19,37 +19,22 @@ from netsquid.components.instructions import *
 
 import math
 
-'''
-from QToken_Alice import *
-from QToken_Bob import *
-'''
-from QToken import QToken_Alice
-from QToken import QToken_Bob
 
-'''
-def myStepFunction(x):
-    if x > 0:
-        return x
-    else:
-        return 0 
+import QToken_Alice 
+import QToken_Bob
 
-def MyCostFunction(t1,t2,p1,p2,Srate,T,SrateMin=0.875,Tmin=10**9,w1=1,w2=1,w3=1,sf=myStepFunction
-    ,t1b=36000,t2b=0.0049,p1b=0.95,p2b=0.995):
-    tmp1=w1*sf(SrateMin-Srate)
-    tmp2=w2*sf(Tmin-T)
-    C=1/(1+math.log(t1,1/(1+t1b)))+1/(1+math.log(t2,1/(1+t2b)))+1/(1+math.log(p1,p1b))+1/(1+math.log(p2,p2b))
-    tmp3=w3*C
-    
-    return tmp1+tmp2+tmp3
-'''
+
 
 # implementation & hardware configure
 def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
         processNoiseModel=None,memNoiseModel=None,threshold=0.875,
-        fibreLoss_init=0.2,fibreLoss_len=0.25,QChV=2.083*10**-4,CChV=2.083*10**-4):
+        fibreLoss_init=0,fibreLoss_len=0,QChV=2.083*10**-4,CChV=2.083*10**-4):
     
     resList=[]
     
+    #debug
+    print("In run_QToken_sim, T1:",memNoiseModel.T1," T2:",memNoiseModel.T2)
+
     for i in range(runTimes): 
         
         ns.sim_reset()
