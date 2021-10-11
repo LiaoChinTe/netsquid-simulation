@@ -119,8 +119,8 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
         #print("Bob_protocol.successfulRate:",Bob_protocol.successfulRate)
     
     if resList:
-        return sum(resList)/len(resList), np.std(resList) / np.sqrt(len(resList))
-        #return resList
+        # return sum(resList)/len(resList), np.std(resList) / np.sqrt(len(resList))
+        return resList
     else:
         return 0
     

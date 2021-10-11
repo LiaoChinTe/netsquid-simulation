@@ -15,7 +15,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     mem_noise_model = T1T2NoiseModel(T1=args.T1, T2=args.T2)
-    res, error = run_QToken_sim(memNoiseModel=mem_noise_model,
-                                runTimes=10,
-                                waitTime=10**9)
-    print("Rate of success: {} p/m {}".format(res, error))
+    res_list = run_QToken_sim(memNoiseModel=mem_noise_model,
+                              runTimes=10,
+                              waitTime=10**9)
+    res = np.average(res_list)
+    error = np.std(res_list) / np.sqrt(len(res_list))
+    print("Average rate of success: {} p/m {}".format(res, error))
+    print("Rates of success: {}".format(res_list))
