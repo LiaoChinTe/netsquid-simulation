@@ -31,10 +31,14 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
         fibreLoss_init=0,fibreLoss_len=0,QChV=2.083*10**-4,CChV=2.083*10**-4):
     
     resList=[]
+<<<<<<< HEAD
     
     #debug
     print("In run_QToken_sim, T1:",memNoiseModel.T1," T2:",memNoiseModel.T2)
 
+=======
+    print('received a noise model with T1: {} and T2: {}'.format(memNoiseModel.T1, memNoiseModel.T2))
+>>>>>>> origin/sanity-check-qtoken
     for i in range(runTimes): 
         
         ns.sim_reset()
@@ -104,8 +108,8 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
         #print("Bob_protocol.successfulRate:",Bob_protocol.successfulRate)
     
     if resList:
-        return sum(resList)/len(resList)
-        #return resList
+        # return sum(resList)/len(resList), np.std(resList) / np.sqrt(len(resList))
+        return resList
     else:
         return 0
     
