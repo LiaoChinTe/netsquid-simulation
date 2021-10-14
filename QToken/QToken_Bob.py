@@ -9,12 +9,7 @@ from netsquid.components.instructions import *
 
 from random import randint
 
-'''
-import sys
-scriptpath = "../lib/"
-sys.path.append(scriptpath)
-from functions import *
-'''
+
 
 '''
 Only used in this protocol.
@@ -32,6 +27,7 @@ output:
     res: 
         the persentage of passed qubits among all qubits.
 '''
+'''
 def TokenCheck_LossTolerant(basisInxList,randMeas,locRes,validList):
     # padding for locRes
     tmpRes=[-1]*(2*len(basisInxList)-len(validList))
@@ -43,7 +39,7 @@ def TokenCheck_LossTolerant(basisInxList,randMeas,locRes,validList):
     for i in range(len(validList)):
         tmpRes.insert(validList[i]-1, locRes[i])
         
-     
+
     # checking
     failCount=0
     if randMeas==0:
@@ -72,17 +68,64 @@ def TokenCheck_LossTolerant(basisInxList,randMeas,locRes,validList):
                 failCount+=1
     
     
-    '''
+    
     print("in TokenCheck_LossTolerant2")
+    print("randMeas: ",randMeas)
     print("len(locRes): ",len(locRes))           #scale /100
     print("failCount: ",failCount)                   #scale  /max 50
     print("len(basisInxList): ",len(basisInxList)) # 50
-    '''
+    
     
     
     return 1-(failCount-len(basisInxList)+len(locRes)/2)/(len(locRes)/2)
+'''
 
+def TokenCheck(basisInxList,randMeas,locRes):
+
+    if 2*len(basisInxList)!=len(locRes):
+        print("Measurment length Error!")
+        return []
+
+    tmpRes=locRes
+
+    # checking
+    failCount=0
+    if randMeas==0:
+        for i in range(len(basisInxList)):
+            if basisInxList[i]<=1 and tmpRes[2*i]==0:
+                pass
+            elif basisInxList[i]<=3 and tmpRes[2*i]==1:
+                pass
+            elif basisInxList[i]>3 and basisInxList[i]%2==0 and tmpRes[2*i+1]==0:
+                pass
+            elif basisInxList[i]>3 and basisInxList[i]%2==1 and tmpRes[2*i+1]==1:
+                pass
+            else:
+                failCount+=1
+    else: # randMeas==1:
+        for i in range(len(basisInxList)):
+            if basisInxList[i]>=6 and tmpRes[2*i]==1:
+                pass
+            elif basisInxList[i]>=4 and tmpRes[2*i]==0:
+                pass
+            elif basisInxList[i]<4 and basisInxList[i]%2==0 and tmpRes[2*i+1]==0:
+                pass
+            elif basisInxList[i]<4 and basisInxList[i]%2==1 and tmpRes[2*i+1]==1:
+                pass
+            else:
+                #print("Fail",basisInxList[i]," ",tmpRes[2*i+1])
+                failCount+=1
     
+    
+    '''
+    print("in TokenCheck")
+    print("randMeas: ",randMeas)
+    print("len(locRes): ",len(locRes))           
+    print("failCount: ",failCount)                   
+    print("len(basisInxList): ",len(basisInxList)) 
+    '''
+    
+    return 1-(failCount/len(basisInxList))  
 
 
 
@@ -184,7 +227,7 @@ class BobProtocol(NodeProtocol):
         [self.locRes, self.validList] = port.rx_input().items
         
         
-        self.successfulRate=TokenCheck_LossTolerant(self.basisInxList,self.randMeas,self.locRes,self.validList)
+        self.successfulRate=TokenCheck(self.basisInxList,self.randMeas,self.locRes) #drop self.validList
         #print("B successfulRate:",self.successfulRate)
         
         # send result to A

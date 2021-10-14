@@ -4,9 +4,9 @@ from random import randint
 import sys
 scriptpath = "../lib/"
 sys.path.append(scriptpath)
-from lib.functions import QMeasure, ProgramFail, bitFlipNoise
+from functions import QMeasure, ProgramFail, bitFlipNoise
 
-
+#lib.
 
 
 

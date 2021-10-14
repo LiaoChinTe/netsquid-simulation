@@ -23,22 +23,19 @@ import math
 import QToken_Alice 
 import QToken_Bob
 
+#from QToken import QToken_Alice
+#from QToken import QToken_Bob
 
 
 # implementation & hardware configure
-def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
+def run_QToken_sim(runTimes=1,num_bits=10000,fibre_len=0,waitTime=1,
         processNoiseModel=None,memNoiseModel=None,threshold=0.875,
         fibreLoss_init=0,fibreLoss_len=0,QChV=2.083*10**-4,CChV=2.083*10**-4):
     
     resList=[]
-<<<<<<< HEAD
-    
-    #debug
-    print("In run_QToken_sim, T1:",memNoiseModel.T1," T2:",memNoiseModel.T2)
 
-=======
-    print('received a noise model with T1: {} and T2: {}'.format(memNoiseModel.T1, memNoiseModel.T2))
->>>>>>> origin/sanity-check-qtoken
+    #print('received a noise model with T1: {} and T2: {}'.format(memNoiseModel.T1, memNoiseModel.T2))
+
     for i in range(runTimes): 
         
         ns.sim_reset()
@@ -119,10 +116,10 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
 
 
 if __name__ == '__main__':
-    myMemNoise=T1T2NoiseModel(T1=36*10**12, T2=4.9*10**6)
+    myMemNoise=T1T2NoiseModel(T1=36*10**13, T2=10**9)  #6.4*4.9*10**6
     #myProcessNoise=DephaseNoiseModel(dephase_rate=0.004)
 
-    res=run_QToken_sim(runTimes=2,num_bits=10,fibre_len=10**-9,waitTime=10**3
+    res=run_QToken_sim(runTimes=10,num_bits=10**4,fibre_len=10**-9,waitTime=10**9
         ,processNoiseModel=None,memNoiseModel=myMemNoise,threshold=0.875
         ,fibreLoss_init=0,fibreLoss_len=0,QChV=2.083*10**-4,CChV=2.083*10**-4)
     print("res:",res," ")
