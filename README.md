@@ -2,7 +2,7 @@
 This repository introduces several quantum protocol simulations which could be used in quantum communication related studies.
 This document not only explains how the code was arranged, but also concludes what protocols has been developed and ready to be run as long as proper parameters are given.
 
-Please find more information about quantum protocols ![here](https://wiki.veriqloud.fr/index.php?title=Protocol_Library)
+Please find more information about quantum protocols [here](https://wiki.veriqloud.fr/index.php?title=Protocol_Library).
 
 
 ## File Structure
