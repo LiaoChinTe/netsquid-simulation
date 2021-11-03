@@ -5,35 +5,6 @@ This document not only explains how the code was arranged, but also concludes wh
 Please find more information about quantum protocols [here](https://wiki.veriqloud.fr/index.php?title=Protocol_Library).
 
 
-## File Structure
-
-This part means to help readers understand how we arrange the codes. This understanding is necessary if you want to contribute to this repository or build something on top of these codes. 
-This file structure might not be the best one for NetSquid simulation, I am open for discussion.
-All protocols follows the same code structure shown below:
-
-![NsFileStructure](https://github.com/LiaoChinTe/netsquid-simulation/blob/main/FileStructure.png)
-
-Gray boxes are folders, other colored cells are pyhton files.
-Reusable functions are located in 'lib/functions.py'.
-Therefore, one must be extreamly careful modifing it.
-
-- **function.py**
-
-  Here we have functions and Quantum Programs that are reusable.
-
-- **ProtocolX_partyX.py**
-
-  A customized local protocol representing one of the party.
-
-
-- **ProtocolX_main.py**
-
-  The main function to run if you want to execute the simulation
-
-
-- **ProtocolX_plot.py** -optional
-
-  A function to plot statistical results of main function.
 
 
 
@@ -62,6 +33,38 @@ Common functions shared by multiple protocols are located in lib/functions.py, w
 ## Anonymous Transmission
 - W-state Anonymous Transmission
 
+
+
+# Repository management
+
+This part is for people who wants to expand the code. 
+Following content will provide what you need to know before adding anything to the code.
+This file arrangement might not be the best one for NetSquid simulation, but it is relatively clear and reusable.
+All protocols in this repository follow the same idea in terms of file arrangement:
+
+![RepositoryManagement](https://github.com/LiaoChinTe/netsquid-simulation/blob/main/FileStructure.png)
+
+Gray boxes are folders, other colored cells are pyhton files.
+Reusable functions are located in 'lib/functions.py'.
+Therefore, one must be extreamly careful modifing it.
+
+- **function.py**
+
+  Contains functions and Quantum Programs that are reusable. Called by *ProtocolX_partyX.py*.
+
+- **ProtocolX_partyX.py**
+
+  A customized local protocol representing one of the party. Protocol objects here are called by *ProtocolX_main.py*.
+
+
+- **ProtocolX_main.py**
+
+  The main function to run simulation. Configure hardware parameters then call *ProtocolX_partyX.py* to perform protocol simulation. 
+
+
+- **ProtocolX_plot.py** -optional
+
+  A function to plot statistical results via the **run_XXX** function in *ProtocolX_main.py*.
 
 
 
