@@ -17,24 +17,30 @@ from netsquid.components.models.qerrormodels import *
 from random import randint
 
 
+
+import qline_A
+import qline_B
+import qline_C
+
+
 def createProcessor_QL(processorName,momNoise=None,gateNoice=None):
 
     myProcessor=QuantumProcessor(processorName, num_positions=2,
         mem_noise_models=momNoise, phys_instructions=[
-            PhysicalInstruction(INSTR_X, duration=10, q_noise_model=gateNoice),
-            PhysicalInstruction(INSTR_H, duration=10, q_noise_model=gateNoice),
-            PhysicalInstruction(INSTR_MEASURE, duration=5, q_noise_model=gateNoice, parallel=True)])
+            PhysicalInstruction(INSTR_X, duration=10, quantum_noise_model=gateNoice),
+            PhysicalInstruction(INSTR_H, duration=10, quantum_noise_model=gateNoice),
+            PhysicalInstruction(INSTR_MEASURE, duration=5, quantum_noise_model=gateNoice, parallel=True)])
 
     return myProcessor
 
 
 
-def run_QLine_sim(numNode,):
+def run_QLine_sim(numNode=3,fibreLen=10):
 
     ns.sim_reset()
     NodeList=[]
     ProcessorList=[]
-    for i in numNode:
+    for i in range(numNode):
 
         # create nodes
         tmpNode=Node("Node_"+str(i), port_names=["portQI","portQO","portCI","portCO"]) # quantum/classical input/output
@@ -43,19 +49,19 @@ def run_QLine_sim(numNode,):
         # create processor
         ProcessorList.append(createProcessor_QL(processorName="Processor_"+str(i)))
 
+        # assign Charlie protocol
+        if i!=0 and i!=numNode-1:
+            myCharlieProtocol=qline_C.CharlieProtocol(node=NodeList[i],processor=ProcessorList[i])
 
 
-    '''
-    myQLine=QLine(nodeList=nodeList
-        ,processorList=processorList
-        ,fibreLen=fibreLen
-        ,initNodeID=I,targetNodeID=T,lossInd=lossInd,lossLen=lossLen)
-
-    myQLine.start()
-    '''
+    myAliceProtocol=qline_A.AliceProtocol(node=NodeList[0],processor=ProcessorList[0])
+    myBobProtocol=qline_B.BobProtocol(node=NodeList[-1],processor=ProcessorList[-1])
+    
 
 
     ns.sim_run()
+
+    return 0
 
 
 
@@ -64,9 +70,6 @@ def run_QLine_sim(numNode,):
 
 if __name__ == "__main__":
 
-    key_I,key_T,timeSpent=run_QLine_sim(I=0,T=3,maxKeyLen=100,fibreLen=10
-        ,noise_model=None
-        ,lossInd=0.2,lossLen=0.25)
-    print("key_I: ",key_I)
-    print("key_T: ",key_T)
-    print("timeSpent: ",timeSpent)
+    tmp=run_QLine_sim(numNode=3,fibreLen=10)
+    print(tmp)
+
