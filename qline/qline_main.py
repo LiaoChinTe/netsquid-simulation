@@ -29,13 +29,13 @@ def createProcessor_QL(processorName,momNoise=None,gateNoice=None):
         mem_noise_models=momNoise, phys_instructions=[
             PhysicalInstruction(INSTR_X, duration=10, quantum_noise_model=gateNoice),
             PhysicalInstruction(INSTR_H, duration=10, quantum_noise_model=gateNoice),
-            PhysicalInstruction(INSTR_MEASURE, duration=5, quantum_noise_model=gateNoice, parallel=True)])
+            PhysicalInstruction(INSTR_MEASURE, duration=1000, quantum_noise_model=gateNoice, parallel=True)])
 
     return myProcessor
 
 
 
-def run_QLine_sim(numNode=3,fibreLen=10):
+def run_QLine_sim(numNode=3,fibreLen=10,qdelay=0,cdelay=0):
 
     ns.sim_reset()
     NodeList=[]
@@ -48,6 +48,32 @@ def run_QLine_sim(numNode=3,fibreLen=10):
 
         # create processor
         ProcessorList.append(createProcessor_QL(processorName="Processor_"+str(i)))
+
+
+        # channels==================================================================
+        
+        MyQChannel=QuantumChannel("QChannel_forward_"+str(i),delay=qdelay,length=fibreLen
+            ,models={"myFibreLossModel": FibreLossModel(p_loss_init=0.2, p_loss_length=0.25, rng=None)})
+        
+        ## connections
+        if i>0:
+            NodeList[i-1].connect_to(NodeList[i], MyQChannel,
+                local_port_name =NodeList[i-1].ports["portQO"].name,
+                remote_port_name=NodeList[i].ports["portQI"].name)
+        
+
+            MyCChannel_F = ClassicalChannel("CChannel_forward_"+str(i),delay=cdelay,length=fibreLen)
+            MyCChannel_B = ClassicalChannel("CChannel_backward_"+str(i),delay=cdelay,length=fibreLen)
+
+            myDirectConnection=DirectConnection("DConnection_forward_"+str(i),channel_AtoB=MyCChannel_F,channel_BtoA=MyCChannel_B)
+        
+            NodeList[i-1].connect_to(NodeList[i], myDirectConnection,local_port_name="portCO", remote_port_name="portCI")
+            
+
+
+
+        # record time
+        startTime=ns.sim_time()
 
         # assign Charlie protocol
         if i!=0 and i!=numNode-1:
