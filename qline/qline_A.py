@@ -23,7 +23,7 @@ class Dummy(QuantumProgram):
 
 
 class AliceProtocol(NodeProtocol):
-    def __init__(self,node,processor,num_bits=10,source_frq=1e9):
+    def __init__(self,node,processor,num_bits=10,source_frq=1e9,isI=False):
         super().__init__()
         
         self.node=node
@@ -39,6 +39,8 @@ class AliceProtocol(NodeProtocol):
 
         #forward_output(self.node.ports["portQO"])
         #bind_output_handler(self.storeSourceOutput)
+
+        self.isI=isI
 
 
     def run(self):

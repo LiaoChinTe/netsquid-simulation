@@ -34,15 +34,42 @@ def createProcessor_QL(processorName,capacity=20,momNoise=None,gateNoice=None):
     return myProcessor
 
 
+'''
+Variable "nodeNrole" indicates which two of the node are going to form shared keys.
+Therefore it is important for it to fit certain conditions.
 
-def run_QLine_sim(numNode=3,fibreLen=10,qdelay=0,cdelay=0):
+input:
+    nodeNrole(list of bool): Elements=True means it is going to be one of the nodes to form shared keys. 
+        There must be exactly two of them to be True.
+
+output:
+    Ture or False, means pass or not.
+
+'''
+def nodeRoleCheck(nodeNrole):
+    trueCount=0
+    for i in nodeNrole:
+        if i==True:
+            trueCount+=1
+    if trueCount>2 or trueCount<2 :
+        return False
+    else:
+        return True
+
+def run_QLine_sim(nodeNrole=[True,False,True],fibreLen=10,qdelay=0,cdelay=0):
 
     ns.sim_reset()
     NodeList=[]
     ProcessorList=[]
     myCharlieProtocolList=[]
 
-    for i in range(numNode):
+    #check value avalibility
+    if nodeRoleCheck(nodeNrole)==False:
+        print("Error nodes role assigning!")
+        return 1
+
+
+    for i in range(len(nodeNrole)):
 
         # create nodes===========================================================
         tmpNode=Node("Node_"+str(i), port_names=["portQI","portQO","portCI","portCO"]) # quantum/classical input/output
@@ -80,7 +107,7 @@ def run_QLine_sim(numNode=3,fibreLen=10,qdelay=0,cdelay=0):
         startTime=ns.sim_time()
 
         # assign Charlie protocol
-        if i!=0 and i!=numNode-1:
+        if i!=0 and i!=len(nodeNrole)-1:
             myCharlieProtocolList.append(qline_C.CharlieProtocol(node=NodeList[i],processor=ProcessorList[i])) 
 
 
@@ -105,6 +132,6 @@ def run_QLine_sim(numNode=3,fibreLen=10,qdelay=0,cdelay=0):
 
 if __name__ == "__main__":
 
-    tmp=run_QLine_sim(numNode=3,fibreLen=10)
+    tmp=run_QLine_sim(nodeNrole=[False,True,True],fibreLen=10)
     print(tmp)
 
