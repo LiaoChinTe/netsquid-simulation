@@ -23,7 +23,7 @@ class Dummy(QuantumProgram):
 
 
 class AliceProtocol(NodeProtocol):
-    def __init__(self,node,processor,num_bits=10,source_frq=1e9,isI=False):
+    def __init__(self,node,processor,num_bits=10,source_frq=1e9,role=0):
         super().__init__()
         
         self.node=node
@@ -40,8 +40,9 @@ class AliceProtocol(NodeProtocol):
         #forward_output(self.node.ports["portQO"])
         #bind_output_handler(self.storeSourceOutput)
 
-        self.isI=isI
+        self.role=role
 
+        self.portList=["portQO","portCO"]
 
     def run(self):
         print("AliceProtocol running")
@@ -51,20 +52,18 @@ class AliceProtocol(NodeProtocol):
         # wait
         yield self.await_program(processor=self.processor)
 
-        print("qubits ready")
+
+        self.A_sendQubits()
+
 
 
     def A_genQubits(self,num_bits,freq=1e9):
         #set clock
-        print("in A_genQubits")
         clock = Clock("clock", frequency=freq, max_ticks=num_bits)
-        print("num_bits:",num_bits)
         try:
-            
             clock.ports["cout"].connect(self.A_Source.ports["trigger"])
         except:
             pass
-        #print("ticking")
         clock.start()
 
     # for Alice to store qubits in qmem
@@ -72,9 +71,13 @@ class AliceProtocol(NodeProtocol):
 
         self.sourceQList.append(qubit.items[0])
         if len(self.sourceQList)==self.num_bits:
-            print("qubit stored")
+            #print("qubit stored")
             self.processor.put(qubits=self.sourceQList)
             myDummy=Dummy()
             self.processor.execute_program(myDummy)
     
-
+    def A_sendQubits(self):
+        #print("A_sendEPR")
+        inx=list(range(self.num_bits))
+        payload=self.processor.pop(inx)
+        self.node.ports["portQO"].tx_output(payload)

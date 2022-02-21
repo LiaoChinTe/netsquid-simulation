@@ -39,24 +39,28 @@ Variable "nodeNrole" indicates which two of the node are going to form shared ke
 Therefore it is important for it to fit certain conditions.
 
 input:
-    nodeNrole(list of bool): Elements=True means it is going to be one of the nodes to form shared keys. 
-        There must be exactly two of them to be True.
+    nodeNrole(list of int): The position of Elements=1 and Elements=-1 in the list indicates two parties forming a shared key.
+        There must be exactly one of them to be 1 and -1.
 
 output:
-    Ture or False, means pass or not.
+    Ture or False, Ture=pass.
 
 '''
 def nodeRoleCheck(nodeNrole):
-    trueCount=0
+    oneCount=0
+    minusOneCount=0
     for i in nodeNrole:
-        if i==True:
-            trueCount+=1
-    if trueCount>2 or trueCount<2 :
+        if i==1:
+            oneCount+=1
+        elif i==-1:
+            minusOneCount+=1
+    #print(oneCount,minusOneCount)
+    if oneCount!=1 or minusOneCount!=1 :
         return False
     else:
         return True
 
-def run_QLine_sim(nodeNrole=[True,False,True],fibreLen=10,qdelay=0,cdelay=0):
+def run_QLine_sim(nodeNrole=[1,0,-1],fibreLen=10,qdelay=0,cdelay=0):
 
     ns.sim_reset()
     NodeList=[]
@@ -72,7 +76,13 @@ def run_QLine_sim(nodeNrole=[True,False,True],fibreLen=10,qdelay=0,cdelay=0):
     for i in range(len(nodeNrole)):
 
         # create nodes===========================================================
-        tmpNode=Node("Node_"+str(i), port_names=["portQI","portQO","portCI","portCO"]) # quantum/classical input/output
+        if i == 0:
+            tmpNode=Node("Node_"+str(i), port_names=["portQO","portCO"]) # quantum/classical input/output
+        elif i == len(nodeNrole):
+            tmpNode=Node("Node_"+str(i), port_names=["portQI","portCI"]) # quantum/classical input/output
+        else:
+            tmpNode=Node("Node_"+str(i), port_names=["portQI","portQO","portCI","portCO"]) # quantum/classical input/output
+        
         NodeList.append(tmpNode)
 
         # create processor===========================================================
@@ -92,7 +102,7 @@ def run_QLine_sim(nodeNrole=[True,False,True],fibreLen=10,qdelay=0,cdelay=0):
                 local_port_name =NodeList[i-1].ports["portQO"].name,
                 remote_port_name=NodeList[i].ports["portQI"].name)
 
-            # C channals==================================================================
+            # C channals(bidirectional)==================================================================
             MyCChannel_F = ClassicalChannel("CChannel_forward_"+str(i),delay=cdelay,length=fibreLen)
             MyCChannel_B = ClassicalChannel("CChannel_backward_"+str(i),delay=cdelay,length=fibreLen)
 
@@ -108,11 +118,11 @@ def run_QLine_sim(nodeNrole=[True,False,True],fibreLen=10,qdelay=0,cdelay=0):
 
         # assign Charlie protocol
         if i!=0 and i!=len(nodeNrole)-1:
-            myCharlieProtocolList.append(qline_C.CharlieProtocol(node=NodeList[i],processor=ProcessorList[i])) 
+            myCharlieProtocolList.append(qline_C.CharlieProtocol(node=NodeList[i],processor=ProcessorList[i],role=nodeNrole[i])) 
 
 
-    myAliceProtocol=qline_A.AliceProtocol(node=NodeList[0],processor=ProcessorList[0])
-    myBobProtocol=qline_B.BobProtocol(node=NodeList[-1],processor=ProcessorList[-1])
+    myAliceProtocol=qline_A.AliceProtocol(node=NodeList[0],processor=ProcessorList[0],role=nodeNrole[0])
+    myBobProtocol=qline_B.BobProtocol(node=NodeList[-1],processor=ProcessorList[-1],role=nodeNrole[-1])
     
 
     myBobProtocol.start()
@@ -132,6 +142,6 @@ def run_QLine_sim(nodeNrole=[True,False,True],fibreLen=10,qdelay=0,cdelay=0):
 
 if __name__ == "__main__":
 
-    tmp=run_QLine_sim(nodeNrole=[False,True,True],fibreLen=10)
-    print(tmp)
+    tmp=run_QLine_sim(nodeNrole=[0,1,-1,0],fibreLen=10)
+    #print(tmp)
 

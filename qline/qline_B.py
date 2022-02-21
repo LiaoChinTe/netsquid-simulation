@@ -8,7 +8,7 @@ from functions import *
 
 
 class BobProtocol(NodeProtocol):
-    def __init__(self,node,processor,num_bits=10,isT=False):
+    def __init__(self,node,processor,num_bits=10,role=0):
         super().__init__()
         
         self.node=node
@@ -16,7 +16,8 @@ class BobProtocol(NodeProtocol):
         self.num_bits=num_bits
 
 
-        self.isT=isT
+        self.role=role
+        self.portList=["portQI","portCI"]
 
 
     def run(self):
