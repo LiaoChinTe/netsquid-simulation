@@ -9,7 +9,9 @@ scriptpath = "../lib/"
 sys.path.append(scriptpath)
 from functions import *
 
-
+import logging
+logging.basicConfig(level=logging.DEBUG)
+mylogger = logging.getLogger(__name__)
 
 class Dummy(QuantumProgram):
     def __init__(self):
@@ -44,8 +46,13 @@ class AliceProtocol(NodeProtocol):
 
         self.portList=["portQO","portCO"]
 
+        # The two values below are related to the qline algorithm
+        self.randR=[]
+        self.randB=[]
+
+
     def run(self):
-        print("AliceProtocol running")
+        mylogger.debug("AliceProtocol running")
 
         self.A_genQubits(num_bits=self.num_bits,freq=self.source_frq)
         
@@ -71,13 +78,13 @@ class AliceProtocol(NodeProtocol):
 
         self.sourceQList.append(qubit.items[0])
         if len(self.sourceQList)==self.num_bits:
-            #print("qubit stored")
+            #mylogger.debug("qubit stored")
             self.processor.put(qubits=self.sourceQList)
             myDummy=Dummy()
             self.processor.execute_program(myDummy)
     
     def A_sendQubits(self):
-        #print("A_sendEPR")
+        #mylogger.debug("A_sendEPR")
         inx=list(range(self.num_bits))
         payload=self.processor.pop(inx)
         self.node.ports["portQO"].tx_output(payload)

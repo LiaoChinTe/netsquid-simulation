@@ -6,6 +6,9 @@ scriptpath = "../lib/"
 sys.path.append(scriptpath)
 from functions import *
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+mylogger = logging.getLogger(__name__)
 
 class BobProtocol(NodeProtocol):
     def __init__(self,node,processor,num_bits=10,role=0):
@@ -19,8 +22,12 @@ class BobProtocol(NodeProtocol):
         self.role=role
         self.portList=["portQI","portCI"]
 
+        # The two values below are related to the qline algorithm
+        self.randC=[]
+        self.randS=[]
+
 
     def run(self):
-        print("BobProtocol running")
+        mylogger.debug("BobProtocol running")
 
 
