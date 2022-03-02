@@ -60,7 +60,21 @@ class AliceProtocol(NodeProtocol):
         yield self.await_program(processor=self.processor)
 
 
-        self.A_sendQubits()
+
+        if self.role==1:
+            mylogger.debug("A case 1")
+            
+            # choose random R,B values
+            self.randR=Random_basis_gen(self.num_bits)
+            self.randB=Random_basis_gen(self.num_bits)
+
+            # send qubits to the next
+            self.node.ports["portQO"].tx_output(myqlist)
+
+        elif self.role==0:
+
+
+            self.A_sendQubits()
 
 
 

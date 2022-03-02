@@ -93,7 +93,7 @@ def run_QLine_sim(nodeNrole=[1,0,-1],fibreLen=10,qdelay=0,cdelay=0):
         # channels in between nodes==============================================================
         if i>0:
 
-            # Q channels==================================================================
+            # Q channels(one way cannel)==================================================================
         
             MyQChannel=QuantumChannel("QChannel_forward_"+str(i),delay=qdelay,length=fibreLen
                 ,models={"myFibreLossModel": FibreLossModel(p_loss_init=0.2, p_loss_length=0.25, rng=None)})
