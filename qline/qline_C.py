@@ -42,10 +42,10 @@ class QG_C2(QuantumProgram):
         mylogger.info("C2 running ")
         for i in range(self.num_bits):
             if self.SList[i]==1:
-                self.apply(INSTR_H, qList_idx[i])
+                self.apply(INSTR_H, qList_idx[i], physical=True)
 
             if self.CList[i]==1:
-                self.apply(INSTR_X, qList_idx[i])
+                self.apply(INSTR_X, qList_idx[i], physical=True)
         yield self.run(parallel=False)
 
 
@@ -94,6 +94,7 @@ class CharlieProtocol(NodeProtocol):
             # Q program C1
             myQG_C1=QG_C1(num_bits=self.num_bits, RList=self.RList, BList=self.BList)
             self.processor.execute_program(myQG_C1,qubit_mapping=[i for  i in range(self.num_bits)])
+            yield self.await_program(processor=self.processor)
 
             # send qubits to the next
             self.node.ports["portQO"].tx_output(myqlist)
@@ -121,6 +122,7 @@ class CharlieProtocol(NodeProtocol):
             # Q program C2
             myQG_C2=QG_C2(num_bits=self.num_bits, CList=self.CList, SList=self.SList)
             self.processor.execute_program(myQG_C2,qubit_mapping=[i for  i in range(self.num_bits)])
+            yield self.await_program(processor=self.processor)
 
             # send qubits to the next
             self.node.ports["portQO"].tx_output(myqlist)
