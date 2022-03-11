@@ -69,6 +69,8 @@ class CharlieProtocol(NodeProtocol):
 
         self.ResList=[]
 
+        self.key=[]
+
 
 
     def run(self):
@@ -99,6 +101,24 @@ class CharlieProtocol(NodeProtocol):
             # send qubits to the next
             self.node.ports["portQO"].tx_output(myqlist)
 
+            # wait for classical message 1
+            port=self.node.ports["portCO"]
+            yield self.await_port_input(port)
+            payload = port.rx_input().items
+            mylogger.debug("\nC1 received{}".format(payload))
+
+            #self.ResList=payload[0]
+            #self.SList=payload[1]
+
+            # Pick keys
+            self.C1_formKey(rlist=payload[0],slist=payload[1],blist=self.BList)
+            mylogger.debug("\nC1 key:{}".format(self.key))
+
+            # send classical infomation to C2
+            self.node.ports["portCO"].tx_output(self.RList)
+
+
+
 
         elif self.role==-1:
             mylogger.debug("C case -1")
@@ -127,18 +147,79 @@ class CharlieProtocol(NodeProtocol):
             # send qubits to the next
             self.node.ports["portQO"].tx_output(myqlist)
 
+            # wait for classical message 1
+            port=self.node.ports["portCO"]
+            yield self.await_port_input(port)
+            self.ResList = port.rx_input().items
+            mylogger.debug("\nC2 received{}".format(self.ResList))
+
+            # send Res & s to C1
+            self.node.ports["portCI"].tx_output([self.ResList,self.SList])
+
+            # wait for classical message 2
+            port=self.node.ports["portCI"]
+            yield self.await_port_input(port)
+            myrList = port.rx_input().items
+            #mylogger.debug("\nC2 received{}".format(self.RList))
+
+            # pick key
+            self.C2_formKey(rlist=myrList,slist=self.SList)
+            mylogger.debug("\nC2 key:{}".format(self.key))
+
+
         else:
             mylogger.debug("C case 0")
+
+            # waiting for qubits
             port=self.node.ports["portQI"]
             yield self.await_port_input(port)
             myqlist = port.rx_input().items
             mylogger.debug("\nC0 received{}".format(myqlist))
 
+            # pass qubits
+            self.node.ports["portQO"].tx_output(myqlist)
 
-            self.C_PassQubits(myqlist)
+            # wait for forwarding (back)
+            port=self.node.ports["portCO"]
+            yield self.await_port_input(port)
+            payload = port.rx_input().items
+            #mylogger.debug("\nC0 received{}".format(info))
 
-    def C_PassQubits(self,qlist):
-        self.node.ports["portQO"].tx_output(qlist)
+            # forwarding (back)
+            self.node.ports["portCI"].tx_output(payload)
+
+
+            # wait for forwarding (forward)
+            port=self.node.ports["portCI"]
+            yield self.await_port_input(port)
+            payload = port.rx_input().items
+
+            # forwarding (forward)
+            self.node.ports["portCO"].tx_output(payload)
+
+
+
+    def C1_formKey(self,rlist,slist,blist):
+        if len(rlist)!=len(slist):
+            mylogger.debug("Rlist or Slist information missing! Aborting!")
+            return 1
+        for i,r in enumerate(rlist):
+            if rlist[i]==slist[i]:
+                mylogger.debug("{} ".format(i))
+                self.key.append(blist[i])
+        return 0
+
+
+    def C2_formKey(self,rlist,slist):
+        if len(rlist)!=len(slist):
+            mylogger.debug("Rlist or Slist information missing! Aborting!")
+            return 1
+        for i,r in enumerate(rlist):
+            if rlist[i]==slist[i]:
+                mylogger.debug("{} ".format(i))
+                self.key.append(bool(rlist[i])^bool(self.CList[i]))
+        return 0
+
 
 
 

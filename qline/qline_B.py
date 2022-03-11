@@ -49,7 +49,7 @@ class BobProtocol(NodeProtocol):
     def run(self):
         mylogger.debug("BobProtocol running")
 
-        if self.role==1:
+        if self.role==-1:
             pass
         elif self.role==0:
             # receive qubits
@@ -73,4 +73,7 @@ class BobProtocol(NodeProtocol):
                 self.BmeasRes.append(tmp)
 
             mylogger.debug("\nB BmeasRes {}".format(self.BmeasRes))
+
+            # send meas back
+            self.node.ports["portCI"].tx_output(self.BmeasRes)
 
