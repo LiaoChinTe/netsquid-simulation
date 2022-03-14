@@ -20,13 +20,14 @@ class QG_C1(QuantumProgram):
         
     def program(self):
         qList_idx=self.get_qubit_indices(self.num_bits)
-        mylogger.info("C1 running ")
+        mylogger.debug("C1 running ")
         for i in range(self.num_bits):
+            if self.BList[i]==1:
+                self.apply(INSTR_X, qList_idx[i])
+
             if self.RList[i]==1:
                 self.apply(INSTR_H, qList_idx[i])
 
-            if self.BList[i]==1:
-                self.apply(INSTR_X, qList_idx[i])
         yield self.run(parallel=False)
 
 
@@ -39,7 +40,7 @@ class QG_C2(QuantumProgram):
         
     def program(self):
         qList_idx=self.get_qubit_indices(self.num_bits)
-        mylogger.info("C2 running ")
+        mylogger.debug("C2 running ")
         for i in range(self.num_bits):
             if self.SList[i]==1:
                 self.apply(INSTR_H, qList_idx[i], physical=True)
@@ -72,6 +73,17 @@ class CharlieProtocol(NodeProtocol):
         self.key=[]
 
 
+    def showStatus(self,info):
+        print(info)
+        print("self.RList  = {}".format(self.RList))
+        print("self.SList  = {}".format(self.SList))
+
+        print("self.BList  = {}".format(self.BList))
+
+        print("self.CList  = {}".format(self.CList))
+        print("self.ResList= {}".format(self.ResList))
+        print("\n")
+
 
     def run(self):
         mylogger.debug("CharlieProtocol running")
@@ -83,7 +95,7 @@ class CharlieProtocol(NodeProtocol):
             port=self.node.ports["portQI"]
             yield self.await_port_input(port)
             myqlist = port.rx_input().items
-            mylogger.info("\nC1 received {}".format(myqlist))
+            mylogger.debug("\nC1 received {}".format(myqlist))
 
             # put qubits in processor
             self.processor.put(myqlist)
@@ -107,12 +119,16 @@ class CharlieProtocol(NodeProtocol):
             payload = port.rx_input().items
             mylogger.debug("\nC1 received{}".format(payload))
 
-            #self.ResList=payload[0]
-            #self.SList=payload[1]
+            # temp
+            self.ResList=payload[0]
+            self.SList=payload[1]
 
             # Pick keys
-            self.C1_formKey(rlist=payload[0],slist=payload[1],blist=self.BList)
-            mylogger.debug("\nC1 key:{}".format(self.key))
+            self.C1_formKey(rlist=self.RList,slist=payload[1],blist=self.BList)
+            mylogger.info("\nC1 key:{}".format(self.key))
+
+            # debug
+            #self.showStatus("C1")
 
             # send classical infomation to C2
             self.node.ports["portCO"].tx_output(self.RList)
@@ -130,7 +146,7 @@ class CharlieProtocol(NodeProtocol):
             port=self.node.ports["portQI"]
             yield self.await_port_input(port)
             myqlist = port.rx_input().items
-            mylogger.debug("\nC-1 received{}".format(myqlist))
+            mylogger.debug("\nC2 received{}".format(myqlist))
 
             # put qubits in processor
             self.processor.put(myqlist)
@@ -159,12 +175,16 @@ class CharlieProtocol(NodeProtocol):
             # wait for classical message 2
             port=self.node.ports["portCI"]
             yield self.await_port_input(port)
-            myrList = port.rx_input().items
+            self.RList = port.rx_input().items
             #mylogger.debug("\nC2 received{}".format(self.RList))
 
+
             # pick key
-            self.C2_formKey(rlist=myrList,slist=self.SList)
-            mylogger.debug("\nC2 key:{}".format(self.key))
+            self.C2_formKey(rlist=self.RList,slist=self.SList)
+            mylogger.info("\nC2 key:{}".format(self.key))
+
+            # debug
+            #self.showStatus("C2")
 
 
         else:
@@ -183,7 +203,7 @@ class CharlieProtocol(NodeProtocol):
             port=self.node.ports["portCO"]
             yield self.await_port_input(port)
             payload = port.rx_input().items
-            #mylogger.debug("\nC0 received{}".format(info))
+            #mylogger.debug("\nC0 received{}".format(payload))
 
             # forwarding (back)
             self.node.ports["portCI"].tx_output(payload)
@@ -201,23 +221,24 @@ class CharlieProtocol(NodeProtocol):
 
     def C1_formKey(self,rlist,slist,blist):
         if len(rlist)!=len(slist):
-            mylogger.debug("Rlist or Slist information missing! Aborting!")
+            mylogger.error("Rlist or Slist information missing! Aborting!")
             return 1
-        for i,r in enumerate(rlist):
-            if rlist[i]==slist[i]:
-                mylogger.debug("{} ".format(i))
+        for i,element in enumerate(rlist):
+            if element==slist[i]:
+                #mylogger.debug("{} r:{}, s:{}".format(i,rlist[i],slist[i]))
                 self.key.append(blist[i])
         return 0
 
 
     def C2_formKey(self,rlist,slist):
         if len(rlist)!=len(slist):
-            mylogger.debug("Rlist or Slist information missing! Aborting!")
+            mylogger.error("Rlist or Slist information missing! Aborting!")
             return 1
-        for i,r in enumerate(rlist):
-            if rlist[i]==slist[i]:
-                mylogger.debug("{} ".format(i))
-                self.key.append(bool(rlist[i])^bool(self.CList[i]))
+        for i,element in enumerate(rlist):
+            if element==slist[i]:
+                #mylogger.debug("Reslist:{} Clist{}".format(self.ResList[i],self.CList[i]))
+                self.key.append(self.ResList[i] ^ self.CList[i])
+                #self.key.append(int(bool(self.ResList[i])^bool(self.CList[i])))
         return 0
 
 

@@ -10,7 +10,7 @@ sys.path.append(scriptpath)
 from functions import *
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
 class Dummy(QuantumProgram):

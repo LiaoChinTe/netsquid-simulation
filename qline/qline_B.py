@@ -7,7 +7,7 @@ sys.path.append(scriptpath)
 from functions import *
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
 
@@ -19,7 +19,7 @@ class QG_Bmeasure(QuantumProgram):
     def program(self):
         qList_idx=self.get_qubit_indices(self.num_bits)
         #for i in range(len(self.basisList)):
-        mylogger.info("B measure running ")
+        mylogger.debug("B measure running ")
         for i in range(self.num_bits):
             self.apply(INSTR_MEASURE, qList_idx[i], output_key=str(i), physical=True)
 
