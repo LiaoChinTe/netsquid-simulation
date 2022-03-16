@@ -142,6 +142,6 @@ def run_QLine_sim(nodeNrole=[1,0,-1],fibreLen=10,qdelay=0,cdelay=0):
 
 if __name__ == "__main__":
 
-    tmp=run_QLine_sim(nodeNrole=[0,1,0,-1,0],fibreLen=10)
+    tmp=run_QLine_sim(nodeNrole=[1,0,0,-1,0],fibreLen=10)
     #print(tmp)
 

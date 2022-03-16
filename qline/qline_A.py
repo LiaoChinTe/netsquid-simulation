@@ -22,6 +22,24 @@ class Dummy(QuantumProgram):
         yield self.run(parallel=False)
 
 
+class QG_C1(QuantumProgram):
+    def __init__(self,num_bits,RList,BList):
+        self.num_bits=num_bits
+        self.RList=RList
+        self.BList=BList
+        super().__init__()
+        
+    def program(self):
+        qList_idx=self.get_qubit_indices(self.num_bits)
+        mylogger.debug("C1 running ")
+        for i in range(self.num_bits):
+            if self.BList[i]==1:
+                self.apply(INSTR_X, qList_idx[i])
+
+            if self.RList[i]==1:
+                self.apply(INSTR_H, qList_idx[i])
+
+        yield self.run(parallel=False)
 
 
 class AliceProtocol(NodeProtocol):
@@ -50,26 +68,71 @@ class AliceProtocol(NodeProtocol):
         self.randR=[]
         self.randB=[]
 
+        #self.SList=[]
+
+        self.key=[]
+
+    def showStatus(self,info):
+        print(info)
+        print("self.RList  = {}".format(self.RList))
+        print("self.SList  = {}".format(self.SList))
+
+        print("self.BList  = {}".format(self.BList))
+
+        print("self.CList  = {}".format(self.CList))
+        print("self.ResList= {}".format(self.ResList))
+        print("\n")
+
 
     def run(self):
         mylogger.debug("AliceProtocol running")
 
         self.A_genQubits(num_bits=self.num_bits,freq=self.source_frq)
-        
-        # wait
+
+
+        # wait programe
         yield self.await_program(processor=self.processor)
 
-
-
+        
         if self.role==1:
+
             mylogger.debug("A case 1")
+
             
             # choose random R,B values
-            self.randR=Random_basis_gen(self.num_bits)
-            self.randB=Random_basis_gen(self.num_bits)
+            self.RList=Random_basis_gen(self.num_bits)
+            self.BList=Random_basis_gen(self.num_bits)
+
+            # Q program C1
+            myQG_C1=QG_C1(num_bits=self.num_bits, RList=self.RList, BList=self.BList)
+            self.processor.execute_program(myQG_C1,qubit_mapping=[i for  i in range(self.num_bits)])
+            yield self.await_program(processor=self.processor)
 
             # send qubits to the next
-            self.node.ports["portQO"].tx_output(myqlist)
+            self.A_sendQubits()
+
+
+            # wait for classical message 1
+            port=self.node.ports["portCO"]
+            yield self.await_port_input(port)
+            payload = port.rx_input().items
+            mylogger.debug("\nA1 received{}".format(payload))
+
+            # temp
+            self.ResList=payload[0]
+            self.SList=payload[1]
+
+            # Pick keys
+            self.A1_formKey(rlist=self.RList,slist=payload[1],blist=self.BList)
+            mylogger.info("\nA1 key:{}".format(self.key))
+
+            # debug
+            #self.showStatus("A1")
+
+            # send classical infomation to C2/B2
+            self.node.ports["portCO"].tx_output(self.RList)
+
+
 
         elif self.role==0:
 
@@ -102,3 +165,15 @@ class AliceProtocol(NodeProtocol):
         inx=list(range(self.num_bits))
         payload=self.processor.pop(inx)
         self.node.ports["portQO"].tx_output(payload)
+
+
+    def A1_formKey(self,rlist,slist,blist):
+        if len(rlist)!=len(slist):
+            mylogger.error("Rlist or Slist information missing! Aborting!")
+            return 1
+        for i,element in enumerate(rlist):
+            if element==slist[i]:
+                #mylogger.debug("{} r:{}, s:{}".format(i,rlist[i],slist[i]))
+                self.key.append(blist[i])
+        return 0
+
