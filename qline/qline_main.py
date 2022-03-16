@@ -137,11 +137,18 @@ def run_QLine_sim(nodeNrole=[1,0,-1],fibreLen=10,qdelay=0,cdelay=0):
 
 
 
+'''
+The input variable 'nodeNrole' is a list of int which describes the length of this Qline 
+as well as which of the two node are forming shared key.
+An outer loop will be required to form shared keys among all nodes.
 
-
-
+Note that the first node is always labeled with "A", and the last is always "B". 
+All the others in the middle are "C". These labels are used for understanding the comments and Qline algorithm.
+The key sharing nodes are also labeled with "1" or "2" following with the previous label.
+For example, if the first node is forming shared key with the second node within a Qline of four.
+The labels would be [A1,C2,C,B] and the 'nodeNrole' value be [1,-1,0,0].
+'''
 if __name__ == "__main__":
 
-    tmp=run_QLine_sim(nodeNrole=[1,0,0,-1,0],fibreLen=10)
-    #print(tmp)
+    run_QLine_sim(nodeNrole=[0,1,0,0,-1],fibreLen=10)
 

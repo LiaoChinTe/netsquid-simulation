@@ -138,9 +138,6 @@ class CharlieProtocol(NodeProtocol):
 
         elif self.role==-1:
             mylogger.debug("C case -1")
-            # choose random C,S values
-            self.randC=Random_basis_gen(self.num_bits)
-            self.randS=Random_basis_gen(self.num_bits)
 
             # receive qubits
             port=self.node.ports["portQI"]
@@ -151,7 +148,7 @@ class CharlieProtocol(NodeProtocol):
             # put qubits in processor
             self.processor.put(myqlist)
 
-            # choose random R,B values
+            # choose random C,S values
             self.CList=Random_basis_gen(self.num_bits)
             self.SList=Random_basis_gen(self.num_bits)
 
@@ -238,7 +235,6 @@ class CharlieProtocol(NodeProtocol):
             if element==slist[i]:
                 #mylogger.debug("Reslist:{} Clist{}".format(self.ResList[i],self.CList[i]))
                 self.key.append(self.ResList[i] ^ self.CList[i])
-                #self.key.append(int(bool(self.ResList[i])^bool(self.CList[i])))
         return 0
 
 
