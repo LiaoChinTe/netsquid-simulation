@@ -1,5 +1,6 @@
+from netsquid.util import simtools 
+from netsquid import NANOSECOND
 from netsquid.protocols import NodeProtocol
-from netsquid.components import Clock
 
 import sys
 scriptpath = "../lib/"
@@ -7,7 +8,7 @@ sys.path.append(scriptpath)
 from functions import *
 
 import logging
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
 
@@ -64,6 +65,7 @@ class BobProtocol(NodeProtocol):
         self.SList=[]
         self.key=[]
 
+        self.endTime=0
 
     def run(self):
         mylogger.debug("BobProtocol running")
@@ -116,7 +118,12 @@ class BobProtocol(NodeProtocol):
 
             # pick key
             self.B2_formKey(rlist=self.RList,slist=self.SList)
-            mylogger.info("\nB2 key:{}".format(self.key))
+
+            # record end time 
+            self.endTime=simtools.sim_time(magnitude=NANOSECOND)
+
+            # show result
+            mylogger.debug("\nB2 key:{}".format(self.key))
 
             # debug
             #self.showStatus("C2")

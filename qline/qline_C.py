@@ -1,5 +1,6 @@
+from netsquid.util import simtools 
+from netsquid import NANOSECOND
 from netsquid.protocols import NodeProtocol
-from netsquid.components import Clock
 
 import sys
 scriptpath = "../lib/"
@@ -7,7 +8,7 @@ sys.path.append(scriptpath)
 from functions import *
 
 import logging
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
 
@@ -72,6 +73,8 @@ class CharlieProtocol(NodeProtocol):
 
         self.key=[]
 
+        self.endTime=0
+
 
     def showStatus(self,info):
         print(info)
@@ -125,14 +128,13 @@ class CharlieProtocol(NodeProtocol):
 
             # Pick keys
             self.C1_formKey(rlist=self.RList,slist=payload[1],blist=self.BList)
-            mylogger.info("\nC1 key:{}".format(self.key))
+            mylogger.debug("\nC1 key:{}".format(self.key))
 
             # debug
             #self.showStatus("C1")
 
             # send classical infomation to C2
             self.node.ports["portCO"].tx_output(self.RList)
-
 
 
 
@@ -178,10 +180,16 @@ class CharlieProtocol(NodeProtocol):
 
             # pick key
             self.C2_formKey(rlist=self.RList,slist=self.SList)
-            mylogger.info("\nC2 key:{}".format(self.key))
+
+            # record end time 
+            self.endTime=simtools.sim_time(magnitude=NANOSECOND)
+
+            # show result
+            mylogger.debug("\nC2 key:{}".format(self.key))
 
             # debug
             #self.showStatus("C2")
+
 
 
         else:
@@ -213,6 +221,7 @@ class CharlieProtocol(NodeProtocol):
 
             # forwarding (forward)
             self.node.ports["portCO"].tx_output(payload)
+
 
 
 

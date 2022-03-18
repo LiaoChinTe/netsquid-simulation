@@ -1,7 +1,7 @@
+from distutils.log import error
 import numpy as np
 import netsquid as ns
 from netsquid.nodes.node import Node
-from netsquid.protocols import LocalProtocol
 from netsquid.qubits import create_qubits
 from netsquid.qubits.operators import X,H,Z
 from netsquid.nodes.connections import DirectConnection
@@ -22,6 +22,9 @@ import qline_A
 import qline_B
 import qline_C
 
+import logging
+logging.basicConfig(level=logging.INFO)
+mylogger = logging.getLogger(__name__)
 
 def createProcessor_QL(processorName,capacity=20,momNoise=None,gateNoice=None):
 
@@ -130,10 +133,37 @@ def run_QLine_sim(nodeNrole=[1,0,-1],fibreLen=10,qdelay=0,cdelay=0):
         Charlie.start()
 
     myAliceProtocol.start()
+    TimeStart=ns.util.simtools.sim_time(magnitude=ns.NANOSECOND)
 
     ns.sim_run()
 
-    return 0
+    
+    # extract first key
+    if nodeNrole[0] == 1:
+        firstKey = myAliceProtocol.key
+    else:
+        for C in myCharlieProtocolList:
+            if C.key:
+                firstKey=C.key
+
+    # extract endtime value and second key
+    if nodeNrole[-1] == -1:
+        TimeEnd=myBobProtocol.endTime
+        secondKey=myBobProtocol.key
+    else:
+        for C in myCharlieProtocolList:
+            if C.endTime != 0:
+                TimeEnd=C.endTime
+                secondKey=C.key
+            
+    
+    
+    
+    #debug
+    #print(TimeEnd-TimeStart)
+    
+
+    return [[firstKey,secondKey],(TimeEnd-TimeStart)] #return time used in nanosec
 
 
 
@@ -150,5 +180,26 @@ The labels would be [A1,C2,C,B] and the 'nodeNrole' value be [1,-1,0,0].
 '''
 if __name__ == "__main__":
 
-    run_QLine_sim(nodeNrole=[0,1,0,0,-1],fibreLen=10)
+    mynodeNrole=[0,1,0,0,-1]
+    myfibreLen =10
+
+
+    res=run_QLine_sim(nodeNrole=mynodeNrole,fibreLen=myfibreLen)
+
+    key1=res[0][0]
+    key2=res[0][1]
+    timeUsed=res[1] # in nanosec
+    
+    #post processing
+
+
+
+    # show figure of merits
+    if timeUsed!=0:
+        mylogger.info("key rate:{}\n".format(len(key1)/timeUsed))
+    else:
+        mylogger.error("Time used can not be 0!! \n")
+
+
+
 

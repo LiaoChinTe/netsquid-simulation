@@ -10,7 +10,7 @@ sys.path.append(scriptpath)
 from functions import *
 
 import logging
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
 class Dummy(QuantumProgram):
@@ -124,7 +124,7 @@ class AliceProtocol(NodeProtocol):
 
             # Pick keys
             self.A1_formKey(rlist=self.RList,slist=payload[1],blist=self.BList)
-            mylogger.info("\nA1 key:{}".format(self.key))
+            mylogger.debug("\nA1 key:{}".format(self.key))
 
             # debug
             #self.showStatus("A1")
@@ -135,7 +135,6 @@ class AliceProtocol(NodeProtocol):
 
 
         elif self.role==0:
-
 
             self.A_sendQubits()
 
