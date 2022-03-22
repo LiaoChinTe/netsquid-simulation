@@ -22,11 +22,16 @@ import qline_A
 import qline_B
 import qline_C
 
+import sys
+scriptpath = "../lib/"
+sys.path.append(scriptpath)
+from functions import ManualFibreLossModel
+
 import logging
 logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
-def createProcessor_QL(processorName,capacity=20,momNoise=None,gateNoice=None):
+def createProcessor_QL(processorName,capacity=100,momNoise=None,gateNoice=None):
 
     myProcessor=QuantumProcessor(processorName, num_positions=capacity,
         mem_noise_models=momNoise, phys_instructions=[
@@ -63,7 +68,7 @@ def nodeRoleCheck(nodeNrole):
     else:
         return True
 
-def run_QLine_sim(nodeNrole=[1,0,-1],fibreLen=10,qdelay=0,cdelay=0):
+def run_QLine_sim(nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,qdelay=0,cdelay=0):
 
     ns.sim_reset()
     NodeList=[]
@@ -121,11 +126,14 @@ def run_QLine_sim(nodeNrole=[1,0,-1],fibreLen=10,qdelay=0,cdelay=0):
 
         # assign Charlie protocol
         if i!=0 and i!=len(nodeNrole)-1:
-            myCharlieProtocolList.append(qline_C.CharlieProtocol(node=NodeList[i],processor=ProcessorList[i],role=nodeNrole[i])) 
+            myCharlieProtocolList.append(qline_C.CharlieProtocol(node=NodeList[i],processor=ProcessorList[i]
+                ,role=nodeNrole[i],num_bits=num_bits)) 
 
 
-    myAliceProtocol=qline_A.AliceProtocol(node=NodeList[0],processor=ProcessorList[0],role=nodeNrole[0])
-    myBobProtocol=qline_B.BobProtocol(node=NodeList[-1],processor=ProcessorList[-1],role=nodeNrole[-1])
+    myAliceProtocol=qline_A.AliceProtocol(node=NodeList[0],processor=ProcessorList[0],role=nodeNrole[0]
+        ,num_bits=num_bits)
+    myBobProtocol=qline_B.BobProtocol(node=NodeList[-1],processor=ProcessorList[-1],role=nodeNrole[-1]
+        ,num_bits=num_bits)
     
 
     myBobProtocol.start()
@@ -157,9 +165,16 @@ def run_QLine_sim(nodeNrole=[1,0,-1],fibreLen=10,qdelay=0,cdelay=0):
                 secondKey=C.key
             
     
+    # apply key losses
+    print(firstKey,secondKey)
+
+    firstKey,secondKey=ManualFibreLossModel(key1=firstKey,key2=secondKey,numNodes=len(nodeNrole)
+        ,fibreLen=fibreLen,iniLoss=0.25,lenLoss=0.2)
+    
     
     
     #debug
+    print(firstKey,secondKey)
     #print(TimeEnd-TimeStart)
     
 
@@ -181,10 +196,10 @@ The labels would be [A1,C2,C,B] and the 'nodeNrole' value be [1,-1,0,0].
 if __name__ == "__main__":
 
     mynodeNrole=[0,1,0,0,-1]
-    myfibreLen =10
+    myfibreLen =1
 
 
-    res=run_QLine_sim(nodeNrole=mynodeNrole,fibreLen=myfibreLen)
+    res=run_QLine_sim(nodeNrole=mynodeNrole,fibreLen=myfibreLen,num_bits=30)
 
     key1=res[0][0]
     key2=res[0][1]
