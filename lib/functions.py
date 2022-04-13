@@ -90,26 +90,25 @@ INSTR_NToffoli = IGate('INSTR_NToffoli',operator=Operator_NToffoli)
 '''
 A function used to model fibre loss after keys were formed in QKD protocols.
 This is used to avoid messing up with algorithm of QKD when qubits were loss.
-
+Default loss parameter values are based on NetSquid.
 input:
     key1: One of the key formed due to QKD.
     key2: One of the key formed due to QKD.
     numNodes: Number of nodes in this QLine
-    fibreLen: The uniform fibre length between nodes.
+    fibreLen: The sum of the fibre length between nodes.
     iniLoss: The initial loss rate which applys when qubit enters a fibre.
     lenLoss: The loss rate which applys when qubits went through a fibre per 1 km.
 
 output:
     Two proccesed keys which will likely be shorter than key1 and key2.
 '''
-def ManualFibreLossModel(key1,key2,numNodes,fibreLen=0,iniLoss=0.25,lenLoss=0.2):
+def ManualFibreLossModel(key1,key2,numNodes,fibreLen=0,iniLoss=0.2,lenLoss=0.25):   
     keyLen=len(key1)
-    totalFibreLen=fibreLen*(numNodes-1)
 
     lossCount=0
     # lenLoss part
-    if totalFibreLen != 0:
-        for i in range(int(totalFibreLen)):
+    if fibreLen != 0:
+        for i in range(int(fibreLen)):
             myrand=randint(0,100)
             if myrand < lenLoss*100:
                 lossCount += 1 #loss case
