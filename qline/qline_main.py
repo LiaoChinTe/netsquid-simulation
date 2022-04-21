@@ -5,7 +5,7 @@ from netsquid.nodes.node import Node
 from netsquid.qubits import create_qubits
 from netsquid.qubits.operators import X,H,Z
 from netsquid.nodes.connections import DirectConnection
-#from netsquid.components.models import  FibreDelayModel
+from netsquid.components.models import  FibreDelayModel
 from netsquid.components.qchannel import QuantumChannel
 from netsquid.components.cchannel import ClassicalChannel
 
@@ -31,13 +31,26 @@ import logging
 logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
+
+'''
+return number of detectors used in this QLine
+'''
+def detectorCount_QL(num_nodes):
+    return num_nodes-1
+
+
+'''
+Create quantum processor only for Qline.
+For conviniency, I apply the same processor for Alice, Bob and Charlie.
+Alice and Chalies do not need measurement instruction.
+'''
 def createProcessor_QL(processorName,capacity=100,momNoise=None,detectorNoice=None):
 
     myProcessor=QuantumProcessor(processorName, num_positions=capacity,
         mem_noise_models=momNoise, phys_instructions=[
-            PhysicalInstruction(INSTR_X, duration=10, quantum_noise_model=detectorNoice),
-            PhysicalInstruction(INSTR_H, duration=10, quantum_noise_model=detectorNoice),
-            PhysicalInstruction(INSTR_MEASURE, duration=1000, quantum_noise_model=detectorNoice, parallel=True)])
+            PhysicalInstruction(INSTR_X, duration=5, quantum_noise_model=detectorNoice),
+            PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=detectorNoice),
+            PhysicalInstruction(INSTR_MEASURE, duration=3700, quantum_noise_model=detectorNoice, parallel=True)])
 
     return myProcessor
 
@@ -68,9 +81,11 @@ def nodeRoleCheck(nodeNrole):
     else:
         return True
 
-def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNoice=None,qdelay=0,cdelay=0):
+def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNoice=None,qdelay=0,cdelay=0,source_frq=1e9):
 
-    keyRateList=[]
+    #keyRateList=[]
+    keyLenList=[]
+    timecostList=[]
 
     for i in range(rounds):
 
@@ -108,7 +123,8 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNo
                 # Q channels(one way cannel)==================================================================
             
                 MyQChannel=QuantumChannel("QChannel_forward_"+str(i),delay=qdelay,length=fibreLen
-                    ,models={"myFibreLossModel": FibreLossModel(p_loss_init=0.2, p_loss_length=0.25, rng=None)})
+                    ,models={"myFibreLossModel": FibreLossModel(p_loss_init=0, p_loss_length=0, rng=None)
+                    ,"delay_model": FibreDelayModel(c=2.7*10**2)})
 
                 NodeList[i-1].connect_to(NodeList[i], MyQChannel,
                     local_port_name =NodeList[i-1].ports["portQO"].name,
@@ -135,7 +151,7 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNo
 
 
         myAliceProtocol=qline_A.AliceProtocol(node=NodeList[0],processor=ProcessorList[0],role=nodeNrole[0]
-            ,num_bits=num_bits)
+            ,num_bits=num_bits,source_frq=source_frq)
         myBobProtocol=qline_B.BobProtocol(node=NodeList[-1],processor=ProcessorList[-1],role=nodeNrole[-1]
             ,num_bits=num_bits)
         
@@ -145,10 +161,10 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNo
             Charlie.start()
 
         myAliceProtocol.start()
+        
         TimeStart=ns.util.simtools.sim_time(magnitude=ns.NANOSECOND)
-
         ns.sim_run()
-
+        
         
         # extract first key
         if nodeNrole[0] == 1:
@@ -172,22 +188,32 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNo
         # apply key losses
         #print(firstKey,secondKey)
         firstKey,secondKey=ManualFibreLossModel(key1=firstKey,key2=secondKey,numNodes=len(nodeNrole)
-            ,fibreLen=fibreLen,iniLoss=0.2,lenLoss=0.25)
+            ,fibreLen=fibreLen,iniLoss=0,lenLoss=0.067)  #0.067
         
-        
-        #debug
-        #print(firstKey,secondKey)
-        timeUsed=TimeEnd-TimeStart
 
+        #debug
+        #print(TimeEnd,TimeStart)
+
+
+        timeUsed=TimeEnd-TimeStart
+        if timeUsed!=0:
+            timecostList.append(timeUsed)
+            keyLenList.append(len(secondKey))
+        else:
+            mylogger.error("Time used can not be 0!! \n")
+
+        #print("timeUsed:",timeUsed*10**9)
+        '''
         if timeUsed!=0:
             keyRateList.append(len(secondKey)/(TimeEnd-TimeStart)) 
         else:
             mylogger.error("Time used can not be 0!! \n")
-
+        '''
     
 
     #return [[firstKey,secondKey],(TimeEnd-TimeStart)] #return time used in nanosec
-    return sum(keyRateList)/len(keyRateList) # return keyRate
+    #return sum(keyRateList)/len(keyRateList)*10**9 # return keyRate
+    return [sum(keyLenList)/len(keyLenList),sum(timecostList)/len(timecostList)]
 
 
 
@@ -204,17 +230,28 @@ The labels would be [A1,C2,C,B] and the 'nodeNrole' value be [1,-1,0,0].
 '''
 if __name__ == "__main__":
 
-    mynodeNroleList=[[1,-1,0,0],[0,1,-1,0],[0,0,1,-1]]
+    mynodeNroleList=[[1,-1]]
+    #[[1,-1,0,0],[0,1,-1,0],[0,0,1,-1],[1,0,-1,0],[1,0,0,-1],[0,1,0,-1]]   #[[1,-1]]     #[[1,-1,0,0],[0,1,-1,0],[0,0,1,-1]]
 
-    myfibreLen =10    # Length between 2 nodes
+    myfibreLen =5    # Length between 2 nodes
+
+    keyRateList=[]
+    keyLenList=[]
+    timeCostList=[]
 
     for mynodeNrole in mynodeNroleList:
 
-        keyrate=run_QLine_sim(rounds=5,nodeNrole=mynodeNrole,fibreLen=myfibreLen,num_bits=30)
+        output=run_QLine_sim(rounds=50,nodeNrole=mynodeNrole,fibreLen=myfibreLen,num_bits=50,source_frq=4e7)
+        keyLenList.append(output[0])
+        timeCostList.append(output[1])
 
+
+        #keyRateList.append(keyrate)
         #post processing
-
-
+        if output[1]!=0:
+            keyrate=output[0]/output[1]*10**9
+        else:
+            print("Time used can not be 0!! \n")
 
         # show/record figure of merits
         mylogger.info("key rate:{}\n".format(keyrate))
@@ -227,9 +264,11 @@ if __name__ == "__main__":
         outF.writelines(listToPrint)
         outF.close()
 
-        
+    mylogger.info("avg key rate:{}\n".format(sum(keyLenList)/sum(timeCostList)*10**9))
 
-    listToPrint='=====================\n'
+    listToPrint='average key rate:'
+    listToPrint+=str(sum(keyLenList)/sum(timeCostList)*10**9)+'\n'
+    listToPrint+='=====================\n'
     outF = open("keyOutput.txt", "a")
     outF.writelines(listToPrint)
     outF.close()

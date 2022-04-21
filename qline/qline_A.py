@@ -143,6 +143,7 @@ class AliceProtocol(NodeProtocol):
     def A_genQubits(self,num_bits,freq=1e9):
         #set clock
         clock = Clock("clock", frequency=freq, max_ticks=num_bits)
+        mylogger.debug("\nsource freq:{}".format(freq))
         try:
             clock.ports["cout"].connect(self.A_Source.ports["trigger"])
         except:

@@ -95,7 +95,7 @@ input:
     key1: One of the key formed due to QKD.
     key2: One of the key formed due to QKD.
     numNodes: Number of nodes in this QLine
-    fibreLen: The sum of the fibre length between nodes.
+    fibreLen: The sum of the fibre length between nodes.(km) (take integer)
     iniLoss: The initial loss rate which applys when qubit enters a fibre.
     lenLoss: The loss rate which applys when qubits went through a fibre per 1 km.
 
