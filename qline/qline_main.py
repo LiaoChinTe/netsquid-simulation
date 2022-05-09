@@ -5,7 +5,7 @@ from netsquid.nodes.node import Node
 from netsquid.qubits import create_qubits
 from netsquid.qubits.operators import X,H,Z
 from netsquid.nodes.connections import DirectConnection
-from netsquid.components.models import  FibreDelayModel
+from netsquid.components.models import  FibreDelayModel,QuantumErrorModel
 from netsquid.components.qchannel import QuantumChannel
 from netsquid.components.cchannel import ClassicalChannel
 
@@ -14,8 +14,9 @@ from netsquid.components.qprocessor import *
 from netsquid.components.instructions import *
 from netsquid.components.qprogram import *
 from netsquid.components.models.qerrormodels import *
-from random import randint
 
+from random import randint
+from difflib import SequenceMatcher
 
 
 import qline_A
@@ -44,13 +45,13 @@ Create quantum processor only for Qline.
 For conviniency, I apply the same processor for Alice, Bob and Charlie.
 Alice and Chalies do not need measurement instruction.
 '''
-def createProcessor_QL(processorName,capacity=100,momNoise=None,detectorNoice=None):
+def createProcessor_QL(processorName,capacity=100,momNoise=None,processorNoice=None):
 
     myProcessor=QuantumProcessor(processorName, num_positions=capacity,
         mem_noise_models=momNoise, phys_instructions=[
-            PhysicalInstruction(INSTR_X, duration=5, quantum_noise_model=detectorNoice),
-            PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=detectorNoice),
-            PhysicalInstruction(INSTR_MEASURE, duration=3700, quantum_noise_model=detectorNoice, parallel=True)])
+            PhysicalInstruction(INSTR_X, duration=5, quantum_noise_model=processorNoice),
+            PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processorNoice),
+            PhysicalInstruction(INSTR_MEASURE, duration=3700, quantum_noise_model=processorNoice, parallel=True)])
 
     return myProcessor
 
@@ -81,7 +82,8 @@ def nodeRoleCheck(nodeNrole):
     else:
         return True
 
-def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNoice=None,qdelay=0,cdelay=0,source_frq=1e9):
+def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,processorNoice=None,momNoise=None
+    ,qSpeed=2*10**5,cSpeed=2*10**5,source_frq=1e9,fNoise=0,lenLoss=0):
 
     #keyRateList=[]
     keyLenList=[]
@@ -113,7 +115,8 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNo
             NodeList.append(tmpNode)
 
             # create processor===========================================================
-            ProcessorList.append(createProcessor_QL(processorName="Processor_"+str(i),momNoise=None,detectorNoice=detectorNoice))
+            ProcessorList.append(createProcessor_QL(processorName="Processor_"+str(i),momNoise=momNoise
+                ,processorNoice=processorNoice))
 
 
             
@@ -122,17 +125,21 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNo
 
                 # Q channels(one way cannel)==================================================================
             
-                MyQChannel=QuantumChannel("QChannel_forward_"+str(i),delay=qdelay,length=fibreLen
-                    ,models={"myFibreLossModel": FibreLossModel(p_loss_init=0, p_loss_length=0, rng=None)
-                    ,"delay_model": FibreDelayModel(c=2.7*10**2)})
+                MyQChannel=QuantumChannel("QChannel_forward_"+str(i),delay=0,length=fibreLen
+                    ,models={"myQFibreLossModel": FibreLossModel(p_loss_init=0, p_loss_length=0, rng=None)
+                    ,"myDelayModel": FibreDelayModel(c=qSpeed)
+                    ,"myFibreNoiseModel":DepolarNoiseModel(depolar_rate=fNoise, time_independent=False)}) # c km/s
+
 
                 NodeList[i-1].connect_to(NodeList[i], MyQChannel,
                     local_port_name =NodeList[i-1].ports["portQO"].name,
                     remote_port_name=NodeList[i].ports["portQI"].name)
 
                 # C channals(bidirectional)==================================================================
-                MyCChannel_F = ClassicalChannel("CChannel_forward_"+str(i),delay=cdelay,length=fibreLen)
-                MyCChannel_B = ClassicalChannel("CChannel_backward_"+str(i),delay=cdelay,length=fibreLen)
+                MyCChannel_F = ClassicalChannel("CChannel_forward_"+str(i),delay=0,length=fibreLen
+                    ,models={"myCDelayModel": FibreDelayModel(c=cSpeed)})
+                MyCChannel_B = ClassicalChannel("CChannel_backward_"+str(i),delay=0,length=fibreLen
+                    ,models={"myCDelayModel": FibreDelayModel(c=cSpeed)})
 
                 myDirectConnection=DirectConnection("DConnection_forward_"+str(i),channel_AtoB=MyCChannel_F,channel_BtoA=MyCChannel_B)
             
@@ -161,7 +168,9 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNo
             Charlie.start()
 
         myAliceProtocol.start()
-        
+        #ns.logger.setLevel(1)
+
+
         TimeStart=ns.util.simtools.sim_time(magnitude=ns.NANOSECOND)
         ns.sim_run()
         
@@ -188,17 +197,20 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNo
         # apply key losses
         #print(firstKey,secondKey)
         firstKey,secondKey=ManualFibreLossModel(key1=firstKey,key2=secondKey,numNodes=len(nodeNrole)
-            ,fibreLen=fibreLen,iniLoss=0,lenLoss=0.067)  #0.067
+            ,fibreLen=fibreLen,iniLoss=0,lenLoss=lenLoss)  #0.067
         
 
         #debug
         #print(TimeEnd,TimeStart)
 
 
-        timeUsed=TimeEnd-TimeStart
+        timeUsed=TimeEnd-TimeStart # in ns
         if timeUsed!=0:
             timecostList.append(timeUsed)
-            keyLenList.append(len(secondKey))
+            s = SequenceMatcher(None, firstKey, secondKey)# unmatched rate
+            keyLenList.append(len(secondKey)*s.ratio()) #second
+
+            #mylogger.info("key length:{}\n".format(len(secondKey)*s.ratio()))
         else:
             mylogger.error("Time used can not be 0!! \n")
 
@@ -210,6 +222,7 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,detectorNo
             mylogger.error("Time used can not be 0!! \n")
         '''
     
+        
 
     #return [[firstKey,secondKey],(TimeEnd-TimeStart)] #return time used in nanosec
     #return sum(keyRateList)/len(keyRateList)*10**9 # return keyRate
@@ -230,8 +243,16 @@ The labels would be [A1,C2,C,B] and the 'nodeNrole' value be [1,-1,0,0].
 '''
 if __name__ == "__main__":
 
-    mynodeNroleList=[[1,-1]]
-    #[[1,-1,0,0],[0,1,-1,0],[0,0,1,-1],[1,0,-1,0],[1,0,0,-1],[0,1,0,-1]]   #[[1,-1]]     #[[1,-1,0,0],[0,1,-1,0],[0,0,1,-1]]
+    mynodeNroleList=[[1,-1,0,0],[0,1,-1,0],[0,0,1,-1]]
+
+    #[[1,-1,0,0],[0,1,-1,0],[0,0,1,-1],[1,0,-1,0],[1,0,0,-1],[0,1,0,-1]]   #[[1,-1]]     
+    # #[[1,-1,0,0],[0,1,-1,0],[0,0,1,-1]]
+
+    #[[1,-1,0,0,0,0],[1,0,-1,0,0,0],[1,0,0,-1,0,0],[1,0,0,0,-1,0],[1,0,0,0,0,-1],
+    #[0,1,-1,0,0,0],[0,1,0,-1,0,0],[0,1,0,0,-1,0],[0,1,0,0,0,-1],
+    #[0,0,1,-1,0,0],[0,0,1,0,-1,0],[0,0,1,0,0,-1],
+    #[0,0,0,1,-1,0],[0,0,0,1,0,-1],
+    #[0,0,0,0,1,-1]] 
 
     myfibreLen =5    # Length between 2 nodes
 
@@ -241,17 +262,23 @@ if __name__ == "__main__":
 
     for mynodeNrole in mynodeNroleList:
 
-        output=run_QLine_sim(rounds=50,nodeNrole=mynodeNrole,fibreLen=myfibreLen,num_bits=50,source_frq=4e7)
+        mymemNoiseMmodel=T1T2NoiseModel(T1=10**6, T2=10**5)
+        #myprocessorNoiseModel=DepolarNoiseModel(depolar_rate=500)
+        myprocessorNoiseModel=DephaseNoiseModel(dephase_rate=0.004,time_independent=True)
+
+        output=run_QLine_sim(rounds=50,nodeNrole=mynodeNrole,processorNoice=myprocessorNoiseModel,momNoise=mymemNoiseMmodel
+            ,fibreLen=myfibreLen,num_bits=50,source_frq=12e5,qSpeed=2.083*10**5,cSpeed=2.083*10**5,fNoise=0.01,lenLoss=0.045)
         keyLenList.append(output[0])
         timeCostList.append(output[1])
 
+        mylogger.info("Time used:{}s\n".format(output[1]/10**9))
 
         #keyRateList.append(keyrate)
         #post processing
         if output[1]!=0:
             keyrate=output[0]/output[1]*10**9
         else:
-            print("Time used can not be 0!! \n")
+            mylogger.error("Time used can not be 0!! \n")
 
         # show/record figure of merits
         mylogger.info("key rate:{}\n".format(keyrate))
