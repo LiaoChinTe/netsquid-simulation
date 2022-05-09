@@ -1,9 +1,12 @@
 from netsquid.protocols import NodeProtocol
+from netsquid.components import QuantumProgram
+from netsquid.components.instructions import INSTR_MEASURE,INSTR_MEASURE_X
+import netsquid as ns
 
 import sys
 scriptpath = "../../lib/"
 sys.path.append(scriptpath)
-from functions import *
+from functions import Random_basis_gen,Compare_basis
 
 
 
@@ -19,8 +22,6 @@ def AddLossCase(lossList,tarList):
     for i in range(len(lossList)):
         tarList.insert(lossList[i],-1)
     return tarList
-
-
 
 
 '''
@@ -132,7 +133,7 @@ class BobProtocol(NodeProtocol):
         
         self.key=''.join(map(str, self.loc_measRes))
         #print("B key:",self.key)
-        self.endTime=ns.sim_time()
+        self.endTime=ns.util.simtools.sim_time(magnitude=ns.NANOSECOND)
         
         
     def B_checkLoss(self,qList):

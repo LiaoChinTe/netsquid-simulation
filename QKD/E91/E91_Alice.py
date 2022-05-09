@@ -1,12 +1,12 @@
 from netsquid.protocols import NodeProtocol
-from netsquid.components import QSource,Clock
+from netsquid.components import QSource,Clock,QuantumProgram
 from netsquid.components.qsource import SourceStatus
-
+from netsquid.components.instructions import INSTR_H,INSTR_CNOT,INSTR_MEASURE,INSTR_MEASURE_X
 
 import sys
 scriptpath = "../../lib/"
 sys.path.append(scriptpath)
-from functions import *
+from functions import Compare_basis,Random_basis_gen
 
 
 
@@ -20,9 +20,7 @@ class QG_A_qPrepare(QuantumProgram):
     def program(self):
         qList_idx=self.get_qubit_indices(2*self.num_bits)
         # create multiEPR
-        #print("A QG_A_qPrepare")
         for i in range(2*self.num_bits):
-            #self.apply(INSTR_INIT, qList_idx[i])
             if i%2==0:                           # List A case
                 self.apply(INSTR_H, qList_idx[i])
             else:                                # List B case
@@ -52,7 +50,7 @@ class QG_A_measure(QuantumProgram):
 
 class AliceProtocol(NodeProtocol):
     
-    def __init__(self,node,processor,num_bits,
+    def __init__(self,node,processor,num_bits,sourceFreq,
                 port_names=["portQA_1","portCA_1","portCA_2"]):
         super().__init__()
         self.num_bits=num_bits
@@ -66,6 +64,7 @@ class AliceProtocol(NodeProtocol):
         self.loc_measRes=[]
         self.key=None
         self.sourceQList=[]
+        self.sourceFreq=sourceFreq
         
         #generat qubits from source
         self.A_Source = QSource("Alice_source"
@@ -77,7 +76,7 @@ class AliceProtocol(NodeProtocol):
 
         
         # A generat qubits
-        self.A_genQubits(self.num_bits,1e9)
+        self.A_genQubits(self.num_bits,self.sourceFreq)
         
         # wait
         yield self.await_program(processor=self.processor)
@@ -87,12 +86,7 @@ class AliceProtocol(NodeProtocol):
         # send qubits
         self.A_sendEPR()
         
-        # receive B basis
-        port=self.node.ports[self.portNameC1]
-        yield self.await_port_input(port)
-        basis_B = port.rx_input().items
-        
-        
+
         #self.A_measure()
         self.myQG_A_measure=QG_A_measure(
             basisList=self.basisList,num_bits=self.num_bits)
@@ -100,6 +94,15 @@ class AliceProtocol(NodeProtocol):
             self.myQG_A_measure,qubit_mapping=[i for  i in range(0, 2*self.num_bits)])
         
         yield self.await_program(processor=self.processor)
+
+
+        # receive B basis
+        port=self.node.ports[self.portNameC1]
+        yield self.await_port_input(port)
+        basis_B = port.rx_input().items
+        
+        
+        
 
 
         # get A meas
@@ -124,14 +127,13 @@ class AliceProtocol(NodeProtocol):
         if len(self.sourceQList)==2*self.num_bits:
             self.processor.put(qubits=self.sourceQList)
             
-            #self.A_sendEPR()
             # apply H detector
             PG_qPrepare=QG_A_qPrepare(num_bits=self.num_bits)
             self.processor.execute_program(
                 PG_qPrepare,qubit_mapping=[i for  i in range(0, 2*self.num_bits)])
 
 
-    def A_genQubits(self,num,freq=1e9):
+    def A_genQubits(self,num,freq=8e7):
         
         
         #set clock
