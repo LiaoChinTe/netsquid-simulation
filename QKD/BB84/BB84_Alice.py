@@ -1,15 +1,15 @@
 from netsquid.protocols import NodeProtocol
 from netsquid.components import QSource,Clock,QuantumProgram
 from netsquid.components.qsource import SourceStatus
-from netsquid.components.instructions import INSTR_H,INSTR_X,INSTR_MEASURE,INSTR_MEASURE_X
+from netsquid.components.instructions import INSTR_H,INSTR_X
 
 import sys
 scriptpath = "../../lib/"
 sys.path.append(scriptpath)
-from functions import Compare_basis,Random_basis_gen
+from functions import Random_basis_gen
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
 from BB84_Bob import BB84_CompareBasis
@@ -36,24 +36,6 @@ class QG_A_qPrepare(QuantumProgram):
                                          
         yield self.run(parallel=False)
 
-
-class QG_A_measure(QuantumProgram):
-    def __init__(self,basisList,num_bits):
-        self.basisList=basisList
-        self.num_bits=num_bits
-        super().__init__()
-
-
-    def program(self):   
-        for i in range(0,len(self.basisList*2),2):
-            if self.basisList[int(i/2)] == 0:           # only even slot       
-                self.apply(INSTR_MEASURE, 
-                    qubit_indices=i, output_key=str(i),physical=True)  # standard basis
-            else:                              # 1 case 
-                self.apply(INSTR_MEASURE_X, 
-                    qubit_indices=i, output_key=str(i),physical=True) # Hadamard basis
-        yield self.run(parallel=False)
- 
 
 
 
@@ -92,7 +74,6 @@ class AliceProtocol(NodeProtocol):
         yield self.await_program(processor=self.processor)
         
         # send qubits
-        #self.A_sendEPR()
         inx=list(range(self.num_bits))
         payload=self.processor.pop(inx)
         self.node.ports[self.portNameQ1].tx_output(payload)
@@ -101,20 +82,22 @@ class AliceProtocol(NodeProtocol):
         port=self.node.ports[self.portNameC1]
         yield self.await_port_input(port)
         basis_B = port.rx_input().items
-        mylogger.info("A received basis from B:{}\n".format(basis_B))
+        mylogger.debug("A received basis from B:{}\n".format(basis_B))
         
         
         # send A basis to B
         self.node.ports[self.portNameC2].tx_output(self.HbasisList)
 
-        nHbasis,nXbasis,matchA=BB84_CompareBasis(self.HbasisList,basis_B,self.XbasisList)
-        mylogger.info("A nHbasis:{}\n nXbasis:{}\n matchA:{}\n".format(nHbasis,nXbasis,matchA))
+        self.key=BB84_CompareBasis(self.HbasisList,basis_B,self.XbasisList)
+        #mylogger.debug("A nHbasis:{}\n nXbasis:{}\n matchA:{}\n".format(nHbasis,nXbasis,matchA))
+        mylogger.debug("A key:{}\n".format(self.key))
 
+        '''
         # receive matchB
         port=self.node.ports[self.portNameC1]
         yield self.await_port_input(port)
         matchB=port.rx_input().items
-        mylogger.info("A received matchB:{}\n".format(matchB))
+        mylogger.debug("A received matchB:{}\n".format(matchB))
 
         # send matchA
         self.node.ports[self.portNameC2].tx_output(matchA)
@@ -123,15 +106,10 @@ class AliceProtocol(NodeProtocol):
         for n,item in enumerate(matchA):
             self.key.append(matchB[n]^item) #XOR
 
-        mylogger.info("A key:{}\n".format(self.key))
+        
 
         '''
-        # compare basis
-        self.loc_measRes=Compare_basis(self.basisList,basis_B,self.loc_measRes)
         
-        self.key=''.join(map(str, self.loc_measRes))
-        #print("A key:",self.key)
-        '''
 
 
         
@@ -143,8 +121,7 @@ class AliceProtocol(NodeProtocol):
             
             # apply H detector
             PG_qPrepare=QG_A_qPrepare(num_bits=self.num_bits,HbasisList=self.HbasisList,XbasisList=self.XbasisList)
-            self.processor.execute_program(
-                PG_qPrepare,qubit_mapping=[i for  i in range(0, self.num_bits)])
+            self.processor.execute_program(PG_qPrepare,qubit_mapping=[i for  i in range(self.num_bits)])
     
 
     def A_genQubits(self,num,freq=8e7):
@@ -160,11 +137,6 @@ class AliceProtocol(NodeProtocol):
             
         clock.start()
         
-            
-    def A_sendEPR(self):
-        inx=list(range(self.num_bits))
-        payload=self.processor.pop(inx)
-        self.node.ports[self.portNameQ1].tx_output(payload)
 
     def showStatus(self):
         print("A Xbasis:",self.XbasisList)

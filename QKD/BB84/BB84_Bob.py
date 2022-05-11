@@ -9,7 +9,7 @@ sys.path.append(scriptpath)
 from functions import Random_basis_gen,Compare_basis
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
 
@@ -44,7 +44,7 @@ Output:
     Reference to https://wiki.veriqloud.fr/index.php?title=BB84_Quantum_Key_Distribution phase 2.
 '''
 
-def BB84_CompareBasis(basis1,basis2,sourceList2):
+def BB84_CompareBasis_old(basis1,basis2,sourceList2):
     targetList1=[]
     targetList2=[]
     ABoutput=[]
@@ -64,10 +64,31 @@ def BB84_CompareBasis(basis1,basis2,sourceList2):
     return targetList1, targetList2, ABoutput
 
 
+'''
+Compare two basis list, find the unmatched index, 
+    then append the matched value from a list corresponded to the index.
+Input:
+    basis1: local basis used for measuring qubits.(list of int)
+    basis2: remote basis used for measuring qubits.(list of int)
+    sourceList2: Local measurement results(B) or state index(A).(list of int)
+Output:
+    Keys in this party.
+'''
 
 
+def BB84_CompareBasis(basis1,basis2,sourceList2):
 
-
+    key=[]
+    if len(basis1) != len(basis2):
+        mylogger.error("Comparing error! length of basis does not match! \n")
+        mylogger.error("\nbasis1:{}\nbasis2:{}".format(basis1,basis2))
+        return -1
+    
+    for i in range(len(basis1)):
+        if basis1[i] == basis2[i]:
+            key.append(sourceList2[i])
+        
+    return key
 
 
 
@@ -81,9 +102,6 @@ output:
     resList: A list of outputs from the given quantum program, 
     also sorted by key.(list of int)
 '''
-
-
-
 class QG_B_measure(QuantumProgram):
     def __init__(self,basisList,num_bits):
         self.basisList=basisList
@@ -117,16 +135,13 @@ class BobProtocol(NodeProtocol):
         self.node=node
         self.processor=processor
         self.qList=None
-        self.loc_measRes=[]   #[-1]*self.num_bits
+        self.loc_measRes=[]   
         self.basisList=Random_basis_gen(self.num_bits)
         self.portNameQ1=port_names[0]
         self.portNameC1=port_names[1] #to
         self.portNameC2=port_names[2] #from
-        # init value assume that all qubits are lost
+
         self.key=[]
-        self.PG_B=None
-        self.lossList=[]
-        self.firstLoss=0
         self.endTime=None
 
     # =======================================B run ============================
@@ -137,11 +152,6 @@ class BobProtocol(NodeProtocol):
         #receive qubits from A
         
         port = self.node.ports[self.portNameQ1]
-        qubitList=[]
-        
-        #receive qubits from A
-        
-        
         yield self.await_port_input(port)
         qubitList.append(port.rx_input().items)
         #mylogger.debug("B received qubits:{}\n".format(qubitList))
@@ -163,21 +173,8 @@ class BobProtocol(NodeProtocol):
             tmp=self.myQG_B_measure.output[str(i)][0]
             self.loc_measRes.append(tmp)
         
-        mylogger.info("B meas res:{}\n".format(self.loc_measRes))
+        mylogger.debug("B meas res:{}\n".format(self.loc_measRes))
 
-        '''
-        # add Loss case
-        self.loc_measRes=AddLossCase(self.lossList,self.loc_measRes)
-        self.basisList=AddLossCase(self.lossList,self.basisList)
-        
-
-
-        # add first loss
-        if self.firstLoss>=1:   
-            for i in range(self.firstLoss):
-                self.loc_measRes.insert(0,-1)
-                self.basisList.insert(0,-1)
-        '''
         
         # self.B_send_basis()
         self.node.ports[self.portNameC1].tx_output(self.basisList)
@@ -186,12 +183,17 @@ class BobProtocol(NodeProtocol):
         port=self.node.ports[self.portNameC2]
         yield self.await_port_input(port)
         basis_A=port.rx_input().items
-        mylogger.info("B received basis_A:{}\n".format(basis_A))
+        mylogger.debug("B received basis_A:{}\n".format(basis_A))
 
         
-        nbasis,nBmes,matchB=BB84_CompareBasis(self.basisList,basis_A,self.loc_measRes)
-        mylogger.info("B \nnXbasis:{}\n nBmes:{}\nmatchB :{}\n".format(nbasis,nBmes,matchB))
+        self.key=BB84_CompareBasis(self.basisList,basis_A,self.loc_measRes)
         
+        mylogger.debug("B key:{}\n".format(self.key))
+
+        self.endTime=ns.util.simtools.sim_time(magnitude=ns.NANOSECOND)
+
+
+        '''
         # send matchB
         self.node.ports[self.portNameC1].tx_output(matchB)
 
@@ -199,24 +201,20 @@ class BobProtocol(NodeProtocol):
         port=self.node.ports[self.portNameC2]
         yield self.await_port_input(port)
         matchA=port.rx_input().items
-        mylogger.info("B received matchA:{}\n".format(matchA))
+        mylogger.debug("B received matchA:{}\n".format(matchA))
 
 
         
         for n,item in enumerate(matchB):
             self.key.append(matchA[n]^item) #XOR
 
-        mylogger.info("B key:{}\n".format(self.key))
-
-
-        '''
         self.key=''.join(map(str, self.loc_measRes))
-        mylogger.info("B keys:{}\n".format(self.key))
+        mylogger.debug("B keys:{}\n".format(self.key))
         #print("B key:",self.key)
         '''
 
 
-        self.endTime=ns.util.simtools.sim_time(magnitude=ns.NANOSECOND)
+        
 
         
 

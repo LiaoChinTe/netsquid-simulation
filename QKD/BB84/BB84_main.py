@@ -23,7 +23,7 @@ sys.path.append(scriptpath)
 from functions import ManualFibreLossModel
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
 
@@ -45,7 +45,7 @@ def lenfilter(var):
 # implementation & hardware configure
 
 def run_BB84_sim(runtimes=1,num_bits=20,fibreLen=10**-9,memNoiseMmodel=None,processorNoiseModel=None
-               ,loss_init=0,loss_len=0,qdelay=0,sourceFreq=8e7,lenLoss=0,qSpeed=2*10**5,cSpeed=2*10**5,fNoise=0):
+               ,loss_init=0,loss_len=0,qdelay=0,sourceFreq=8e7,lenLoss=0,qSpeed=2*10**5,cSpeed=2*10**5,fibreNoise=0):
     
     MyE91List_A=[]  # local protocol list A
     MyE91List_B=[]  # local protocol list B
@@ -66,7 +66,6 @@ def run_BB84_sim(runtimes=1,num_bits=20,fibreLen=10**-9,memNoiseMmodel=None,proc
             mem_noise_models=memNoiseMmodel, phys_instructions=[
             PhysicalInstruction(INSTR_X, duration=5, quantum_noise_model=processorNoiseModel),
             PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_CNOT,duration=10,quantum_noise_model=processorNoiseModel),
             PhysicalInstruction(INSTR_MEASURE, duration=3700,quantum_noise_model=processorNoiseModel, parallel=True),
             PhysicalInstruction(INSTR_MEASURE_X, duration=3700,quantum_noise_model=processorNoiseModel, parallel=True)])
 
@@ -75,7 +74,6 @@ def run_BB84_sim(runtimes=1,num_bits=20,fibreLen=10**-9,memNoiseMmodel=None,proc
             mem_noise_models=memNoiseMmodel, phys_instructions=[
             PhysicalInstruction(INSTR_X, duration=5, quantum_noise_model=processorNoiseModel),
             PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processorNoiseModel),
-            PhysicalInstruction(INSTR_CNOT,duration=10,quantum_noise_model=processorNoiseModel),
             PhysicalInstruction(INSTR_MEASURE, duration=3700,quantum_noise_model=processorNoiseModel, parallel=True),
             PhysicalInstruction(INSTR_MEASURE_X, duration=3700,quantum_noise_model=processorNoiseModel, parallel=True)])
 
@@ -86,7 +84,7 @@ def run_BB84_sim(runtimes=1,num_bits=20,fibreLen=10**-9,memNoiseMmodel=None,proc
             ,length=fibreLen
             ,models={"myFibreLossModel": FibreLossModel(p_loss_init=0, p_loss_length=0, rng=None)
             ,"mydelay_model": FibreDelayModel(c=qSpeed)
-            ,"myFibreNoiseModel":DepolarNoiseModel(depolar_rate=fNoise, time_independent=False)})
+            ,"myFibreNoiseModel":DepolarNoiseModel(depolar_rate=fibreNoise, time_independent=False)})
         
         
         nodeA.connect_to(nodeB, MyQChannel,
@@ -120,7 +118,7 @@ def run_BB84_sim(runtimes=1,num_bits=20,fibreLen=10**-9,memNoiseMmodel=None,proc
         endTime=Bob_protocol.endTime
         mylogger.debug("endTime:{}\n".format(endTime))
         
-        '''
+        
         # apply loss
         mylogger.debug("Alice's key before loss:{}\n".format(Alice_protocol.key))
         mylogger.debug("Bob's key before loss:{}\n".format(Bob_protocol.key))
@@ -131,20 +129,21 @@ def run_BB84_sim(runtimes=1,num_bits=20,fibreLen=10**-9,memNoiseMmodel=None,proc
         mylogger.debug("Alice's key after loss:{}\n".format(firstKey))
         mylogger.debug("Bob's key after loss:{}\n".format(secondKey))
 
+
+        
         MyE91List_A.append(firstKey)
         MyE91List_B.append(secondKey)
         
         
         #simple key length calibration
-        #mylogger.info("Time used:{}\n".format((endTime-startTime)/10**9))
+        mylogger.info("Time used:{}\n".format((endTime-startTime)/10**9))
 
         s = SequenceMatcher(None, Alice_protocol.key, Bob_protocol.key)# unmatched rate
         MyKeyRateList.append(len(Bob_protocol.key)*s.ratio()/(endTime-startTime)*10**9) #second
 
-        #mylogger.info("key length:{}\n".format(len(Bob_protocol.key)*s.ratio()))
+        mylogger.info("key length:{}\n".format(len(Bob_protocol.key)*s.ratio()))
 
-
-        '''
+        
     return MyE91List_A, MyE91List_B, MyKeyRateList
 
 
@@ -159,18 +158,21 @@ if __name__ == "__main__":
     #myprocessorNoiseModel=DepolarNoiseModel(depolar_rate=500)
     myprocessorNoiseModel=DephaseNoiseModel(dephase_rate=0.004,time_independent=True)
 
-    toWrite=run_BB84_sim(runtimes=1,num_bits=20,fibreLen=5
-        ,memNoiseMmodel=mymemNoiseMmodel,processorNoiseModel=myprocessorNoiseModel,fNoise=0.01
-        ,sourceFreq=12e5,lenLoss=0.045
-        ,qSpeed=2.083*10**5,cSpeed=2.083*10**5) #10**-9
+    toWrite=run_BB84_sim(runtimes=50,num_bits=100,fibreLen=5
+        ,memNoiseMmodel=mymemNoiseMmodel,processorNoiseModel=myprocessorNoiseModel,fibreNoise=0 
+        ,sourceFreq=12e4,lenLoss=0.045
+        ,qSpeed=2.083*10**5,cSpeed=2.083*10**5) #10**-9  
     
-    '''
+    
     mylogger.debug("key list A:{}\n".format(toWrite[0]))
     mylogger.debug("key list B:{}\n".format(toWrite[1]))
     mylogger.debug("key rate list:{}\n".format(toWrite[2]))
 
-    mylogger.info("Average key rate:{}\n".format(sum(toWrite[2])/len(toWrite[2])))
+    keyrate=sum(toWrite[2])/len(toWrite[2])
+    mylogger.info("Average key rate:{}\n".format(keyrate))
+    mylogger.info("cost/bit/sec :{}\n".format(4/keyrate))
 
+    '''
     # write
     listToPrint=''
     listToPrint='Average key rate:'+str(sum(toWrite[2])/len(toWrite[2]))+'\n'
