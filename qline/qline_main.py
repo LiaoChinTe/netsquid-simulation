@@ -45,7 +45,7 @@ Create quantum processor only for Qline.
 For conviniency, I apply the same processor for Alice, Bob and Charlie.
 Alice and Chalies do not need measurement instruction.
 '''
-def createProcessor_QL(processorName,capacity=100,momNoise=None,processorNoice=None):
+def createProcessor_QL(processorName,capacity=300,momNoise=None,processorNoice=None):
 
     myProcessor=QuantumProcessor(processorName, num_positions=capacity,
         mem_noise_models=momNoise, phys_instructions=[
@@ -76,14 +76,13 @@ def nodeRoleCheck(nodeNrole):
             oneCount+=1
         elif i==-1:
             minusOneCount+=1
-    #print(oneCount,minusOneCount)
     if oneCount!=1 or minusOneCount!=1 :
         return False
     else:
         return True
 
 def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,processorNoice=None,momNoise=None
-    ,qSpeed=2*10**5,cSpeed=2*10**5,source_frq=1e9,fNoise=0,lenLoss=0):
+    ,qSpeed=2*10**5,cSpeed=2*10**5,source_frq=1e9,fibreNoise=0,lenLoss=0):
 
     #keyRateList=[]
     keyLenList=[]
@@ -128,7 +127,7 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,processorN
                 MyQChannel=QuantumChannel("QChannel_forward_"+str(i),delay=0,length=fibreLen
                     ,models={"myQFibreLossModel": FibreLossModel(p_loss_init=0, p_loss_length=0, rng=None)
                     ,"myDelayModel": FibreDelayModel(c=qSpeed)
-                    ,"myFibreNoiseModel":DepolarNoiseModel(depolar_rate=fNoise, time_independent=False)}) # c km/s
+                    ,"myFibreNoiseModel":DepolarNoiseModel(depolar_rate=fibreNoise, time_independent=False)}) # c km/s
 
 
                 NodeList[i-1].connect_to(NodeList[i], MyQChannel,
@@ -195,16 +194,14 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,processorN
                 
         
         # apply key losses
-        #print(firstKey,secondKey)
         firstKey,secondKey=ManualFibreLossModel(key1=firstKey,key2=secondKey,numNodes=len(nodeNrole)
-            ,fibreLen=fibreLen,iniLoss=0,lenLoss=lenLoss)  #0.067
+            ,fibreLen=fibreLen*3,iniLoss=0,lenLoss=lenLoss)  #0.067
         
 
-        #debug
-        #print(TimeEnd,TimeStart)
 
 
         timeUsed=TimeEnd-TimeStart # in ns
+        timeUsed*=len(nodeNrole) # considering 
         if timeUsed!=0:
             timecostList.append(timeUsed)
             s = SequenceMatcher(None, firstKey, secondKey)# unmatched rate
@@ -214,13 +211,6 @@ def run_QLine_sim(rounds=1,nodeNrole=[1,0,-1],num_bits=20,fibreLen=10,processorN
         else:
             mylogger.error("Time used can not be 0!! \n")
 
-        #print("timeUsed:",timeUsed*10**9)
-        '''
-        if timeUsed!=0:
-            keyRateList.append(len(secondKey)/(TimeEnd-TimeStart)) 
-        else:
-            mylogger.error("Time used can not be 0!! \n")
-        '''
     
         
 
@@ -248,11 +238,6 @@ if __name__ == "__main__":
     #[[1,-1,0,0],[0,1,-1,0],[0,0,1,-1],[1,0,-1,0],[1,0,0,-1],[0,1,0,-1]]   #[[1,-1]]     
     # #[[1,-1,0,0],[0,1,-1,0],[0,0,1,-1]]
 
-    #[[1,-1,0,0,0,0],[1,0,-1,0,0,0],[1,0,0,-1,0,0],[1,0,0,0,-1,0],[1,0,0,0,0,-1],
-    #[0,1,-1,0,0,0],[0,1,0,-1,0,0],[0,1,0,0,-1,0],[0,1,0,0,0,-1],
-    #[0,0,1,-1,0,0],[0,0,1,0,-1,0],[0,0,1,0,0,-1],
-    #[0,0,0,1,-1,0],[0,0,0,1,0,-1],
-    #[0,0,0,0,1,-1]] 
 
     myfibreLen =5    # Length between 2 nodes
 
@@ -266,12 +251,13 @@ if __name__ == "__main__":
         #myprocessorNoiseModel=DepolarNoiseModel(depolar_rate=500)
         myprocessorNoiseModel=DephaseNoiseModel(dephase_rate=0.004,time_independent=True)
 
-        output=run_QLine_sim(rounds=50,nodeNrole=mynodeNrole,processorNoice=myprocessorNoiseModel,momNoise=mymemNoiseMmodel
-            ,fibreLen=myfibreLen,num_bits=50,source_frq=12e5,qSpeed=2.083*10**5,cSpeed=2.083*10**5,fNoise=0.01,lenLoss=0.045)
+        output=run_QLine_sim(rounds=20,nodeNrole=mynodeNrole,processorNoice=myprocessorNoiseModel,momNoise=mymemNoiseMmodel
+            ,fibreLen=myfibreLen,num_bits=33,source_frq=12e4,qSpeed=2.083*10**5,cSpeed=2.083*10**5,fibreNoise=0,lenLoss=0.045)
         keyLenList.append(output[0])
         timeCostList.append(output[1])
 
         mylogger.info("Time used:{}s\n".format(output[1]/10**9))
+        mylogger.info("Key Length:{}\n".format(output[0]))
 
         #keyRateList.append(keyrate)
         #post processing
@@ -286,7 +272,7 @@ if __name__ == "__main__":
         listToPrint=''
         listToPrint=str(mynodeNrole)+'\n'
         listToPrint+=str(keyrate)+'\n\n'
-        #print(listToPrint)
+        
         outF = open("keyOutput.txt", "a")
         outF.writelines(listToPrint)
         outF.close()
