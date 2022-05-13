@@ -95,23 +95,25 @@ input:
     key1: One of the key formed due to QKD.
     key2: One of the key formed due to QKD.
     numNodes: Number of nodes in this QLine
-    fibreLen: The sum of the fibre length between nodes.(km) (take integer)
+    fibreLen: Total fibre length ofQuantum channel.(km) (take integer)
     iniLoss: The initial loss rate which applys when qubit enters a fibre.
     lenLoss: The loss rate which applys when qubits went through a fibre per 1 km.
+    algorithmFator: In average how many qubits are needed to form one key bit. In BB84 is 2.
 
 output:
     Two proccesed keys which will likely be shorter than key1 and key2.
 '''
-def ManualFibreLossModel(key1,key2,numNodes,fibreLen=0,iniLoss=0.2,lenLoss=0.25):   
+def ManualFibreLossModel(key1,key2,numNodes,fibreLen=0,iniLoss=0.2,lenLoss=0.25,algorithmFator=2):   
     keyLen=len(key1)
 
     lossCount=0
     # lenLoss part
     if fibreLen != 0:
         for i in range(int(fibreLen)):
-            myrand=randint(0,100)
-            if myrand < lenLoss*100:
-                lossCount += 1 #loss case
+            for j in range(keyLen):
+                myrand=randint(0,100)
+                if myrand < lenLoss*100:
+                    lossCount += 1 #loss case
 
     # iniLoss part
     for i in range(numNodes-1):
@@ -119,10 +121,11 @@ def ManualFibreLossModel(key1,key2,numNodes,fibreLen=0,iniLoss=0.2,lenLoss=0.25)
         if myrand < iniLoss*100:
             lossCount += 1 #loss case
 
-    output1=key1[:keyLen-lossCount]
-    output2=key2[:keyLen-lossCount]
+    lossCount/=algorithmFator
+    newkey1=key1[:keyLen-int(lossCount)]
+    newkey2=key2[:keyLen-int(lossCount)]
 
-    return output1,output2
+    return newkey1,newkey2
 
 
 
