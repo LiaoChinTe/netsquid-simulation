@@ -4,7 +4,7 @@ from netsquid.components.qsource import SourceStatus
 from netsquid.components.instructions import INSTR_H,INSTR_X
 
 import sys
-scriptpath = "../../lib/"
+scriptpath = "lib/"
 sys.path.append(scriptpath)
 from functions import Random_basis_gen
 

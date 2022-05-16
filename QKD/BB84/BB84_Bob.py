@@ -4,7 +4,7 @@ from netsquid.components.instructions import INSTR_MEASURE,INSTR_MEASURE_X
 import netsquid as ns
 
 import sys
-scriptpath = "../../lib/"
+scriptpath = "lib/"
 sys.path.append(scriptpath)
 from functions import Random_basis_gen,Compare_basis
 

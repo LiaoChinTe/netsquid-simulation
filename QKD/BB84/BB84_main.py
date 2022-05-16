@@ -18,7 +18,7 @@ import BB84_Alice
 import BB84_Bob
 
 import sys
-scriptpath = "../../lib/"
+scriptpath = "lib/"
 sys.path.append(scriptpath)
 from functions import ManualFibreLossModel
 
@@ -47,8 +47,8 @@ def lenfilter(var):
 def run_BB84_sim(runtimes=1,num_bits=20,fibreLen=10**-9,memNoiseMmodel=None,processorNoiseModel=None
                ,loss_init=0,loss_len=0,qdelay=0,sourceFreq=8e7,lenLoss=0,qSpeed=2*10**5,cSpeed=2*10**5,fibreNoise=0):
     
-    MyE91List_A=[]  # local protocol list A
-    MyE91List_B=[]  # local protocol list B
+    MyKeyList_A=[]  # local protocol list A
+    MyKeyList_B=[]  # local protocol list B
     MyKeyRateList=[]
     
     for i in range(runtimes): 
@@ -124,27 +124,27 @@ def run_BB84_sim(runtimes=1,num_bits=20,fibreLen=10**-9,memNoiseMmodel=None,proc
         mylogger.debug("Bob's key before loss:{}\n".format(Bob_protocol.key))
 
         firstKey,secondKey=ManualFibreLossModel(key1=Alice_protocol.key,key2=Bob_protocol.key,numNodes=2
-            ,fibreLen=fibreLen,iniLoss=0,lenLoss=lenLoss) 
+            ,fibreLen=fibreLen,iniLoss=0,lenLoss=lenLoss,algorithmFator=2) 
         
         mylogger.debug("Alice's key after loss:{}\n".format(firstKey))
         mylogger.debug("Bob's key after loss:{}\n".format(secondKey))
 
 
         
-        MyE91List_A.append(firstKey)
-        MyE91List_B.append(secondKey)
+        MyKeyList_A.append(firstKey)
+        MyKeyList_B.append(secondKey)
         
+
+        mylogger.debug("Time used:{}\n".format((endTime-startTime)/10**9))
         
         #simple key length calibration
-        mylogger.info("Time used:{}\n".format((endTime-startTime)/10**9))
+        s = SequenceMatcher(None, firstKey, secondKey)# unmatched rate
+        MyKeyRateList.append(len(secondKey)*s.ratio()/(endTime-startTime)*10**9) #second
 
-        s = SequenceMatcher(None, Alice_protocol.key, Bob_protocol.key)# unmatched rate
-        MyKeyRateList.append(len(Bob_protocol.key)*s.ratio()/(endTime-startTime)*10**9) #second
-
-        mylogger.info("key length:{}\n".format(len(Bob_protocol.key)*s.ratio()))
+        mylogger.debug("key length:{}\n".format(len(secondKey)*s.ratio()))
 
         
-    return MyE91List_A, MyE91List_B, MyKeyRateList
+    return MyKeyList_A, MyKeyList_B, MyKeyRateList
 
 
 
@@ -169,8 +169,8 @@ if __name__ == "__main__":
     mylogger.debug("key rate list:{}\n".format(toWrite[2]))
 
     keyrate=sum(toWrite[2])/len(toWrite[2])
-    mylogger.info("Average key rate:{}\n".format(keyrate))
-    mylogger.info("cost/bit/sec :{}\n".format(4/keyrate))
+    mylogger.debug("Average key rate:{}\n".format(keyrate))
+    mylogger.debug("cost/bit/sec :{}\n".format(4/keyrate))
 
     '''
     # write

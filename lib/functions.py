@@ -121,11 +121,15 @@ def ManualFibreLossModel(key1,key2,numNodes,fibreLen=0,iniLoss=0.2,lenLoss=0.25,
         if myrand < iniLoss*100:
             lossCount += 1 #loss case
 
+    #print('lossCount:',lossCount)
     lossCount/=algorithmFator
-    newkey1=key1[:keyLen-int(lossCount)]
-    newkey2=key2[:keyLen-int(lossCount)]
 
-    return newkey1,newkey2
+    if lossCount>=keyLen:
+        return [],[]
+    else:
+        newkey1=key1[:keyLen-int(lossCount)]
+        newkey2=key2[:keyLen-int(lossCount)]
+        return newkey1,newkey2
 
 
 
