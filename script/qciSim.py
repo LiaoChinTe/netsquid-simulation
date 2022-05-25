@@ -19,8 +19,8 @@ sys.path.append(scriptpath)
 
 
 #from QKD/BB84 
-from BB84_main import run_BB84_sim
-from qline_main import run_QLine_sim
+from BB84_run import run_BB84_sim
+from qline_run import run_QLine_sim
 
 
 
@@ -43,7 +43,7 @@ def QLinePlot():
     for i in range(7,fibreLenMax,1):
 
         # first index
-        MyKeyList_A, MyKeyList_B, MyKeyRateList=run_BB84_sim(runtimes=30,num_bits=100,fibreLen=i
+        MyKeyList_A, MyKeyList_B, MyKeyRateList=run_BB84_sim(runtimes=1,num_bits=100,fibreLen=i
             ,sourceFreq=12e4,lenLoss=0.045,fibreNoise=0
             ,memNoiseMmodel=mymemNoiseMmodel,processorNoiseModel=myprocessorNoiseModel
             ,qSpeed=2.083*10**5,cSpeed=2.083*10**5) 
@@ -64,7 +64,7 @@ def QLinePlot():
         mynodeNroleList=[[1,-1,0,0],[0,1,-1,0],[0,0,1,-1]]
         keyRateList_qline=[]
         for mynodeNrole in mynodeNroleList:
-            output=run_QLine_sim(rounds=10,nodeNrole=mynodeNrole,processorNoice=myprocessorNoiseModel,momNoise=mymemNoiseMmodel
+            output=run_QLine_sim(rounds=1,nodeNrole=mynodeNrole,processorNoice=myprocessorNoiseModel,momNoise=mymemNoiseMmodel
                 ,fibreLen=i,num_bits=33,source_frq=12e4,qSpeed=2.083*10**5,cSpeed=2.083*10**5,fibreNoise=0,lenLoss=0.045)
             keyRateList_qline.append(output[0]/output[1]*10**9)
 
@@ -84,7 +84,7 @@ def QLinePlot():
     plt.tight_layout()
     
     plt.legend()
-    plt.savefig('case5_2.png', bbox_inches="tight")
+    plt.savefig('caseX.png', bbox_inches="tight")
     plt.show()
 
 
