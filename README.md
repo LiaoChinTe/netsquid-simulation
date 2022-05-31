@@ -10,9 +10,11 @@ Please find more information about quantum protocols [here](https://wiki.veriqlo
 
 # How to use
 
-Protocol and hardware configurations are all written in the main.py file in each protocol folder. 
+Simulations can be run by python files in the script folder under the root directory. 
+The full hardware configurations can be edited in **AnyProtocol_run.py** files in each protocol folder. 
+Yet most of the key parameters can be assigned to the function **AnyProtocol_run()**
 There's no need for users to modify other files.
-Common functions shared by multiple protocols are located in lib/functions.py, which can be further expended. However modifying exsisting functions are not recommended.
+Common functions shared by multiple protocols are located in lib/functions.py, which can be further expended. However modifying exsisting functions are not recommended since that might influence exsisting protocol.
 
 
 
@@ -20,6 +22,8 @@ Common functions shared by multiple protocols are located in lib/functions.py, w
 # Quantum Protocol List
 ## Quantum Key Distribution
 - E91/Ekert/EPR
+- BB84
+- QLine
 
 ## Quantum Money
 - Quantum Token
@@ -52,19 +56,20 @@ Therefore, one must be extreamly careful modifing it.
 
   Contains functions and Quantum Programs that are reusable. Called by *ProtocolX_partyX.py*.
 
-- **ProtocolX_partyX.py**
+- **AnyProtocol_AnyParty.py**
 
   A customized local protocol representing one of the party. Protocol objects here are called by *ProtocolX_main.py*.
 
 
-- **ProtocolX_main.py**
+- **AnyProtocol_run.py**
 
-  The main function to run simulation. Configure hardware parameters then call *ProtocolX_partyX.py* to perform protocol simulation. 
+  This file contains a *AnyProtocol_run()* function that describs the hardware configurations as well as default parameters.
+  It calls multiple *ProtocolX_partyX.py* to perform protocol simulation. 
 
 
-- **ProtocolX_plot.py** -optional
+- **AnyProtocol_plot.py** -optional
 
-  A function to plot statistical results via the **run_XXX** function in *ProtocolX_main.py*.
+  A function to plot statistical results via the *AnyProtocol_run()* function in *AnyProtocol_run.py*.
 
 
 
