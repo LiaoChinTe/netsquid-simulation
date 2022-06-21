@@ -78,9 +78,14 @@ class MBQC_SourceProtocol(NodeProtocol):
         self.processor.execute_program(mySourceGen,qubit_mapping=[i for  i in range(self.num_bits)]) 
         yield self.await_program(processor=self.processor)
 
-
-        payload=self.processor.pop(1)
+        # send qubits to Alice
+        inx=list(range(self.num_bits))
+        payload=self.processor.pop(inx)
         self.node.ports["portQO"].tx_output(payload)
+
+
+
+
 
 
 

@@ -17,9 +17,11 @@ from difflib import SequenceMatcher
 
 import MBQC_Alice
 import MBQC_Source
+import MBQC_Bob
+
 
 '''
-import MBQC_Bob
+
 
 import MBQC_Server
 import MBQC_TEE
@@ -156,9 +158,10 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
 
     myMBQC_SourceProtocol=MBQC_Source.MBQC_SourceProtocol(node=NodeSource,processor=ProcessorSource)
     myAliceProtocol=MBQC_Alice.MBQC_AliceProtocol(node=NodeAlice,processor=ProcessorAlice)
-    
+    myBobProtocol=MBQC_Bob.MBQC_BobProtocol(node=NodeBob,processor=ProcessorBob)
         
 
+    myBobProtocol.start()
     myAliceProtocol.start()
     myMBQC_SourceProtocol.start()
     #ns.logger.setLevel(1)
