@@ -26,7 +26,8 @@ class AliceRotate(QuantumProgram):
         self.theta2=theta2
         self.x1=x1
         self.x2=x2
-        super().__init__()
+        
+        super().__init__()    
         
     def program(self):
         qList_idx=self.get_qubit_indices(self.num_bits)
@@ -75,6 +76,8 @@ class MBQC_AliceProtocol(NodeProtocol):
         self.theta2=randint(0,7)
         self.x1=randint(0,1)
         self.x2=randint(0,1)
+        self.r1=randint(0,1)
+        self.r2=randint(0,1)
         self.num_bits=num_bits
 
         
@@ -98,10 +101,13 @@ class MBQC_AliceProtocol(NodeProtocol):
 
         yield self.await_program(processor=self.processor)
 
-        
+        # send qubits to Bob
         inx=list(range(self.num_bits))
         payload=self.processor.pop(inx)
         self.node.ports["portQO"].tx_output(payload)
+
+        # send classical massage to TEE
+        self.node.ports["portCO"].tx_output([[self.theta1,self.r1,self.x1],[self.theta2,self.r2,self.x2]])
 
 
     def showStatus(self,info):

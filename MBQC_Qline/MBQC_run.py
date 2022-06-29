@@ -18,13 +18,13 @@ from difflib import SequenceMatcher
 import MBQC_Alice
 import MBQC_Source
 import MBQC_Bob
-
+import MBQC_TEE
 
 '''
 
 
 import MBQC_Server
-import MBQC_TEE
+
 '''
 
 
@@ -85,7 +85,8 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
             PhysicalInstruction(INSTR_R270, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R315, duration=20000, quantum_noise_model=processorNoice,parallel=True)])
 
-    ProcessorServer2=QuantumProcessor("ProcessorServer2", num_positions=2,
+
+    ProcessorServer=QuantumProcessor("ProcessorServer2", num_positions=2,
         mem_noise_models=momNoise, phys_instructions=[
             PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processorNoice),
             PhysicalInstruction(INSTR_MEASURE, duration=3700, quantum_noise_model=processorNoice, parallel=True),
@@ -156,14 +157,17 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
         
 
 
-    myMBQC_SourceProtocol=MBQC_Source.MBQC_SourceProtocol(node=NodeSource,processor=ProcessorSource)
+    mySourceProtocol=MBQC_Source.MBQC_SourceProtocol(node=NodeSource,processor=ProcessorSource)
     myAliceProtocol=MBQC_Alice.MBQC_AliceProtocol(node=NodeAlice,processor=ProcessorAlice)
     myBobProtocol=MBQC_Bob.MBQC_BobProtocol(node=NodeBob,processor=ProcessorBob)
+    myTEEProtocol=MBQC_TEE.MBQC_TEEProtocol(node=NodeTEE)
         
 
+    myTEEProtocol.start()
     myBobProtocol.start()
     myAliceProtocol.start()
-    myMBQC_SourceProtocol.start()
+    mySourceProtocol.start()
+    
     #ns.logger.setLevel(1)
 
 
