@@ -95,7 +95,7 @@ class MBQC_AliceProtocol(NodeProtocol):
         # put qubits in processor
         self.processor.put(myqlist)
 
-        
+        # execute quantum functions
         myAliceRotate=AliceRotate(self.num_bits,self.theta1,self.theta2,self.x1,self.x2)
         self.processor.execute_program(myAliceRotate,qubit_mapping=[i for  i in range(self.num_bits)])
 

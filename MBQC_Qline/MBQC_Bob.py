@@ -26,15 +26,12 @@ class BobRotate(QuantumProgram):
         qList_idx=self.get_qubit_indices(self.num_bits)
         mylogger.debug("BobRotate running ")
 
-        tmpA1=(self.theta1+4*self.x1)%8
-        tmpA2=(self.theta2+4*self.x2)%8
-
         for i in range(self.num_bits):
             if i%2==0:
-                self.zRotation(tmpA1,qList_idx[i])
+                self.zRotation(self.theta1,qList_idx[i])
 
             if i%2==1:
-                self.zRotation(tmpA2,qList_idx[i])
+                self.zRotation(self.theta2,qList_idx[i])
 
         yield self.run(parallel=False)
 
@@ -67,6 +64,8 @@ class MBQC_BobProtocol(NodeProtocol):
         self.theta2=randint(0,7)
         self.r1=randint(0,1)
         self.r2=randint(0,1)
+        self.phi1=randint(0,7)
+        self.phi2=randint(0,7)
         self.num_bits=num_bits
 
         
@@ -80,5 +79,24 @@ class MBQC_BobProtocol(NodeProtocol):
         yield self.await_port_input(port)
         qubits = port.rx_input().items
         mylogger.debug("B received qubits from A:{}".format(qubits))
+
+        # put qubits in processor
+        self.processor.put(qubits)
+
+        # send classical massage to TEE
+        self.node.ports["portCO"].tx_output([[self.theta1,self.r1,self.phi1],[self.theta2,self.r2,self.phi2]])
+
+
+        # execute quantum functions
+        myBobRotate=BobRotate(self.num_bits,self.theta1,self.theta2)
+        self.processor.execute_program(myBobRotate,qubit_mapping=[i for  i in range(self.num_bits)])
+        yield self.await_program(processor=self.processor)
+
+        # send qubits to Server
+        inx=list(range(self.num_bits))
+        payload=self.processor.pop(inx)
+        self.node.ports["portQO"].tx_output(payload)
+
+
 
 

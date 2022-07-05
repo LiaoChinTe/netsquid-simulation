@@ -19,13 +19,8 @@ import MBQC_Alice
 import MBQC_Source
 import MBQC_Bob
 import MBQC_TEE
-
-'''
-
-
 import MBQC_Server
 
-'''
 
 
 
@@ -42,9 +37,6 @@ mylogger = logging.getLogger(__name__)
 
 
 
-'''
-
-'''
 def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
     ,qSpeed=2*10**5,cSpeed=2*10**5,source_frq=1e9,fibreNoise=0):
 
@@ -161,8 +153,10 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
     myAliceProtocol=MBQC_Alice.MBQC_AliceProtocol(node=NodeAlice,processor=ProcessorAlice)
     myBobProtocol=MBQC_Bob.MBQC_BobProtocol(node=NodeBob,processor=ProcessorBob)
     myTEEProtocol=MBQC_TEE.MBQC_TEEProtocol(node=NodeTEE)
-        
+    myServerProtocol=MBQC_Server.MBQC_ServerProtocol(node=NodeServer,processor=ProcessorServer) 
 
+
+    myServerProtocol.start()
     myTEEProtocol.start()
     myBobProtocol.start()
     myAliceProtocol.start()

@@ -4,10 +4,6 @@ from netsquid.components import QSource,Clock
 from netsquid.components.instructions import INSTR_H,INSTR_CZ
 from netsquid.components.qsource import SourceStatus
 
-import sys
-scriptpath = "lib/"
-sys.path.append(scriptpath)
-from functions import *
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -53,8 +49,8 @@ class MBQC_SourceProtocol(NodeProtocol):
         self.sourceQList=[]
 
         #generat qubits from source
-        self.A_Source = QSource("Alice_source",status=SourceStatus.EXTERNAL) # enable frequency
-        self.A_Source.ports["qout0"].bind_output_handler(self.storeSourceOutput)
+        self.MBQC_Source = QSource("MBQC_source",status=SourceStatus.EXTERNAL) # enable frequency
+        self.MBQC_Source.ports["qout0"].bind_output_handler(self.storeSourceOutput)
 
         self.portList=["portQO"]
 
@@ -62,15 +58,10 @@ class MBQC_SourceProtocol(NodeProtocol):
 
 
     def run(self):
-        mylogger.debug("AliceProtocol running")
+        mylogger.debug("SourceProtocol running")
 
         self.A_genQubits(num_bits=self.num_bits,freq=self.source_frq)
 
-
-        # wait programe
-        yield self.await_program(processor=self.processor)
-
-        
         
         # Q program C1
         mylogger.debug("self.num_bits:{}".format(self.num_bits)) 
@@ -79,6 +70,7 @@ class MBQC_SourceProtocol(NodeProtocol):
         yield self.await_program(processor=self.processor)
 
         # send qubits to Alice
+        mylogger.debug("Sending qubits to Alice")
         inx=list(range(self.num_bits))
         payload=self.processor.pop(inx)
         self.node.ports["portQO"].tx_output(payload)
@@ -93,14 +85,14 @@ class MBQC_SourceProtocol(NodeProtocol):
     def A_genQubits(self,num_bits,freq=1e6):
         #set clock
         clock = Clock("clock", frequency=freq, max_ticks=num_bits)
-        mylogger.debug("\nsource freq:{}".format(freq))
+        mylogger.debug("source freq:{}".format(freq))
         try:
-            clock.ports["cout"].connect(self.A_Source.ports["trigger"])
+            clock.ports["cout"].connect(self.MBQC_Source.ports["trigger"])
         except:
             pass
         clock.start()
 
-    # for Alice to store qubits in qmem
+    # for Source to store qubits in qmem
     def storeSourceOutput(self,qubit):
 
         self.sourceQList.append(qubit.items[0])
