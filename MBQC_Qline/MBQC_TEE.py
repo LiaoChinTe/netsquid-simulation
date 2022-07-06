@@ -37,8 +37,7 @@ class MBQC_TEEProtocol(NodeProtocol):
         self.phi1=None
         self.phi2=None
         
-        self.delta2p=None
-        self.delta2m=None
+        self.delta2=None
         
         self.m1=None
 
@@ -86,14 +85,7 @@ class MBQC_TEEProtocol(NodeProtocol):
         self.node.ports["portC3"].tx_output(self.delta1)
 
 
-        # compute delta2
-        self.delta2p=(self.thetaA2+4*self.xA2+self.thetaB2+(self.rA2^self.rB2)*4+self.phi2)%8
-        self.delta2m=(self.thetaA2+4*self.xA2+self.thetaB2+(self.rA2^self.rB2)*4-self.phi2)%8
-        if self.delta2m < 0:
-            self.delta2m+=8
-
-        mylogger.debug("TEE self.delta2p:{}".format(self.delta2p))
-        mylogger.debug("TEE self.delta2m:{}".format(self.delta2m))
+        
 
 
         # receive m1 from server
@@ -103,6 +95,26 @@ class MBQC_TEEProtocol(NodeProtocol):
         mylogger.debug("TEE received m1:{}".format(self.m1))
 
         # compute true m1
-        
+        self.m1 = self.m1 ^ (self.rA1^self.rB1)
+
+
+        # compute delta2
+        self.delta2=(self.thetaA2+4*self.xA2+self.thetaB2+(self.rA2^self.rB2)*4+self.phi2*(-1)**self.m1)%8
+        if self.delta2 < 0:
+            self.delta2+=8
+
+        mylogger.debug("TEE self.delta2:{}".format(self.delta2))
+
+        # send delta2 to server
+        self.node.ports["portC3"].tx_output(self.delta2)
+
+
+        # receive m2 from server
+        port=self.node.ports["portC3"]
+        yield self.await_port_input(port)
+        self.m2 = port.rx_input().items[0]
+        mylogger.debug("TEE received m2:{}".format(self.m2))
+
+
 
 
