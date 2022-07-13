@@ -9,7 +9,7 @@ from netsquid.components.cchannel import ClassicalChannel
 
 from netsquid.qubits.qformalism import *
 from netsquid.components.qprocessor import QuantumProcessor,PhysicalInstruction
-from netsquid.components.instructions import INSTR_CZ,INSTR_H,INSTR_MEASURE
+from netsquid.components.instructions import INSTR_CZ,INSTR_H,INSTR_MEASURE,INSTR_MEASURE_X
 from netsquid.components.models.qerrormodels import T1T2NoiseModel,DepolarNoiseModel,DephaseNoiseModel
 
 from random import randint
@@ -82,6 +82,7 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
         mem_noise_models=momNoise, phys_instructions=[
             PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processorNoice),
             PhysicalInstruction(INSTR_MEASURE, duration=3700, quantum_noise_model=processorNoice, parallel=True),
+            PhysicalInstruction(INSTR_MEASURE_X, duration=3700, quantum_noise_model=processorNoice, parallel=True),
             PhysicalInstruction(INSTR_R45, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R90, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R135, duration=20000, quantum_noise_model=processorNoice,parallel=True),

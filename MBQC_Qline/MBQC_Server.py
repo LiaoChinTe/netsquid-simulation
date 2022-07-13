@@ -1,6 +1,6 @@
 from netsquid.components.qprogram import QuantumProgram
 from netsquid.protocols import NodeProtocol
-from netsquid.components.instructions import INSTR_H,INSTR_MEASURE
+from netsquid.components.instructions import INSTR_H,INSTR_MEASURE,INSTR_MEASURE_X
 
 import sys
 scriptpath = "lib/"
@@ -18,9 +18,10 @@ class ServerHmeasure(QuantumProgram):
         
     def program(self):
         mylogger.debug("ServerHmeasure running ")
-        self.apply(INSTR_H,qubit_indices=self.positionIndex, physical=True)
-        self.apply(INSTR_MEASURE,qubit_indices=self.positionIndex, output_key=str(self.positionIndex),physical=True) 
+        mylogger.debug("positionIndex: {} ".format(self.positionIndex))
 
+        self.apply(INSTR_H,qubit_indices=self.positionIndex, physical=True)
+        self.apply(INSTR_MEASURE_X,qubit_indices=self.positionIndex, output_key=str(self.positionIndex),physical=True) 
 
         yield self.run(parallel=False)
 

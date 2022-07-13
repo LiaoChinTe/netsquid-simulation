@@ -96,7 +96,7 @@ class MBQC_TEEProtocol(NodeProtocol):
 
         # compute true m1
         self.m1 = self.m1 ^ (self.rA1^self.rB1)
-
+        mylogger.debug("real m1:{}".format(self.m1))
 
         # compute delta2
         self.delta2=(self.thetaA2+4*self.xA2+self.thetaB2+(self.rA2^self.rB2)*4+self.phi2*(-1)**self.m1)%8
@@ -114,6 +114,11 @@ class MBQC_TEEProtocol(NodeProtocol):
         yield self.await_port_input(port)
         self.m2 = port.rx_input().items[0]
         mylogger.debug("TEE received m2:{}".format(self.m2))
+
+
+        # compute real m2
+        self.m2 = self.m2 ^ (self.rA2^self.rB2)
+        mylogger.debug("real m2:{}".format(self.m2))
 
 
 
