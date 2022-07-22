@@ -11,7 +11,7 @@ sys.path.append(scriptpath)
 from functions import INSTR_R45, INSTR_R90, INSTR_R135, INSTR_R180, INSTR_R225, INSTR_R270, INSTR_R315
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
 
@@ -27,10 +27,10 @@ class BobRotate(QuantumProgram):
         mylogger.debug("BobRotate running ")
 
         for i in range(self.num_bits):
-            if i%2==0:
+            if i%2==0: #first
                 self.zRotation(self.theta1,qList_idx[i])
 
-            if i%2==1:
+            if i%2==1: #second
                 self.zRotation(self.theta2,qList_idx[i])
 
         yield self.run(parallel=False)
@@ -38,18 +38,21 @@ class BobRotate(QuantumProgram):
     def zRotation(self,rotationInx,idx):
         if rotationInx == 1:
             self.apply(INSTR_R45, idx)
-        if rotationInx == 2:
+        elif rotationInx == 2:
             self.apply(INSTR_R90, idx)
-        if rotationInx == 3:
+        elif rotationInx == 3:
             self.apply(INSTR_R135, idx)
-        if rotationInx == 4:
+        elif rotationInx == 4:
             self.apply(INSTR_R180, idx)
-        if rotationInx == 5:
+        elif rotationInx == 5:
             self.apply(INSTR_R225, idx)
-        if rotationInx == 6:
+        elif rotationInx == 6:
             self.apply(INSTR_R270, idx)
-        if rotationInx == 7:
+        elif rotationInx == 7:
             self.apply(INSTR_R315, idx)
+        else:
+            pass
+            #mylogger.info("Bob rotate none")
 
 
 class MBQC_BobProtocol(NodeProtocol):
@@ -60,10 +63,10 @@ class MBQC_BobProtocol(NodeProtocol):
         self.processor=processor
         self.portList=["portQI","portQO","portCO"]
 
-        self.theta1=randint(0,7)
-        self.theta2=randint(0,7)
-        self.r1=randint(0,1)
-        self.r2=randint(0,1)
+        self.theta1=0 #randint(0,7)
+        self.theta2=0 #randint(0,7)
+        self.r1=0 #randint(0,1)
+        self.r2=0 #randint(0,1)
         self.phi1= 2 #randint(0,7)
         self.phi2= 2 #randint(0,7)
         self.num_bits=num_bits

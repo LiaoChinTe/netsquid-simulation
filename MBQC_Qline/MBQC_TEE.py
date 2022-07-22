@@ -7,7 +7,7 @@ sys.path.append(scriptpath)
 #from functions import *
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
 
@@ -40,6 +40,7 @@ class MBQC_TEEProtocol(NodeProtocol):
         self.delta2=None
         
         self.m1=None
+        self.m2=None
 
         
 
@@ -83,9 +84,6 @@ class MBQC_TEEProtocol(NodeProtocol):
         
         # send delta1 to server
         self.node.ports["portC3"].tx_output(self.delta1)
-
-
-        
 
 
         # receive m1 from server

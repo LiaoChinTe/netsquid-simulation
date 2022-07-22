@@ -8,7 +8,7 @@ sys.path.append(scriptpath)
 from functions import RotateQubits
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 mylogger = logging.getLogger(__name__)
 
 class ServerHmeasure(QuantumProgram):
@@ -47,14 +47,20 @@ class MBQC_ServerProtocol(NodeProtocol):
         mylogger.debug("MBQC_ServerProtocol running")
 
 
+        # receive delta1 from TEE
+        port=self.node.ports["portC"]
+        yield self.await_port_input(port)
+        self.delta1 = port.rx_input().items[0]
+        mylogger.debug("Server received delta1 from TEE:{}".format(self.delta1))
+
         # receive qubits from Bob
         port=self.node.ports["portQI"]
         yield self.await_port_input(port)
         qubits = port.rx_input().items
         mylogger.debug("Server received qubits from Bob:{}".format(qubits))
-
         # put qubits in processor
         self.processor.put(qubits)
+
 
         # apply rotation
         myRotate1=RotateQubits([0],[self.delta1])
@@ -82,7 +88,7 @@ class MBQC_ServerProtocol(NodeProtocol):
 
 
         # apply rotation
-        myRotate2=RotateQubits([0],[self.delta1])
+        myRotate2=RotateQubits([0],[self.delta2])
         self.processor.execute_program(myRotate2,qubit_mapping=[i for  i in range(self.num_bits)])
         yield self.await_program(processor=self.processor)
 

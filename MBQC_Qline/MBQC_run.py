@@ -32,7 +32,7 @@ from functions import ManualFibreLossModel,INSTR_R45,INSTR_R90,INSTR_R135,INSTR_
 
 
 import logging
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.DEBUG)
 mylogger = logging.getLogger(__name__)
 
 
@@ -55,7 +55,7 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
     ProcessorSource=QuantumProcessor("ProcessorSource", num_positions=2,
         mem_noise_models=momNoise, phys_instructions=[
             PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processorNoice),
-            PhysicalInstruction(INSTR_CZ, duration=5, quantum_noise_model=processorNoice)])
+            PhysicalInstruction(INSTR_CZ, duration=3700, quantum_noise_model=processorNoice)])
 
     ProcessorAlice=QuantumProcessor("ProcessorAlice", num_positions=2,
         mem_noise_models=momNoise, phys_instructions=[
@@ -171,7 +171,7 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
     
 
     
-    return 0
+    return myTEEProtocol.m1, myTEEProtocol.m2
 
 
 
