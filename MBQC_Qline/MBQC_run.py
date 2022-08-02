@@ -27,7 +27,7 @@ import MBQC_Server
 import sys
 scriptpath = "lib/"
 sys.path.append(scriptpath)
-from functions import ManualFibreLossModel,INSTR_R45,INSTR_R90,INSTR_R135,INSTR_R180,INSTR_R225,INSTR_R270,INSTR_R315
+from functions import ManualFibreLossModel,INSTR_R45,INSTR_R90,INSTR_R135,INSTR_R180,INSTR_R225,INSTR_R270,INSTR_R315,INSTR_Rv90
 
 
 
@@ -85,6 +85,7 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
             PhysicalInstruction(INSTR_MEASURE_X, duration=3700, quantum_noise_model=processorNoice, parallel=True),
             PhysicalInstruction(INSTR_R45, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R90, duration=20000, quantum_noise_model=processorNoice,parallel=True),
+            #PhysicalInstruction(INSTR_Rv90, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R135, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R180, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R225, duration=20000, quantum_noise_model=processorNoice,parallel=True),

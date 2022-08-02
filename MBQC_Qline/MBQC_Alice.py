@@ -74,12 +74,12 @@ class MBQC_AliceProtocol(NodeProtocol):
         self.processor=processor
         self.portList=["portQI","portQO","portCO"]
 
-        self.theta1=0 #randint(0,7)
-        self.theta2=0 #randint(0,7)
-        self.x1=0 #randint(0,1)
-        self.x2=0 #randint(0,1)
-        self.r1=0 #randint(0,1)
-        self.r2=0 #randint(0,1)
+        self.theta1=0#randint(0,7)
+        self.theta2=0#randint(0,7)
+        self.x1=1 #randint(0,1)
+        self.x2=1 #randint(0,1)
+        self.r1=0#randint(0,1)
+        self.r2=0#randint(0,1)
         self.num_bits=num_bits
 
         

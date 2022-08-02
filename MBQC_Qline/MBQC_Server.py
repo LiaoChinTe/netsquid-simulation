@@ -5,22 +5,24 @@ from netsquid.components.instructions import INSTR_H,INSTR_MEASURE,INSTR_MEASURE
 import sys
 scriptpath = "lib/"
 sys.path.append(scriptpath)
-from functions import RotateQubits
+from functions import RotateQubits, INSTR_R90,INSTR_Rv90
 
 import logging
 #logging.basicConfig(level=logging.DEBUG)
 mylogger = logging.getLogger(__name__)
 
-class ServerHmeasure(QuantumProgram):
+
+class ServerHpiMeasure(QuantumProgram):
     def __init__(self,positionIndex):
         self.positionIndex=positionIndex
         super().__init__()
         
     def program(self):
-        mylogger.debug("ServerHmeasure running ")
+        mylogger.debug("ServerHpiMeasure running ")
         mylogger.debug("positionIndex: {} ".format(self.positionIndex))
 
         self.apply(INSTR_H,qubit_indices=self.positionIndex, physical=True)
+        self.apply(INSTR_R90, qubit_indices=self.positionIndex, physical=True)
         self.apply(INSTR_MEASURE_X,qubit_indices=self.positionIndex, output_key=str(self.positionIndex),physical=True) 
 
         yield self.run(parallel=False)
@@ -63,17 +65,21 @@ class MBQC_ServerProtocol(NodeProtocol):
 
 
         # apply rotation
+        #print("Server delta1:{}".format(self.delta1))
+        mylogger.debug("Start RotateQubits 1")
         myRotate1=RotateQubits([0],[self.delta1])
         self.processor.execute_program(myRotate1,qubit_mapping=[i for  i in range(self.num_bits)])
         yield self.await_program(processor=self.processor)
 
+
         # apply H and measurement
-        myServerHmeasure=ServerHmeasure(0)
-        self.processor.execute_program(myServerHmeasure,qubit_mapping=[i for  i in range(self.num_bits)])
+        mylogger.debug("Start ServerHpiMeasure 1")
+        myServerHpiMeasure=ServerHpiMeasure(0)
+        self.processor.execute_program(myServerHpiMeasure,qubit_mapping=[i for  i in range(self.num_bits)])
         yield self.await_program(processor=self.processor)
 
         # assign measurement output to m1
-        self.m1=myServerHmeasure.output[str(0)][0]
+        self.m1=myServerHpiMeasure.output[str(0)][0]
         mylogger.debug("Server m1:{}".format(self.m1))
 
         # send m1 to TEE
@@ -93,13 +99,13 @@ class MBQC_ServerProtocol(NodeProtocol):
         yield self.await_program(processor=self.processor)
 
         # apply H and measurement
-        myServerHmeasure=ServerHmeasure(0)
-        self.processor.execute_program(myServerHmeasure,qubit_mapping=[i for  i in range(self.num_bits)])
+        myServerHpiMeasure2=ServerHpiMeasure(0)
+        self.processor.execute_program(myServerHpiMeasure2,qubit_mapping=[i for  i in range(self.num_bits)])
         yield self.await_program(processor=self.processor)
 
 
         # assign measurement output to m1
-        self.m2=myServerHmeasure.output[str(0)][0]
+        self.m2=myServerHpiMeasure2.output[str(0)][0]
         mylogger.debug("Server m2:{}".format(self.m2))
 
 

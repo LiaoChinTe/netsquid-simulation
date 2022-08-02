@@ -170,7 +170,7 @@ def Random_basis_gen(length):
 Apply rotation on qubits.
 input:
     locationIndex: list of int, Index of qubits to rotate.
-    rotationIndex: list of int each element is limited in [0,7], indecating 0,45,...270,315 degree.
+    rotationIndex: list of int each element is limited in [-7,7], indecating -315...,-45,0,45,...270,315 degree.
 '''
 
 class RotateQubits(QuantumProgram):
@@ -179,13 +179,13 @@ class RotateQubits(QuantumProgram):
         self.locationIndex=locationIndex
         self.rotationIndex=rotationIndex
         super().__init__()
-        print("RotateQubits ",self.locationIndex)
-        print("RotateQubits ",self.rotationIndex)
+        #print("RotateQubits ",self.locationIndex)
+        #print("RotateQubits ",self.rotationIndex)
 
     def program(self):
         
         for i, j in zip(self.locationIndex,self.rotationIndex):
-            print(i," : ",j)
+            #print(i," : ",j)
             if j == 1:
                 self.apply(INSTR_R45, i)
             elif j== 2:
@@ -200,6 +200,20 @@ class RotateQubits(QuantumProgram):
                 self.apply(INSTR_R270, i)
             elif j== 7:
                 self.apply(INSTR_R315, i)
+            if j == -1:
+                self.apply(INSTR_Rv45, i)
+            elif j== -2:
+                self.apply(INSTR_Rv90, i)
+            elif j== -3:
+                self.apply(INSTR_Rv135, i)
+            elif j== -4:
+                self.apply(INSTR_Rv180, i)
+            elif j== -5:
+                self.apply(INSTR_Rv225, i)
+            elif j== -6:
+                self.apply(INSTR_Rv270, i)
+            elif j== -7:
+                self.apply(INSTR_Rv315, i)
             else:
                 pass
         yield self.run(parallel=False)
