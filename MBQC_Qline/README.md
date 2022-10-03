@@ -2,12 +2,12 @@
 
 ## Description
  This protocol demonstrates multiclient blind quantum computation using Qline architecture.
- Four parties are included in this protocol:
- - Source : The begining node of QLine. Able to initialize qubits.
+ There are five parties included in this protocol:
+ - Source : The begining node of QLine. Used mainly for initializing qubits.
  - Alice  : A middle node of QLine. Only able to do qubits rotation.
  - Bob    : A middle node of QLine. Only able to do qubits rotation.
- - Server : The end node of Qline. Able to do measurement.
- - TEE    : Trusted Execution Environment. Has only classical communication with other parties.
+ - Server : The end node of Qline. Used mainly for qubits measurement.
+ - TEE    : Trusted Execution Environment. Has only classical communication with other parties. Has multiple channel connections with other parties.
 
 ## How to use
   
