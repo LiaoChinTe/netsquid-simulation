@@ -20,10 +20,12 @@
 ## Protocol parameters
 
 range_A: i*pi/8, for i in [0,7]
+
 range_B: [0,1]
 
 General:
 - fiberLenth  : [km] Fiber length between two Nodes, long fibers cause more noise.
+- fiberLoss
 
 Alice :
 - thetaA1: range_A
@@ -42,7 +44,7 @@ Bob:
 - phi2: range_A
 
 Server:
-- quantum memory noise: 
+- quantum memory noise
 
 
 
