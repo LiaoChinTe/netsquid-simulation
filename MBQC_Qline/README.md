@@ -62,22 +62,20 @@ Server:
 8. Alice sends above 6 parameters to TEE. 
 9. Bob randomly choose thetaB1,thetaB2,phi1,phi2 in range_A. And rB1,rB2 in range_B.
 10. Bob sends above 6 parameters to TEE. 
-11. Bob rotate first qubit along axis-Z with angle: thetaB1.
-12. Bob rotate second qubit along axis-Z with angle: thetaB2.
+11. Bob rotate first qubit along axis-Z with angle: *thetaB1*.
+12. Bob rotate second qubit along axis-Z with angle: *thetaB2*.
 13. Bob sends two qubits to Server.
 14. TEE compute delta1 as *thetaA1+pi\*x1+thetaB1+(rA1^rB1)\*pi+phi1*.
 15. TEE sends delta1 to Server.
 16. Server receives delta1 from TEE. (might switch with step 17.)
 17. Server receives qubits from Bob. (might switch with step 16.)
-18. Server rotate the first qubit along axis-Z with angle: delta1.
-19. Server rotate the first qubit along axis-Z with angle: 90.
+18. Server rotate the first qubit along axis-Z with angle: *-delta1*.
 20. Server applys X measurement on the first qubit. Assign the result to m1. 
 21. Server sends m1 to TEE.
 22. TEE compute mt1 as *m1^(rA1^rB1)*.
 23. TEE compute delta2 as *thetaA2+pi\*x2+thetaB2+(rA2^rB2)\*pi+phi2\*(-1)\*\*mt1*.
 24. TEE sends delta2 to Server.
-25. Server rotate the second qubit along axis-Z with angle: delta2.
-26. Server rotate the second qubit along axis-Z with angle: 90.
+25. Server rotate the second qubit along axis-Z with angle: *-delta2*.
 27. Server applys X measurement on the second qubit. Assign the result to m2. 
 28. Server sends m2 to TEE.
 29. TEE compute mt2 as m2^(rA2^rB2).
