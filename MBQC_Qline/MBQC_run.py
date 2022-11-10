@@ -27,7 +27,7 @@ import MBQC_Server
 import sys
 scriptpath = "lib/"
 sys.path.append(scriptpath)
-from functions import ManualFibreLossModel,INSTR_R45,INSTR_R90,INSTR_R135,INSTR_R180,INSTR_R225,INSTR_R270,INSTR_R315,INSTR_Rv90
+from functions import ManualFibreLossModel,INSTR_R45,INSTR_R90,INSTR_R135,INSTR_R180,INSTR_R225,INSTR_R270,INSTR_R315,INSTR_Rv45,INSTR_Rv90,INSTR_Rv135,INSTR_Rv180,INSTR_Rv225,INSTR_Rv270,INSTR_Rv315
 
 
 
@@ -78,19 +78,26 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
             PhysicalInstruction(INSTR_R315, duration=20000, quantum_noise_model=processorNoice,parallel=True)])
 
 
-    ProcessorServer=QuantumProcessor("ProcessorServer2", num_positions=2,
+    ProcessorServer=QuantumProcessor("ProcessorServer", num_positions=2,
         mem_noise_models=momNoise, phys_instructions=[
             PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processorNoice),
             PhysicalInstruction(INSTR_MEASURE, duration=3700, quantum_noise_model=processorNoice, parallel=True),
             PhysicalInstruction(INSTR_MEASURE_X, duration=3700, quantum_noise_model=processorNoice, parallel=True),
             PhysicalInstruction(INSTR_R45, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R90, duration=20000, quantum_noise_model=processorNoice,parallel=True),
-            #PhysicalInstruction(INSTR_Rv90, duration=20000, quantum_noise_model=processorNoice,parallel=True),
+            PhysicalInstruction(INSTR_Rv90, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R135, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R180, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R225, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R270, duration=20000, quantum_noise_model=processorNoice,parallel=True),
-            PhysicalInstruction(INSTR_R315, duration=20000, quantum_noise_model=processorNoice,parallel=True)])
+            PhysicalInstruction(INSTR_R315, duration=20000, quantum_noise_model=processorNoice,parallel=True),
+            PhysicalInstruction(INSTR_Rv45, duration=20000, quantum_noise_model=processorNoice,parallel=True),
+            PhysicalInstruction(INSTR_Rv90, duration=20000, quantum_noise_model=processorNoice,parallel=True),
+            PhysicalInstruction(INSTR_Rv135, duration=20000, quantum_noise_model=processorNoice,parallel=True),
+            PhysicalInstruction(INSTR_Rv180, duration=20000, quantum_noise_model=processorNoice,parallel=True),
+            PhysicalInstruction(INSTR_Rv225, duration=20000, quantum_noise_model=processorNoice,parallel=True),
+            PhysicalInstruction(INSTR_Rv270, duration=20000, quantum_noise_model=processorNoice,parallel=True),
+            PhysicalInstruction(INSTR_Rv315, duration=20000, quantum_noise_model=processorNoice,parallel=True)])
 
     # No Q processor needed for TEE
 

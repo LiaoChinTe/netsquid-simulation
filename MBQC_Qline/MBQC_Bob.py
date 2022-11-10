@@ -66,9 +66,9 @@ class MBQC_BobProtocol(NodeProtocol):
         self.theta1=0#randint(0,7)
         self.theta2=0#randint(0,7)
         self.r1=0 #randint(0,1)
-        self.r2=0#randint(0,1)
-        self.phi1=6# randint(0,7)
-        self.phi2=6# randint(0,7)
+        self.r2=0 #randint(0,1)
+        self.phi1=2 # randint(0,7)
+        self.phi2=2 # randint(0,7)
         self.num_bits=num_bits
 
         

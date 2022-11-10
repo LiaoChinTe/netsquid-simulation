@@ -33,8 +33,8 @@ class AliceRotate(QuantumProgram):
         qList_idx=self.get_qubit_indices(self.num_bits)
         mylogger.debug("AliceRotate running ")
 
-        tmpA1=(self.theta1+4*self.x1)%8
-        tmpA2=(self.theta2+4*self.x2)%8
+        tmpA1=(self.theta1)%8  # +4*self.x1
+        tmpA2=(self.theta2)%8  # +4*self.x2
 
         for i in range(self.num_bits):
             if i%2==0:  #first
@@ -76,10 +76,10 @@ class MBQC_AliceProtocol(NodeProtocol):
 
         self.theta1=0#randint(0,7)
         self.theta2=0#randint(0,7)
-        self.x1=1 #randint(0,1)
-        self.x2=1 #randint(0,1)
-        self.r1=0#randint(0,1)
-        self.r2=0#randint(0,1)
+        self.x1=0 #randint(0,1)
+        self.x2=0 #randint(0,1)
+        self.r1=0 #randint(0,1)
+        self.r2=0 #randint(0,1)
         self.num_bits=num_bits
 
         
@@ -92,12 +92,12 @@ class MBQC_AliceProtocol(NodeProtocol):
         port=self.node.ports["portQI"]
         yield self.await_port_input(port)
         myqlist = port.rx_input().items
-        mylogger.debug("\nA received {}".format(myqlist))
+        mylogger.debug("A received {}".format(myqlist))
 
         # put qubits in processor
         self.processor.put(myqlist)
 
-        # execute quantum functions
+        # rotate 2 qubits
         myAliceRotate=AliceRotate(self.num_bits,self.theta1,self.theta2,self.x1,self.x2)
         self.processor.execute_program(myAliceRotate,qubit_mapping=[i for  i in range(self.num_bits)])
 

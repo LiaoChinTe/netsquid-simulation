@@ -99,7 +99,7 @@ class MBQC_TEEProtocol(NodeProtocol):
         # compute delta2
         self.delta2=(self.thetaA2+4*self.xA2+self.thetaB2+(self.rA2^self.rB2)*4+self.phi2*(-1)**self.m1)%8
         if self.delta2 < 0:
-            self.delta2+=8
+            self.delta2+=8 # make delta2 within 0-7
 
         mylogger.debug("TEE self.delta2:{}".format(self.delta2))
 
