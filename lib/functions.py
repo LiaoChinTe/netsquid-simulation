@@ -9,12 +9,18 @@ from netsquid.components.qprocessor import *
 from netsquid.qubits.qubitapi import assign_qstate
 from random import randint
 
+'''
+import logging
+logging.basicConfig(level=logging.ERROR)
+mylogger = logging.getLogger(__name__)
+'''
+
+
 # General functions/Quantum programs
 
 # Z Rotation operators 
 theta = np.pi/8
 # 16 types of rotations
-# R0
 R22 =create_rotation_op(   theta, rotation_axis=(0, 0, 1))
 R45 =create_rotation_op( 2*theta, rotation_axis=(0, 0, 1))
 R67 =create_rotation_op( 3*theta, rotation_axis=(0, 0, 1))
@@ -40,8 +46,8 @@ INSTR_R90 = IGate('Z Rotated 90'    ,operator=R90)
 INSTR_R112 = IGate('Z Rotated 112.5',operator=R112)
 INSTR_R135 = IGate('Z Rotated 135'  ,operator=R135)
 INSTR_R157 = IGate('Z Rotated 157.5',operator=R157)
-#------------------------------------------------------------
 INSTR_R180 = IGate('Z Rotated 180  ',operator=R180)
+#------------------------------------------------------------
 INSTR_R202 = IGate('Z Rotated 202.5',operator=R202)
 INSTR_R225 = IGate('Z Rotated 225  ',operator=R225)
 INSTR_R247 = IGate('Z Rotated 247.5',operator=R247)
@@ -57,8 +63,8 @@ INSTR_Rv90 = IGate('Z Rotated -90'    ,operator=R90.inv)
 INSTR_Rv112 = IGate('Z Rotated -112.5',operator=R112.inv)
 INSTR_Rv135 = IGate('Z Rotated -135'  ,operator=R135.inv)
 INSTR_Rv157 = IGate('Z Rotated -157.5',operator=R157.inv)
-#------------------------------------------------------------
 INSTR_Rv180 = IGate('Z Rotated -180  ',operator=R180.inv)
+#------------------------------------------------------------
 INSTR_Rv202 = IGate('Z Rotated -202.5',operator=R202.inv)
 INSTR_Rv225 = IGate('Z Rotated -225  ',operator=R225.inv)
 INSTR_Rv247 = IGate('Z Rotated -247.5',operator=R247.inv)
@@ -166,56 +172,59 @@ Simply returns a list with 0 or 1 in given length.
 def Random_basis_gen(length):
     return [randint(0,1) for i in range(length)]
 
+
 '''
 Apply rotation on qubits.
 input:
     locationIndex: list of int, Index of qubits to rotate.
     rotationIndex: list of int each element is limited in [-7,7], indecating -315...,-45,0,45,...270,315 degree.
 '''
-
 class RotateQubits(QuantumProgram):
-    
     def __init__(self,locationIndex,rotationIndex):
         self.locationIndex=locationIndex
         self.rotationIndex=rotationIndex
         super().__init__()
-        #print("RotateQubits ",self.locationIndex)
-        #print("RotateQubits ",self.rotationIndex)
+        #print("RotateQubits locationIndex:",self.locationIndex)
+        #print("RotateQubits rotationIndex:",self.rotationIndex)
 
     def program(self):
         
-        for i, j in zip(self.locationIndex,self.rotationIndex):
-            #print(i," : ",j)
-            if j == 1:
-                self.apply(INSTR_R45, i)
-            elif j== 2:
-                self.apply(INSTR_R90, i)
-            elif j== 3:
-                self.apply(INSTR_R135, i)
-            elif j== 4:
-                self.apply(INSTR_R180, i)
-            elif j== 5:
-                self.apply(INSTR_R225, i)
-            elif j== 6:
-                self.apply(INSTR_R270, i)
-            elif j== 7:
-                self.apply(INSTR_R315, i)
-            if j == -1:
-                self.apply(INSTR_Rv45, i)
-            elif j== -2:
-                self.apply(INSTR_Rv90, i)
-            elif j== -3:
-                self.apply(INSTR_Rv135, i)
-            elif j== -4:
-                self.apply(INSTR_Rv180, i)
-            elif j== -5:
-                self.apply(INSTR_Rv225, i)
-            elif j== -6:
-                self.apply(INSTR_Rv270, i)
-            elif j== -7:
-                self.apply(INSTR_Rv315, i)
-            else:
+        for loc, rot in zip(self.locationIndex,self.rotationIndex):
+            #print("loc, rot ",loc," : ",rot)
+            if rot == 1:
+                self.apply(INSTR_R45, qubit_indices=loc,physical=True)
+            elif rot==2:
+                self.apply(INSTR_R90, qubit_indices=loc,physical=True)
+            elif rot== 3:
+                self.apply(INSTR_R135, qubit_indices=loc,physical=True)
+            elif rot== 4:
+                self.apply(INSTR_R180, qubit_indices=loc,physical=True)
+            elif rot== 5:
+                self.apply(INSTR_R225, qubit_indices=loc,physical=True)
+            elif rot== 6:
+                self.apply(INSTR_R270, qubit_indices=loc,physical=True)
+            elif rot== 7:
+                self.apply(INSTR_R315, qubit_indices=loc,physical=True)
+            elif rot == -1:
+                self.apply(INSTR_Rv45, qubit_indices=loc,physical=True)
+            elif rot== -2:
+                self.apply(INSTR_Rv90, qubit_indices=loc,physical=True)
+            elif rot== -3:
+                self.apply(INSTR_Rv135, qubit_indices=loc,physical=True)
+            elif rot== -4:
+                self.apply(INSTR_Rv180, qubit_indices=loc,physical=True)
+            elif rot== -5:
+                self.apply(INSTR_Rv225, qubit_indices=loc,physical=True)
+            elif rot== -6:
+                self.apply(INSTR_Rv270, qubit_indices=loc,physical=True)
+            elif rot== -7:
+                self.apply(INSTR_Rv315, qubit_indices=loc,physical=True)
+            elif rot== 0:
                 pass
+            else:
+                print("ERROR!!!  ============= Rotation index Error!! Index:",rot)
+                #mylogger.error("Rotation index Error!! Index: {} ".format(j))
+                
         yield self.run(parallel=False)
 
 
@@ -476,101 +485,6 @@ class AngleMeasure(QuantumProgram):
 
 
 '''
-older one
-input:
-    positionInx:int List : Index in Qmem to measure.
-    angleInx:int List (each value from 0 to 15): Index indecating measurement angle along Z-axis. #
-output:
-'''
-class AngleMeasure_old(QuantumProgram):
-    def __init__(self,positionInx,angleInx):
-        self.positionInx=positionInx
-        self.angleInx=angleInx
-        super().__init__()
-
-    def program(self):
-        
-        
-        #print("in AngleMeasure")
-        #print("self.positionInx",self.positionInx)
-        #print("self.angleInx",self.angleInx)
-        for pos,angle in zip(self.positionInx,self.angleInx):
-
-            # make sure angle is in the acceptable range
-            while angle<0:
-                angle+=16
-            while angle>=16:
-                angle-=16
-            
-            if   angle == 1:
-                self.apply(INSTR_Rv22,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R22,pos)
-            elif angle == 2:
-                self.apply(INSTR_Rv45,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R45,pos)
-            elif angle == 3:
-                self.apply(INSTR_Rv67,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R67,pos)
-            elif angle== 4:
-                self.apply(INSTR_Rv90,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R90,pos)
-            elif angle== 5:
-                self.apply(INSTR_Rv112,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R112,pos)
-            elif angle== 6:
-                self.apply(INSTR_Rv135,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R135,pos)
-            elif angle== 7:
-                self.apply(INSTR_Rv157,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R157,pos)
-            elif angle== 8:
-                self.apply(INSTR_Rv180,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R180,pos)
-            elif angle== 9:
-                self.apply(INSTR_Rv202,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R202,pos)
-            elif angle== 10:
-                self.apply(INSTR_Rv225,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R225,pos)
-            elif angle== 11:
-                self.apply(INSTR_Rv247,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R247,pos)
-            elif angle== 12:
-                self.apply(INSTR_Rv270,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R270,pos)
-            elif angle== 13:
-                self.apply(INSTR_Rv292,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R292,pos)
-            elif angle== 14:
-                self.apply(INSTR_Rv315,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R315,pos)
-            elif angle== 15:
-                self.apply(INSTR_Rv337,pos)
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-                self.apply(INSTR_R337,pos)
-            else:  # angle== 0
-                self.apply(INSTR_MEASURE_X,qubit_indices=pos, output_key=str(pos),physical=True)
-        
-        
-        yield self.run(parallel=False)
-        
-
-
-'''
 Swap the qubits hold by this processor by position.
 input:
     position:list of int: indecate qubits to swap 
@@ -586,7 +500,6 @@ class QSwap(QuantumProgram):
         
 
     def program(self):
-        #print("in QSwap ")
         self.apply(INSTR_SWAP, qubit_indices=self.position, physical=True)
         yield self.run(parallel=False)    
 
