@@ -85,7 +85,6 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
             PhysicalInstruction(INSTR_MEASURE_X, duration=3700, quantum_noise_model=processorNoice, parallel=True),
             PhysicalInstruction(INSTR_R45, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R90, duration=20000, quantum_noise_model=processorNoice,parallel=True),
-            PhysicalInstruction(INSTR_Rv90, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R135, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R180, duration=20000, quantum_noise_model=processorNoice,parallel=True),
             PhysicalInstruction(INSTR_R225, duration=20000, quantum_noise_model=processorNoice,parallel=True),

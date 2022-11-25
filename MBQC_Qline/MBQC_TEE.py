@@ -7,7 +7,7 @@ sys.path.append(scriptpath)
 #from functions import *
 
 import logging
-#logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.DEBUG)
 mylogger = logging.getLogger(__name__)
 
 
@@ -79,8 +79,10 @@ class MBQC_TEEProtocol(NodeProtocol):
         self.phi2=info_B[1][2]
 
         # compute delta1
-        self.delta1=(self.thetaA1+4*self.xA1+self.thetaB1+(self.rA1^self.rB1)*4+self.phi1)%8
-        mylogger.debug("TEE self.delta1:{}".format(self.delta1))
+        mylogger.debug("TEE compute delta1 parameters, thetaA1:{}, thetaB1:{},rA1:{},rB1:{},phi1:{}".format(self.thetaA1
+            ,self.thetaB1,self.rA1,self.rB1,self.phi1))
+        self.delta1=(self.thetaA1+self.thetaB1+(self.rA1^self.rB1)*4+self.phi1)%8  #+4*self.xA1
+        mylogger.debug("TEE compute self.delta1:{} (from phi1)".format(self.delta1))
         
         # send delta1 to server
         self.node.ports["portC3"].tx_output(self.delta1)
@@ -94,14 +96,16 @@ class MBQC_TEEProtocol(NodeProtocol):
 
         # compute true m1
         self.m1 = self.m1 ^ (self.rA1^self.rB1)
-        mylogger.debug("real m1:{}".format(self.m1))
+        mylogger.debug("TEE compute real m1:{}".format(self.m1))
 
         # compute delta2
-        self.delta2=(self.thetaA2+4*self.xA2+self.thetaB2+(self.rA2^self.rB2)*4+self.phi2*(-1)**self.m1)%8
+        mylogger.debug("TEE compute delta2 parameters, thetaA2:{}, thetaB2:{},rA2:{},rB2:{},phi2:{}, m1:{} ".format(self.thetaA2
+            ,self.thetaB2,self.rA2,self.rB2,self.phi2,self.m1))
+        self.delta2=(self.thetaA2+self.thetaB2+(self.rA2^self.rB2)*4+self.phi2*(-1)**self.m1)%8   #4*self.xA2
         if self.delta2 < 0:
             self.delta2+=8 # make delta2 within 0-7
 
-        mylogger.debug("TEE self.delta2:{}".format(self.delta2))
+        mylogger.debug("TEE compute self.delta2:{} (from m1, phi2)".format(self.delta2))
 
         # send delta2 to server
         self.node.ports["portC3"].tx_output(self.delta2)

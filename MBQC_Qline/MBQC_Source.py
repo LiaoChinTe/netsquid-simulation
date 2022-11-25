@@ -9,23 +9,16 @@ import logging
 #logging.basicConfig(level=logging.INFO)
 mylogger = logging.getLogger(__name__)
 
-class Dummy(QuantumProgram):
-    def __init__(self):
-        super().__init__()
-
-    def program(self):
-
-        yield self.run(parallel=False)
 
 
-class SourceGen(QuantumProgram):
+class SourceHCZ(QuantumProgram):
     def __init__(self,num_bits):
         self.num_bits=num_bits
         super().__init__()
         
     def program(self):
         qList_idx=self.get_qubit_indices(self.num_bits)
-        mylogger.debug("SourceGen running ")
+        mylogger.debug("SourceHCZ running ")
 
         for i in range(self.num_bits):
             self.apply(INSTR_H, qList_idx[i])
@@ -61,12 +54,8 @@ class MBQC_SourceProtocol(NodeProtocol):
         mylogger.debug("SourceProtocol running")
 
         self.A_genQubits(num_bits=self.num_bits,freq=self.source_frq)
-
-        
         # Q program C1
-        mylogger.debug("self.num_bits:{}".format(self.num_bits)) 
-        mySourceGen=SourceGen(num_bits=self.num_bits)
-        self.processor.execute_program(mySourceGen,qubit_mapping=[i for  i in range(self.num_bits)]) 
+        
         yield self.await_program(processor=self.processor)
 
         # send qubits to Alice
@@ -74,12 +63,6 @@ class MBQC_SourceProtocol(NodeProtocol):
         inx=list(range(self.num_bits))
         payload=self.processor.pop(inx)
         self.node.ports["portQO"].tx_output(payload)
-
-
-
-
-
-
 
 
     def A_genQubits(self,num_bits,freq=1e6):
@@ -99,6 +82,8 @@ class MBQC_SourceProtocol(NodeProtocol):
         if len(self.sourceQList)==self.num_bits:
             mylogger.debug("qubit stored")
             self.processor.put(qubits=self.sourceQList)
-            myDummy=Dummy()
-            self.processor.execute_program(myDummy)
+            mylogger.debug("self.num_bits:{}".format(self.num_bits)) 
+            mySourceHCZ=SourceHCZ(num_bits=self.num_bits)
+            self.processor.execute_program(mySourceHCZ,qubit_mapping=[i for  i in range(self.num_bits)]) 
+           
     

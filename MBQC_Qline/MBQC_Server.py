@@ -1,16 +1,23 @@
 from netsquid.components.qprogram import QuantumProgram
 from netsquid.protocols import NodeProtocol
 from netsquid.components.instructions import INSTR_H,INSTR_MEASURE,INSTR_MEASURE_X
+from netsquid.qubits import qstate  # QState
+
+
+from netsquid.qubits.qformalism import QFormalism, set_qstate_formalism
+from netsquid.qubits.qubitapi import *
 
 import sys
 scriptpath = "lib/"
 sys.path.append(scriptpath)
-from functions import RotateQubits, INSTR_R90,INSTR_Rv90
+from functions import RotateQubits
 
 import logging
 #logging.basicConfig(level=logging.DEBUG)
 mylogger = logging.getLogger(__name__)
 
+
+set_qstate_formalism(QFormalism.DM)
 
 class ServerMeasure(QuantumProgram):
     def __init__(self,positionIndex):
@@ -18,7 +25,6 @@ class ServerMeasure(QuantumProgram):
         super().__init__()
         
     def program(self):
-        #mylogger.debug("ServerMeasure running ")
         mylogger.debug("ServerMeasure positionIndex: {} ".format(self.positionIndex))
 
         #self.apply(INSTR_Rv90, qubit_indices=self.positionIndex, physical=True)
@@ -57,28 +63,26 @@ class MBQC_ServerProtocol(NodeProtocol):
         # receive qubits from Bob
         port=self.node.ports["portQI"]
         yield self.await_port_input(port)
-        qubits = port.rx_input().items
-        mylogger.debug("Server received qubits from Bob:{}".format(qubits))
+        myqubitList = port.rx_input().items
+        mylogger.debug("Server received qubits from Bob:{}".format(myqubitList))
         # put qubits in the processor
-        self.processor.put(qubits)
+        self.processor.put(myqubitList)
 
 
-        # apply rotation to the first qubit
-        #print("Server delta1:{}".format(self.delta1))
-        mylogger.debug("Start RotateQubits 1")
-        myRotate1=RotateQubits([0],[-self.delta1])
+        # apply rotation to the qubit 1
+        mylogger.debug("Server rotate qubit1 with index:{} angle:{} pi".format(self.delta1,-self.delta1/4))
+        myRotate1=RotateQubits([0],[-self.delta1]) #self.delta1
         self.processor.execute_program(myRotate1,qubit_mapping=[i for  i in range(self.num_bits)])
         yield self.await_program(processor=self.processor)
-
+        
 
         # apply measurement to qubit 1
-        mylogger.debug("Start ServerMeasure 1")
         myServerMeasure=ServerMeasure(0)
         self.processor.execute_program(myServerMeasure,qubit_mapping=[i for  i in range(self.num_bits)])
         yield self.await_program(processor=self.processor)
         # assign measurement output to m1
         self.m1=myServerMeasure.output[str(0)][0]
-        mylogger.debug("Server m1:{}".format(self.m1))
+        mylogger.debug("Server measured m1:{}".format(self.m1))
 
 
         # send m1 to TEE
@@ -92,19 +96,30 @@ class MBQC_ServerProtocol(NodeProtocol):
         mylogger.debug("Server received self.delta2 from TEE:{}".format(self.delta2))
 
 
-        # apply rotation
-        myRotate2=RotateQubits([0],[-self.delta2])
-        self.processor.execute_program(myRotate2,qubit_mapping=[i for  i in range(self.num_bits)])
+        # apply rotation to the qubit 2
+        mylogger.debug("Server rotate qubit2 with index:{} angle:{} pi".format(self.delta2,self.delta2/4))
+        myRotate2=RotateQubits([1],[-self.delta2])
+        self.processor.execute_program(myRotate2,qubit_mapping=[i for  i in range(self.num_bits)]) #
         yield self.await_program(processor=self.processor)
+        
+        
+        
+
+        # peek qstate
+        '''
+        tmp=self.processor.peek(1)
+        mylogger.debug("Server peek q2:{} \nstate:{}".format(tmp[0],tmp[0].qstate.qrepr.reduced_dm())) #.qstate #.qrepr.reduced_dm() #.qstate.dm
+        '''
 
         # apply measurement to qubit 2
-        mylogger.debug("Start ServerMeasure 2")
-        myServerMeasure2=ServerMeasure(0)
+        #mylogger.debug("Start ServerMeasure")
+        myServerMeasure2=ServerMeasure(1)
         self.processor.execute_program(myServerMeasure2,qubit_mapping=[i for  i in range(self.num_bits)])
         yield self.await_program(processor=self.processor)
         # assign measurement output to m1
-        self.m2=myServerMeasure2.output[str(0)][0]
-        mylogger.debug("Server m2:{}".format(self.m2))
+        #mylogger.debug("Server check q2 output:{}".format(myServerMeasure2.output))
+        self.m2=myServerMeasure2.output[str(1)][0]
+        mylogger.debug("Server measured m2:{}".format(self.m2))
 
 
         # send m2 to TEE
