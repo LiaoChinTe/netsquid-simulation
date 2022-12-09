@@ -78,8 +78,8 @@ class MBQC_AliceProtocol(NodeProtocol):
         self.theta2=0#randint(0,7)
         self.x1=0 #randint(0,1)
         self.x2=0 #randint(0,1)
-        self.r1=0 #randint(0,1)
-        self.r2=0 #randint(0,1)
+        self.r1=randint(0,1)
+        self.r2=randint(0,1)
         self.num_bits=num_bits
 
         

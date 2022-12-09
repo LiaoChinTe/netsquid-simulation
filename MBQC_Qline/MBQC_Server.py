@@ -1,3 +1,4 @@
+import netsquid as ns
 from netsquid.components.qprogram import QuantumProgram
 from netsquid.protocols import NodeProtocol
 from netsquid.components.instructions import INSTR_H,INSTR_MEASURE,INSTR_MEASURE_X
@@ -50,6 +51,8 @@ class MBQC_ServerProtocol(NodeProtocol):
         self.m1=None
         self.m2=None
 
+        self.waitingTime=None
+
     def run(self):
         mylogger.debug("MBQC_ServerProtocol running")
 
@@ -64,6 +67,11 @@ class MBQC_ServerProtocol(NodeProtocol):
         port=self.node.ports["portQI"]
         yield self.await_port_input(port)
         myqubitList = port.rx_input().items
+        # record time
+        WaitingTimeStart=ns.util.simtools.sim_time(magnitude=ns.NANOSECOND)
+        mylogger.debug("Server WaitingTimeStart:{}\n".format(WaitingTimeStart))
+
+        
         mylogger.debug("Server received qubits from Bob:{}".format(myqubitList))
         # put qubits in the processor
         self.processor.put(myqubitList)
@@ -110,7 +118,10 @@ class MBQC_ServerProtocol(NodeProtocol):
         tmp=self.processor.peek(1)
         mylogger.debug("Server peek q2:{} \nstate:{}".format(tmp[0],tmp[0].qstate.qrepr.reduced_dm())) #.qstate #.qrepr.reduced_dm() #.qstate.dm
         '''
-
+        #record time
+        WaitingTimeEnd=ns.util.simtools.sim_time(magnitude=ns.NANOSECOND)
+        mylogger.debug("Server WaitingTimeEnd:{}\n".format(WaitingTimeEnd))
+        self.waitingTime=WaitingTimeEnd-WaitingTimeStart
         # apply measurement to qubit 2
         #mylogger.debug("Start ServerMeasure")
         myServerMeasure2=ServerMeasure(1)

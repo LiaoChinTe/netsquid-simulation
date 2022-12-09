@@ -170,6 +170,8 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
     myAliceProtocol.start()
     mySourceProtocol.start()
     
+
+
     #ns.logger.setLevel(1)
 
 
@@ -178,7 +180,7 @@ def run_MBQC_Qline_sim(fibreLen=10,processorNoice=None,momNoise=None
     
 
     
-    return myTEEProtocol.m1, myTEEProtocol.m2
+    return myTEEProtocol.m1, myTEEProtocol.m2, myServerProtocol.waitingTime
 
 
 
