@@ -63,12 +63,12 @@ class MBQC_BobProtocol(NodeProtocol):
         self.processor=processor
         self.portList=["portQI","portQO","portCO"]
 
-        self.theta1=0#randint(0,7)
-        self.theta2=0#randint(0,7)
+        self.theta1=randint(0,7)
+        self.theta2=randint(0,7)
         self.r1=randint(0,1)
         self.r2=randint(0,1)
-        self.phi1=2 # randint(0,7)
-        self.phi2=2 # randint(0,7)
+        self.phi1=6 # randint(0,7) #Ax1+pi/2
+        self.phi2=2 # randint(0,7) #Ax2+pi/2
         self.num_bits=num_bits
 
         

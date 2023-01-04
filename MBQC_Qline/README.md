@@ -10,7 +10,9 @@
  - TEE    : Trusted Execution Environment. Has only classical communication with other parties. Has multiple channel connections with other parties.
 
 ## How to use
-  
+1. Configure protocol parameters (or use default) in *MBQC_Qline/MBQC_run.py*.
+2. Set up the output and how to present it in *script/mbqc_main.py*.
+3. run *python script/mbqc_main.py* to launch the simulation and show the output.
 
 ## Status
 - 02/08/2022 Completed and validated in the first test.
@@ -26,7 +28,7 @@ range_B: [0,1]
 
 General:
 - fiberLenth  : [km] Fiber length between two Nodes, long fibers cause more noise.
-- fiberLoss
+- fiberLoss : [%/km] Qubits loss rate per kilometer in quantum fibers. 
 
 Alice :
 - thetaA1: range_A
@@ -41,8 +43,6 @@ Bob:
 - thetaB2: range_A
 - rB1: range_B
 - rB2: range_B
-- phi1: range_A
-- phi2: range_A
 
 Server:
 - quantum memory noise
