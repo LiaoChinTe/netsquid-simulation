@@ -1,11 +1,14 @@
 
-
+from netsquid.components.qprogram import QuantumProgram
 from netsquid.protocols import NodeProtocol
+from netsquid.components.instructions import INSTR_CNOT,INSTR_H,INSTR_MEASURE
 
 import sys
-scriptpath = "../lib/"
+scriptpath = "lib/"
 sys.path.append(scriptpath)
-from functions import *
+from functions import ProgramFail
+
+
 
 class TP_SenderTeleport(QuantumProgram):
     

@@ -2,25 +2,23 @@ import numpy as np
 import netsquid as ns
 from netsquid.nodes.node import Node
 from netsquid.protocols import NodeProtocol
-from netsquid.qubits.operators import X,H,Z,CNOT
+from netsquid.qubits.operators import X,H,CNOT
+from netsquid.components.qprocessor import QuantumProcessor,PhysicalInstruction
 
-
-
-from netsquid.components.qprocessor import *
-from netsquid.components.instructions import *
-from netsquid.components.qprogram import *
-from netsquid.components.models.qerrormodels import *
-from random import randint
 from netsquid.components.qchannel import QuantumChannel
 from netsquid.components.cchannel import ClassicalChannel
 from netsquid.components import QSource,Clock
 from netsquid.components.qsource import SourceStatus
-
 from netsquid.components.models.qerrormodels import FibreLossModel
 from netsquid.components.models.delaymodels import FibreDelayModel
+from netsquid.components.instructions import  INSTR_X,INSTR_Z,INSTR_CNOT,INSTR_H,INSTR_MEASURE
+from netsquid.qubits.qubitapi import create_qubits,operate
 
-from QT_sender import *
-from QT_receiver import *
+
+from random import randint
+
+from QT_sender import QuantumTeleportationSender
+from QT_receiver import QuantumTeleportationReceiver
 
 
 

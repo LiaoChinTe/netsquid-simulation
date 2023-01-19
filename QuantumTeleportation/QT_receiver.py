@@ -1,14 +1,16 @@
 from netsquid.protocols import NodeProtocol
-from netsquid.qubits.qubitapi import *
+from netsquid.components.qprogram import QuantumProgram
+
 #from netsquid.qubits.qformalism import *
 from netsquid.qubits.qstate import QState
 from netsquid.qubits import set_qstate_formalism, QFormalism
+from netsquid.components.instructions import INSTR_X,INSTR_Z
 
 
 import sys
 scriptpath = "../lib/"
 sys.path.append(scriptpath)
-from functions import *
+from functions import ProgramFail
 
 
 class TP_ReceiverAdjust(QuantumProgram):
