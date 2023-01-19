@@ -1,6 +1,23 @@
 # Quantum Teleportation Protocol
 Author: ChinTe LIAO (liao.chinte@veriqloud.fr)
 
+
+## Status
+
+Works on NetSquid version 0.10.
+
+28/01/2021
+- Add Bell State parameter, currently accept two Bell States. (case 1 and 3)
+
+22/01/2021
+- Upload first version
+
+
+## How to use
+
+Simply run *python QT_run.py* to run it on default configuration or modify it in *QT_run.py*.
+In the case of being a sub-protocol, import all function in QT_sender and QT_receiver then create the two objects in the main protocol.
+
 ## Function
 
 
@@ -32,17 +49,4 @@ Following protocol steps:
 https://wiki.veriqloud.fr/index.php?title=Quantum_Teleportation
 
 
-## To Do
 
-- Extend to accept more Bell States.
-
-
-## Status
-
-Works on NetSquid version 0.10.
-
-28/01/2021
-- Add Bell State parameter, currently accept two Bell States. (case 1 and 3)
-
-22/01/2021
-- Upload first version
