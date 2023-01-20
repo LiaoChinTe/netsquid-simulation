@@ -4,7 +4,7 @@ Author: ChinTe LIAO (liao.chinte@veriqloud.fr)
 ## Function
 
 Quantum Anonymous Transmission protocol works between multiple nodes. Currently our protocol is limited to 4 parties only.
-It means to transfer infomation anonymously, meaning that the receiver does not know who send the massage.
+The protocol aims to transfer infomation anonymously among a group of user, meaning that the receiver does not know who send the massage.
 
 
 ![AT_Network](https://github.com/LiaoChinTe/netsquid-simulation/blob/main/AnonymousTransmission/AnonymousTransmission_Network.png)
@@ -26,18 +26,19 @@ By doing so, it is not literary anonymous anymore. However it does not really af
 
 
 
-
-## To Do
-
-- Extend scale of participants.
-
-
 ## Status
 
-Works on NetSquid version 0.10.
+Works on NetSquid version 1.1.6
 
 28/01/2021
 - Finished importing Quantum Teleportation, and ready to run with 4 parties.
 
 15/01/2021
 - Finished all steps before teleportation
+
+20/01/2023
+- File arrangement modified.
+
+
+
+
