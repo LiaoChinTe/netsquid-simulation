@@ -3,15 +3,14 @@ from netsquid.qubits.operators import X,H,Z,CNOT
 import numpy as np
 
 import sys
-scriptpath = "../lib/"
+scriptpath = "lib/"
 sys.path.append(scriptpath)
-from functions import *
+from functions import QMeasure,ProgramFail
 
-QTpath = "../QuantumTeleportation/"
+QTpath = "QuantumTeleportation/"
 sys.path.append(QTpath)
-from QT_sender import *
-from QT_receiver import *
-#import QT_receiver
+from QT_sender import QuantumTeleportationSender
+from QT_receiver import QuantumTeleportationReceiver
 
 
 
