@@ -2,11 +2,10 @@ from netsquid.protocols import NodeProtocol
 from random import randint
 
 import sys
-scriptpath = "../lib/"
+scriptpath = "lib/"
 sys.path.append(scriptpath)
 from functions import QMeasure, ProgramFail, bitFlipNoise
 
-#lib.
 
 
 

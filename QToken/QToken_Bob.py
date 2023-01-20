@@ -1,11 +1,10 @@
 
 from netsquid.protocols import NodeProtocol
-#from QToken_function import * 
 from netsquid.components import QSource,Clock
 from netsquid.components.qsource import SourceStatus
 from netsquid.qubits.operators import X,H,Z
 from netsquid.components.qprogram import QuantumProgram
-from netsquid.components.instructions import *
+from netsquid.components.instructions import INSTR_X,INSTR_Z,INSTR_H
 
 from random import randint
 
