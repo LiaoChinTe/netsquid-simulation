@@ -5,13 +5,14 @@
  Reference: [Quantum Token from Quantum Protocol Zoo](https://wiki.veriqloud.fr/index.php?title=Quantum_Token)
 
 ## How to use
-  Protocol configurations are writen only in XXX_main.py file. Users could choose the return value from any protocol attribute at the end of run_XXX_sim function by calling XXX_protocol.ATTRIBUTE.
-Users should not bother modifying the party files (XXX_Alice.py, XXX_Bob.py ), but only to see what attributes can be extracted later in the main file.
-XXX_plot.py file is use to plot statistics by calling run_XXX_sim function mutiple times. It is not needed for singular simulation run. 
+  Protocol configurations are writen only in *QToken_run.py* file. Users could define the return value from any protocol attribute at the end of *run_QToken_sim()* function.
+Users should not bother modifying the party files (QToken_Alice.py, QToken_Bob.py ), but only to check what attributes to be extracted later in *QToken_run.py*.
+quantumToken_plot.py file in *script/* is used to plot statistics by calling *run_QToken_sim()* recursively.
 
 ## Status
 - 18/08/2021 Fixed minor import issues.
 - 05/05/2021 Imported from the old repository. Need further refine.
+- 20/01/2023 Refined and added scripts.
 
 ## Protocol parameters
 
