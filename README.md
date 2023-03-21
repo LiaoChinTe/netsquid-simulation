@@ -2,7 +2,8 @@
 This repository introduces several quantum protocol simulations which could be used in quantum communication related studies.
 This document does not only explain how the code was arranged, but also concludes what protocol simulations has been developed and ready to be applied for research as long as proper parameters are given.
 
-Please find more information about quantum protocols [here](https://wiki.veriqloud.fr/index.php?title=Protocol_Library).
+Protocols in this repository are simulated via [NetSquid](https://netsquid.org/)
+More information about quantum protocols: [Quantum Protocol Zoo](https://wiki.veriqloud.fr/index.php?title=Protocol_Library).
 
 
 
@@ -73,6 +74,9 @@ Therefore, one must be extremely careful modifying it.
   Contains a function to plot statistical results via the *AnyProtocol_run()* function in *AnyProtocol_run.py*.
 
 
+# Reference
+- [NetSquid](https://netsquid.org/)
+- [Quantum Protocol Zoo](https://wiki.veriqloud.fr/index.php?title=Protocol_Library)
 
 ## Contact
 ChinTe Liao
