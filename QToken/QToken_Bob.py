@@ -26,7 +26,6 @@ output:
     res: 
         the persentage of passed qubits among all qubits.
 '''
-'''
 def TokenCheck_LossTolerant(basisInxList,randMeas,locRes,validList):
     # padding for locRes
     tmpRes=[-1]*(2*len(basisInxList)-len(validList))
@@ -67,22 +66,26 @@ def TokenCheck_LossTolerant(basisInxList,randMeas,locRes,validList):
                 failCount+=1
     
     
-    
-    print("in TokenCheck_LossTolerant2")
+    '''
+    print("in TokenCheck_LossTolerant")
     print("randMeas: ",randMeas)
     print("len(locRes): ",len(locRes))           #scale /100
     print("failCount: ",failCount)                   #scale  /max 50
     print("len(basisInxList): ",len(basisInxList)) # 50
-    
+    '''
     
     
     return 1-(failCount-len(basisInxList)+len(locRes)/2)/(len(locRes)/2)
-'''
+
 
 def TokenCheck(basisInxList,randMeas,locRes):
+    
+    #check parameters
+    print(f"TokenCheck check parameters,basisInxList:{basisInxList},randMeas:{randMeas},locRes:{locRes} ")
 
     if 2*len(basisInxList)!=len(locRes):
         print("Measurment length Error!")
+        print(f"basisInxList:{len(basisInxList)},locRes:{len(locRes)}")
         return []
 
     tmpRes=locRes
@@ -226,8 +229,10 @@ class BobProtocol(NodeProtocol):
         [self.locRes, self.validList] = port.rx_input().items
         
         
-        self.successfulRate=TokenCheck(self.basisInxList,self.randMeas,self.locRes) #drop self.validList
-        #print("B successfulRate:",self.successfulRate)
+        #drop self.validList
+        #self.successfulRate = TokenCheck(self.basisInxList,self.randMeas,self.locRes) 
+        self.successfulRate = TokenCheck_LossTolerant(self.basisInxList,self.randMeas,self.locRes,self.validList)
+        print("B successfulRate:",self.successfulRate)
         
         # send result to A
         if self.successfulRate > self.threshold :

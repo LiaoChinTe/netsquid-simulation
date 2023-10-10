@@ -1,4 +1,3 @@
-
 import numpy as np
 import netsquid as ns
 from netsquid.nodes.node import Node
@@ -16,6 +15,12 @@ from random import randint
 
 from QToken_Alice import  AliceProtocol
 from QToken_Bob import BobProtocol
+
+import sys
+scriptpath = "lib/functions"
+sys.path.append(scriptpath)
+
+#from function import QMeasure
 
 '''
 def myStepFunction(x):
@@ -36,7 +41,7 @@ def MyCostFunction(t1,t2,p1,p2,Srate,T,SrateMin=0.875,Tmin=10**9,w1=1,w2=1,w3=1,
 # implementation & hardware configure
 def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
         processNoiseModel=None,memNoiseModel=None,threshold=0.875,
-        fibreLoss_init=0.2,fibreLoss_len=0.25,QChV=2.083*10**-4,CChV=2.083*10**-4):
+        fibreLoss_init=0,fibreLoss_len=0,QChV=2.083*10**-4,CChV=2.083*10**-4):
     
     resList=[]
     print('received a noise model with T1: {} and T2: {}'.format(memNoiseModel.T1, memNoiseModel.T2))
@@ -57,8 +62,8 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
             PhysicalInstruction(INSTR_Z, duration=5, quantum_noise_model=processNoiseModel),
             PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processNoiseModel),
             PhysicalInstruction(INSTR_CNOT,duration=10,quantum_noise_model=processNoiseModel),
-            PhysicalInstruction(INSTR_MEASURE, duration=3700,quantum_noise_model=None, parallel=True),
-            PhysicalInstruction(INSTR_MEASURE_X, duration=3700,quantum_noise_model=None, parallel=True)])
+            PhysicalInstruction(INSTR_MEASURE, duration=3700,quantum_noise_model=processNoiseModel, parallel=True),
+            PhysicalInstruction(INSTR_MEASURE_X, duration=3700,quantum_noise_model=processNoiseModel, parallel=True)])
 
 
         Bob_processor=QuantumProcessor("processor_B", num_positions=2*10**4,
@@ -67,8 +72,8 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
             PhysicalInstruction(INSTR_Z, duration=5, quantum_noise_model=processNoiseModel),
             PhysicalInstruction(INSTR_H, duration=5, quantum_noise_model=processNoiseModel),
             PhysicalInstruction(INSTR_CNOT,duration=10,quantum_noise_model=processNoiseModel),
-            PhysicalInstruction(INSTR_MEASURE, duration=3700,quantum_noise_model=None, parallel=True),
-            PhysicalInstruction(INSTR_MEASURE_X, duration=3700,quantum_noise_model=None, parallel=True)])
+            PhysicalInstruction(INSTR_MEASURE, duration=3700,quantum_noise_model=processNoiseModel, parallel=True),
+            PhysicalInstruction(INSTR_MEASURE_X, duration=3700,quantum_noise_model=processNoiseModel, parallel=True)])
 
 
         # channels==================================================================

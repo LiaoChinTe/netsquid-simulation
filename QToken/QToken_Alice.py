@@ -1,11 +1,12 @@
 from netsquid.protocols import NodeProtocol
 from random import randint
 
+
 import sys
-scriptpath = "lib/"
+scriptpath = "../../lib/"
 sys.path.append(scriptpath)
 from functions import QMeasure, ProgramFail, bitFlipNoise
-
+#functions
 
 
 
@@ -105,9 +106,8 @@ class AliceProtocol(NodeProtocol):
         qubitPairs = port.rx_input().items
         
         self.validList,qubitPairs=QubitPairFilter(qubitPairs,1,2*self.num_bits)
-        
+        print(f"A self.validList len :{len(self.validList)}")
         if len(self.validList)<1: # abort case
-            
             return -1
         
         
@@ -146,6 +146,7 @@ class AliceProtocol(NodeProtocol):
         
         
         # send measurement result
+        print(f"A self.loc_mesRes:{len(self.loc_mesRes)}")
         self.node.ports[self.portNameC1].tx_output([self.loc_mesRes,self.validList])
         
         
