@@ -1,7 +1,7 @@
 # Quantum Token Protocol
 
 ## Description
- The protocol provides a way for issuing an unforgeable token which can only be verified by issuer or other authorized party.
+ The protocol provides a way for issuing an unforgeable token which can only be verified by the issuer or other authorized party.
  Reference: [Quantum Token from Quantum Protocol Zoo](https://wiki.veriqloud.fr/index.php?title=Quantum_Token)
 
 ## How to use
@@ -13,6 +13,7 @@ quantumToken_plot.py file in *script/* is used to plot statistics by calling *ru
 - 18/08/2021 Fixed minor import issues.
 - 05/05/2021 Imported from the old repository. Need further refine.
 - 20/01/2023 Refined and added scripts.
+- 10/10/2023 Refined README.
 
 ## Protocol parameters
 
@@ -26,11 +27,11 @@ quantumToken_plot.py file in *script/* is used to plot statistics by calling *ru
 
 
 ## Steps
- 1. Node B prepares N random qubits and record the states.
- 2. Node B send the qubits to node A.
+ 1. (preparation stage) Node B prepares N random qubits and record the states.
+ 2. (preparation stage) Node B send the qubits(the token) to node A.
  3. Node A wait for T seconds.
- 4. Node A send a challange request to node B.
- 5. Node B replies a challange for Node A to solve.
- 6. Node A measures its qubits according to challange.
- 7. Node A send the measurement result to node B.
- 8. Node B approves the answer if the correctness .
+ 4. Node A send a challange request to node B to verify the token. (initialize the verification process)
+ 5. (verification stage) Node B replies a challange for Node A to solve. 
+ 6. (verification stage) Node A measures its qubits according to the challange.
+ 7. (verification stage) Node A send the measurement result to node B.
+ 8. (verification stage) Node B send the approval or deny.
