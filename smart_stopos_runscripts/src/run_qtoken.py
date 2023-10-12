@@ -5,8 +5,10 @@ from argparse import ArgumentParser
 from netsquid.components.models.qerrormodels import T1T2NoiseModel
 import math
 
+import os
 import sys
-sys.path.append("../../QToken")
+scriptpath = str(os.path.dirname(os.path.abspath(__file__))) + "/../../QToken/"
+sys.path.append(scriptpath)
 
 from QToken_run import  run_QToken_sim
 
