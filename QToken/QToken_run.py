@@ -16,11 +16,6 @@ from random import randint
 from QToken_Alice import  AliceProtocol
 from QToken_Bob import BobProtocol
 
-import sys
-scriptpath = "lib/functions"
-sys.path.append(scriptpath)
-
-#from function import QMeasure
 
 '''
 def myStepFunction(x):
@@ -123,3 +118,15 @@ def run_QToken_sim(runTimes=1,num_bits=100,fibre_len=0,waitTime=1,
     
     #return MyCostFunction(t1=36*10**12,t2=4.9*10**6,p1=0.95,p2=0.995,Srate=Bob_protocol.successfulRate,T=10**6)
 
+
+from netsquid.components.models.qerrormodels import T1T2NoiseModel,DephaseNoiseModel
+
+if __name__ == '__main__':
+    myMemNoise=T1T2NoiseModel(T1=36*10**12, T2=4.9*10**6)
+    #myProcessNoise=DephaseNoiseModel(dephase_rate=0.004)
+    myNoise2 = T1T2NoiseModel(T1=8399999999999.999, T2= 1000000.0)
+
+    res=run_QToken_sim(runTimes=1,num_bits=100,fibre_len=10**-9,waitTime=10**3
+        ,processNoiseModel=myNoise2,memNoiseModel=myNoise2,threshold=0.875
+        ,fibreLoss_init=0.2,fibreLoss_len=0.2,QChV=2.083*10**-4,CChV=2.083*10**-4) #,fibreLoss_init=0,fibreLoss_len=0
+    print("res:",res," ")

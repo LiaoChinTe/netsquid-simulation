@@ -2,8 +2,11 @@ from netsquid.protocols import NodeProtocol
 from random import randint
 
 
+from pathlib import Path
+
+import os
 import sys
-scriptpath = "../../lib/"
+scriptpath = str(os.path.dirname(os.path.abspath(__file__))) + "/../lib/"
 sys.path.append(scriptpath)
 from functions import QMeasure, ProgramFail, bitFlipNoise
 #functions
