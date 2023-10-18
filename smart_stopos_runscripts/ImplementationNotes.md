@@ -19,6 +19,12 @@ workdir: /.../netsquid-simulation/smart_stopos_runscripts # The directory of thi
 venvdir: # The directory of your virtual environment, or leave it empty.
 ```
 
+## 3. Assign `number_points` & `population_size`
+
+In the file:
+ `.../netsquid-simulation/smart_stopos_runscripts/src/input_file.ini`
+Parameter `population_size` in the GENERAL section is easy to cause errors if given a wrong value. It need to be percisely assigned as the multiplication of `number_points` values of each parameter. For example, if I have two parameters which has `number_points` values of [5,10], my `population_size` would need to be 5*10=50.
+
 
 ## 3. Export the launching function
 
@@ -29,6 +35,9 @@ Type command:
 `export PYTHONPATH="$PYTHONPATH:/.../netsquid-simulation/QToken/"`
 
 replace `...` to your own path.
+
+
+
 
 ## 4. Launch the simulation
 

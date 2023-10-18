@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     cost = myCostFunction(t1=args.T1,t2=args.T2,p1=0.95,p2=0.995,Srate=sum(res)/len(res)) #(1/(1-args.T1))-1
 
-    df = pd.DataFrame(columns=["cost", "T1", "T2", "res"])
-    df.loc[0] = [cost, args.T1, args.T2, res]
+    df = pd.DataFrame(columns=["cost", "T1", "T2"]) #, "res"
+    df.loc[0] = [cost, args.T1, args.T2] #, res
     csv_filename = args.filebasename + '.csv'
     df.to_csv(csv_filename, index=False, header=False)
