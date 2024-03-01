@@ -27,8 +27,8 @@ quantumToken_plot.py file in *script/* is used to plot statistics by calling *ru
 
 
 ## Steps
- 1. (preparation stage) Node B prepares N random qubits and record the states.
- 2. (preparation stage) Node B send the qubits(the token) to node A.
+ 1. (preparation stage) Node B prepares N pairs of qubits, each pair consists of at least one state from two different non-orthogonal sets of basis, in our case: stamdard and Hadamard basis. And record the states.
+ 2. (preparation stage) Node B send all the qubits(the token) to node A.
  3. Node A wait for T seconds.
  4. Node A send a challange request to node B to verify the token. (initialize the verification process)
  5. (verification stage) Node B replies a challange for Node A to solve. 
